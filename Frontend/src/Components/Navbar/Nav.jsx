@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Login from "../../Pages/Login/Login";
 import Signup from "../../Pages/Signup/Signup";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import { Link, Navigate } from "react-router-dom";
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
+import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import {
   DrawerCloseButton,
   Button,
@@ -26,15 +27,53 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Flex
+  Flex,
+  keyframes
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import NavScroll from "./NavScroll";
+import { CiHeart } from "react-icons/ci";
+import { CgShoppingCart } from "react-icons/cg";
+
+const typingAnimation = keyframes`
+  0% { width: 0; opacity: 0; }
+  50% { opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+`;
+
+const slideAnimation = keyframes`
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { transform: translateX(0); opacity: 1; }
+  80% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+`;
+
+const glowAnimation = keyframes`
+  0% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+  50% { text-shadow: 0 0 10px rgba(0, 0, 0, 0.4); }
+  100% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+`;
 
 function Nav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = React.useRef();
   const { isAuth, setisAuth, Authdata } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const placeholders = [
+    "Search for eyeglasses...",
+    "Search for sunglasses...",
+    "Search for contact lenses...",
+    "Search for computer glasses...",
+    "Search for blue light glasses..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Box
@@ -49,23 +88,29 @@ function Nav() {
             <Image
               src="https://i.imgur.com/OHxtfjd.png"
               alt="logo"
-              w={{ lg: "75%", md: "100%", sm: "100%", base: "100%" }}
+              w={{ lg: "50%", md: "50%", sm: "50%", base: "50%" }}
             />
           </Link>
         </Box>
-        <Box w="70%" display={{ sm: "inherit", base: "none" }}>
-          <Input
-            placeholder="What are you looking for"
-            border="1px solid black"
-            w="90%"
-            fontSize="16px"
-            h="35px"
-          />
-        </Box>
-
-        <Box>
-          <Button colorScheme="blue" p="0" onClick={onOpen}>
-            <HamburgerIcon fontSize="20px" />
+        <HStack spacing={4}>
+          <Link to="/wishlist">
+            <Box _hover={{ color: "blue.500" }}>
+              <CiHeart size="24px" color="black" />
+            </Box>
+          </Link>
+          <Link to="/cart">
+            <Box _hover={{ color: "blue.500" }}>
+              <CgShoppingCart size="24px" color="black" />
+            </Box>
+          </Link>
+          <Button 
+            bg="white" 
+            onClick={onOpen}
+            _hover={{ bg: "gray.100" }}
+            border="1px solid"
+            borderColor="gray.200"
+          >
+            <HamburgerIcon color="black" boxSize="20px" />
           </Button>
           <Drawer
             size="xs"
@@ -313,28 +358,6 @@ function Nav() {
                       Free Home Trail
                     </Box>
                   </Link>
-                  <Link>
-                    <Box
-                      borderBottom="0.1px solid gray"
-                      p="5% 0%"
-                      color="black"
-                      _hover={{ fontWeight: "bold" }}
-                      fontSize="15px"
-                    >
-                      Home Eye check-up
-                    </Box>
-                  </Link>
-                  <Link>
-                    <Box
-                      borderBottom="0.1px solid gray"
-                      p="5% 0%"
-                      color="black"
-                      _hover={{ fontWeight: "bold" }}
-                      fontSize="15px"
-                    >
-                      Store Locator
-                    </Box>
-                  </Link>
                 </Box>
                 <Heading mt="15%" color="black" mb="5%" fontSize="15px">
                   HIGHLIGHTS
@@ -445,8 +468,39 @@ function Nav() {
               )}
             </DrawerContent>
           </Drawer>
-        </Box>
+        </HStack>
       </HStack>
+      <Box w="100%" mt={2}>
+        <Flex position="relative" align="center">
+          <Input
+            placeholder={placeholders[currentPlaceholder]}
+            border="1px solid black"
+            w="100%"
+            fontSize="16px"
+            h="35px"
+            pl="40px"
+            _placeholder={{
+              animation: `${typingAnimation} 3s steps(40, end) infinite, ${slideAnimation} 3s ease-in-out infinite, ${glowAnimation} 3s ease-in-out infinite`,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              opacity: 0.8,
+              color: "gray.600"
+            }}
+            _focus={{
+              borderColor: "blue.400",
+              boxShadow: "0 0 0 1px blue.400"
+            }}
+          />
+          <SearchIcon 
+            position="absolute" 
+            left="10px" 
+            color="gray.500"
+            boxSize="20px"
+            _hover={{ color: "blue.400" }}
+          />
+        </Flex>
+      </Box>
+      <NavScroll />
     </Box>
   );
 }

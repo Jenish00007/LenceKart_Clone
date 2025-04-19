@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Grid, Center } from "@chakra-ui/react";
+import { Box, Grid, Container } from "@chakra-ui/react";
 import { FooterCard1, FooterCard2, FooterCard } from "./FooterCard";
 import { services, about, helps } from "./FooterDetails";
 
@@ -8,40 +8,33 @@ const Footer = () => {
     <Box
       bgColor="#000042"
       color="whiteAlpha.900"
-      p={{ lg: "0", md: "5", base: "5" }}
+      py={12}
+      px={4}
     >
-      <Grid
-        templateColumns={{
-          base: "repeat(1,1fr)",
-          sm: "repeat(1,1fr)",
-          md: "repeat(2,1fr)",
-          lg: "repeat(2,1fr)"
-        }}
-        justifyContent="space-between"
-        textAlign="left"
-        ml="2%"
-      >
-        <Box w="60%" pl="5">
+      <Container maxW="1400px">
+        <Grid
+          templateColumns={{
+            base: "1fr",
+            md: "3fr 2fr"
+          }}
+          gap={12}
+        >
           <Grid
             templateColumns={{
-              base: "repeat(1,1fr)",
-              sm: "repeat(2,1fr)",
-              md: "repeat(2,1fr)",
-              lg: "repeat(3,1fr)"
+              base: "1fr",
+              sm: "repeat(2, 1fr)",
+              lg: "repeat(3, 1fr)"
             }}
-            gap="5"
+            gap={8}
           >
             <FooterCard1 type={services} heading="Services" />
             <FooterCard1 type={about} heading="About Us" />
             <FooterCard1 type={helps} heading="Help" />
           </Grid>
-        </Box>
-        <Center>
           <FooterCard2 />
-        </Center>
-      </Grid>
-      <hr />
-      <FooterCard />
+        </Grid>
+        <FooterCard />
+      </Container>
     </Box>
   );
 };

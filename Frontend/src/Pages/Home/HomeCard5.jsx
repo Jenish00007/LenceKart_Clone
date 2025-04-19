@@ -107,12 +107,17 @@ export const HomeCard5c = ({ type, heading }) => {
   return (
     <Box bgColor="#fff092" pb="5%" pt="2%">
       <Box w="90%" m="auto">
-        <Text
-          fontSize="30px"
-          pb="7"
-          fontWeight="500"
+        <Text 
+          fontSize="30px" 
+          pb="7" 
+          fontWeight="600" 
           textAlign="center"
-          font-family="futurastd-medium"
+          bgGradient="linear(to-r, blue.600, blue.400)"
+          bgClip="text"
+          _hover={{
+            bgGradient: "linear(to-r, blue.700, blue.500)"
+          }}
+          transition="all 0.3s ease"
         >
           {heading}
         </Text>

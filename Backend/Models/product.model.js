@@ -17,6 +17,9 @@ const productSchema = mongoose.Schema({
   userRated: Number,
   quantity: Number,
   id: Number,
+  material: String,
+  lensType: String,
+  brand: String
 });
 
 const ProductModel = mongoose.model("product", productSchema);
