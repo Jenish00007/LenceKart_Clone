@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Login from "../../Pages/Login/Login";
 import Signup from "../../Pages/Signup/Signup";
 import NavbarCard5 from "./NavbarCard5";
@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { FiPhoneCall } from "react-icons/fi";
 import { CiHeart } from "react-icons/ci";
 import { CgShoppingCart } from "react-icons/cg";
-import { TriangleDownIcon } from "@chakra-ui/icons";
+import { TriangleDownIcon, SearchIcon } from "@chakra-ui/icons";
+import { keyframes } from "@chakra-ui/react";
 import {
   Box,
   Text,
@@ -23,8 +24,29 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverBody
+  PopoverBody,
+  InputGroup,
+  InputLeftElement
 } from "@chakra-ui/react";
+
+const typingAnimation = keyframes`
+  0% { width: 0; opacity: 0; }
+  50% { opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+`;
+
+const slideAnimation = keyframes`
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { transform: translateX(0); opacity: 1; }
+  80% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+`;
+
+const glowAnimation = keyframes`
+  0% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+  50% { text-shadow: 0 0 10px rgba(0, 0, 0, 0.4); }
+  100% { text-shadow: 0 0 5px rgba(0, 0, 0, 0.2); }
+`;
 
 export const NavbarCard1 = () => {
   return (
@@ -46,13 +68,28 @@ export const NavbarCard1 = () => {
 export const NavbarCard2 = () => {
   const { isAuth, setisAuth, Authdata } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const placeholders = [
+    "Search for eyeglasses...",
+    "Search for sunglasses...",
+    "Search for contact lenses...",
+    "Search for computer glasses...",
+    "Search for blue light glasses..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Box cursor="pointer">
       <HStack m="auto">
         <Box w="20%">
           <Link to="/">
-            <Image src="https://i.imgur.com/OHxtfjd.png" alt="logo" w="75%" />
+            <Image src="https://i.imgur.com/OHxtfjd.png" alt="logo" w="50%" />
           </Link>
         </Box>
         <HStack w="85%" m="auto">
@@ -63,13 +100,32 @@ export const NavbarCard2 = () => {
             </HStack>
           </Box>
           <Box w="55%">
-            <Input
-              placeholder="What are you looking for"
-              border="1px solid black"
-              w="95%"
-              fontSize="17px"
-              h="45px"
-            />
+            <InputGroup>
+              <InputLeftElement
+                pointerEvents="none"
+                children={<SearchIcon color="gray.500" boxSize="20px" />}
+                pl="10px"
+              />
+              <Input
+                placeholder={placeholders[currentPlaceholder]}
+                border="1px solid black"
+                w="95%"
+                fontSize="17px"
+                h="45px"
+                pl="45px"
+                _placeholder={{
+                  animation: `${typingAnimation} 3s steps(40, end) infinite, ${slideAnimation} 3s ease-in-out infinite, ${glowAnimation} 3s ease-in-out infinite`,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  opacity: 0.8,
+                  color: "gray.600"
+                }}
+                _focus={{
+                  borderColor: "blue.400",
+                  boxShadow: "0 0 0 1px blue.400"
+                }}
+              />
+            </InputGroup>
           </Box>
           <HStack w="35%">
             <Button
@@ -129,22 +185,28 @@ export const NavbarCard2 = () => {
               </Box>
             )}
             <Button
-              leftIcon={<CiHeart />}
+              leftIcon={<CiHeart color="black" size="20px" />}
               size="lg"
-              bg="whiteAlpha.900"
+              bg="white"
               fontSize="14px"
               fontWeight="400"
               onClick={() => navigate("/wishlist")}
+              _hover={{ bg: "gray.100" }}
+              border="1px solid"
+              borderColor="gray.200"
             >
               Wishlist
             </Button>
             <Link to="/cart">
               <Button
-                leftIcon={<CgShoppingCart />}
+                leftIcon={<CgShoppingCart color="black" size="20px" />}
                 size="lg"
-                bg="whiteAlpha.900"
+                bg="white"
                 fontSize="14px"
                 fontWeight="400"
+                _hover={{ bg: "gray.100" }}
+                border="1px solid"
+                borderColor="gray.200"
               >
                 Cart
               </Button>
@@ -162,24 +224,7 @@ export const NavbarCard4 = () => {
       <Flex gap={4} pl={5} pt={2} justifyContent="space-between">
         <NavbarCard5 />
         <HStack w="20%" ml="5%" justifyContent="right">
-          <Image
-            src="https://static1.lenskart.com/media/desktop/img/May22/3dtryon1.png"
-            alt="img1"
-            w="70px"
-            borderRadius="base"
-          />
-          <Image
-            src="https://static1.lenskart.com/media/desktop/img/Mar22/13-Mar/blulogo.png"
-            alt="img1"
-            w="70px"
-            borderRadius="base"
-          />
-          <Image
-            src="https://static.lenskart.com/media/desktop/img/Feb22/18-Feb/goldlogo.jpg"
-            alt="img1"
-            w="70px"
-            borderRadius="base"
-          />
+          {/* Images removed */}
         </HStack>
       </Flex>
     </Box>

@@ -1,8 +1,5 @@
 export const services = [
   {
-    labels: "Store Locator",
-  },
-  {
     labels: "Enter My Power",
   },
   {

@@ -69,30 +69,6 @@ const ProdDetails = ({ type }) => {
         <h2>
           <AccordionButton>
             <Box as="span" flex="1" textAlign="left" fontWeight="500">
-              Visit Nearby Store
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-        </h2>
-        <AccordionPanel pb={4}>
-          <Flex gap="4" p="4">
-            <Image
-              src="https://static.lenskart.com/media/desktop/img/pdp/visit_store.png"
-              alt="img"
-            />
-            <Box color="gray.500">
-              <Text>Please Share Your Location To See Nearby Stores</Text>
-              <Text color="#52aba3" fontWeight="600">
-                Store Locator
-              </Text>
-            </Box>
-          </Flex>
-        </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem>
-        <h2>
-          <AccordionButton>
-            <Box as="span" flex="1" textAlign="left" fontWeight="500">
               Check Delivery Options
             </Box>
             <AccordionIcon />

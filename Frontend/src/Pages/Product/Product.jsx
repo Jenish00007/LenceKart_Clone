@@ -116,18 +116,6 @@ const NewProduct = () => {
               <Text fontSize="15px" color="gray.600" fontWeight="500">
                 EYEGLASSES & SUNGLASSES
               </Text>
-              <Flex
-                alignItems="center"
-                display={{ md: "inherit", base: "none" }}
-              >
-                <Text fontWeight="bold" mr="5px" color="green" fontSize="15px">
-                  VIEW FRAMES
-                </Text>
-                <Switch colorScheme="green" isChecked size="lg" />
-                <Text ml="5px" fontSize="15px">
-                  VIEW 3D TRY ON
-                </Text>
-              </Flex>
               <Flex>
                 <Flex alignItems="center">
                   <TbArrowsUpDown color="green" fontWeight="bold" />

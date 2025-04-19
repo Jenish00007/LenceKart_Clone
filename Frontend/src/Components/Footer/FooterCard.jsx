@@ -1,111 +1,287 @@
 import React from "react";
-import { Box, Text, Image, Flex, Center, Grid } from "@chakra-ui/react";
-import { AiFillFacebook } from "react-icons/ai";
+import { Box, Text, Image, Flex, Center, Grid, Icon, VStack, HStack, keyframes } from "@chakra-ui/react";
+import { AiFillFacebook, AiOutlineInstagram } from "react-icons/ai";
 import { TfiTwitter } from "react-icons/tfi";
-import { AiOutlineInstagram } from "react-icons/ai";
+
+// Define keyframe animations
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
+const bounce = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+`;
+
+const rotate = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(60deg); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-8px) rotate(1deg); }
+  75% { transform: translateY(8px) rotate(-1deg); }
+`;
+
+const shine = keyframes`
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const borderSync = keyframes`
+  0% { border-color: #0066ff; }
+  50% { border-color: #ff66cc; }
+  100% { border-color: #0066ff; }
+`;
 
 export const FooterCard1 = ({ type, heading }) => {
   return (
-    <Box cursor="pointer">
-      <Text fontSize="25px">{heading}</Text>
-      <Box lineHeight="8">
+    <VStack align="flex-start" spacing={4}>
+      <Text 
+        fontSize="xl" 
+        fontWeight="600" 
+        borderBottom="2px solid" 
+        borderColor="whiteAlpha.300"
+        pb={2}
+        w="fit-content"
+        position="relative"
+        display="inline-block"
+        bgGradient="linear(to-r, blue.400, purple.500)"
+        bgClip="text"
+        _hover={{
+          bgGradient: "linear(to-r, blue.500, purple.600)"
+        }}
+        transition="all 0.3s ease"
+      >
+        {heading}
+      </Text>
+      <VStack align="flex-start" spacing={3}>
         {type.map((i, index) => (
-          <Box key={index}>
-            <Text
-              fontSize="15px"
-              _hover={{ color: "whiteAlpha.600" }}
-              lineHeight="2"
-            >
-              {i.labels}
-            </Text>
-          </Box>
+          <Text
+            key={index}
+            fontSize="15px"
+            _hover={{ 
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              bgClip: "text",
+              transform: "translateX(5px)"
+            }}
+            transition="all 0.3s ease"
+            cursor="pointer"
+          >
+            {i.labels}
+          </Text>
         ))}
-      </Box>
-    </Box>
+      </VStack>
+    </VStack>
   );
 };
 
 export const FooterCard2 = () => {
   return (
-    <Box cursor="pointer" textAlign="center" m="auto">
-      <Center>
-        <Grid
-          gap="2"
-          templateColumns={{
-            base: "repeat(1,1fr)",
-            md: "repeat(2,1fr)",
-            lg: "repeat(2,1fr)",
-            xl: "repeat(2,1fr)",
-            "2xl": "repeat(2,1fr)"
+    <VStack spacing={6} w="full" py={4}>
+      <Box 
+        position="relative"
+        maxW="200px"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: "-10px",
+          left: "-10px",
+          right: "-10px",
+          bottom: "-10px",
+          background: "linear-gradient(45deg, #0066ff33, #ff66cc33)",
+          filter: "blur(15px)",
+          opacity: 0,
+          transition: "opacity 0.3s ease"
+        }}
+        _hover={{
+          _before: {
+            opacity: 1
+          }
+        }}
+      >
+        <Box
+          position="relative"
+          overflow="hidden"
+          animation={`${float} 6s ease-in-out infinite`}
+          background="linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)"
+          backgroundSize="200% 100%"
+          border="2px solid"
+          borderColor="whiteAlpha.300"
+          _hover={{
+            animation: `${shine} 1.5s linear infinite, ${borderSync} 2s linear infinite`,
+            transform: "scale(1.05) translateY(-5px)",
+            boxShadow: "xl"
           }}
+          transition="all 0.3s ease"
+          cursor="pointer"
         >
           <Image
             src="https://static.lenskart.com/media/desktop/img/play-store.svg"
-            alt="img"
+            alt="Play Store"
+            w="full"
+            h="auto"
+            filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
           />
-          <Image
-            src="https://static.lenskart.com/media/desktop/img/app-store.svg"
-            alt="img"
-          />
-        </Grid>
-      </Center>
-      <br />
-      <Center w="60%" m="auto" fontSize="14px">
-        <Text>
-          Download Lenskart App to buy Eyeglasses, Sunglasses and Contact Lenses
+        </Box>
+      </Box>
+      <Text
+        fontSize="sm"
+        maxW="300px"
+        textAlign="center"
+        fontWeight="medium"
+        letterSpacing="wide"
+      >
+        <Text as="span">Download </Text>
+        <Text
+          as="span"
+          bgGradient="linear(to-r, blue.400, purple.500)"
+          bgClip="text"
+          fontWeight="bold"
+          _hover={{
+            bgGradient: "linear(to-r, blue.500, purple.600)"
+          }}
+          transition="all 0.3s ease"
+        >
+          Lenskart
         </Text>
-      </Center>
-    </Box>
+        <Text as="span"> App to buy Eyeglasses, Sunglasses and Contact Lenses</Text>
+      </Text>
+    </VStack>
   );
 };
 
 export const FooterCard = () => {
+  const socialIcons = [
+    { 
+      icon: AiFillFacebook, 
+      label: "Facebook",
+      animation: `${bounce} 2s ease-in-out infinite`,
+      hoverColor: "facebook.400"
+    },
+    { 
+      icon: AiOutlineInstagram, 
+      label: "Instagram",
+      animation: `${pulse} 2s ease-in-out infinite`,
+      hoverColor: "pink.500"
+    },
+    { 
+      icon: TfiTwitter, 
+      label: "Twitter",
+      animation: `${rotate} 3s linear infinite`,
+      hoverColor: "twitter.400"
+    }
+  ];
+
   return (
     <Grid
-      templateColumns="repeat(2,1fr)"
-      justifyContent="space-between"
-      m="auto"
+      templateColumns={{
+        base: "1fr",
+        md: "repeat(2, 1fr)"
+      }}
+      gap={8}
+      py={6}
+      px={4}
+      borderTop="1px solid"
+      borderColor="whiteAlpha.200"
     >
-      <Grid
-        templateColumns={{
-          base: "repeat(1,1fr)",
-          md: "repeat(3,1fr)",
-          lg: "repeat(3,1fr)",
-          xl: "repeat(3,1fr)",
-          "2xl": "repeat(3,1fr)"
-        }}
-        cursor="pointer"
-        p="2%"
-        pl="6%"
-        w="35%"
-        lineHeight="10"
-        gap="10%"
-        pb={{ lg: "2%", sm: "4%", base: "10%" }}
+      <HStack 
+        spacing={6} 
+        justify={{ base: "center", md: "flex-start" }}
+        wrap="wrap"
       >
-        <Text fontSize="14px">T&C</Text>
-        <Text fontSize="14px">Privacy</Text>
-        <Text fontSize="14px">Disclaimer</Text>
-      </Grid>
-      <Grid
-        templateColumns={{
-          base: "repeat(1,1fr)",
-          md: "repeat(2,1fr)",
-          lg: "repeat(2,1fr)"
-        }}
-        m="auto"
-        color="white"
-        gap="2"
-        textAlign="left"
+        {["T&C", "Privacy", "Disclaimer"].map((text, index) => (
+          <Text
+            key={index}
+            fontSize="sm"
+            cursor="pointer"
+            _hover={{ 
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              bgClip: "text",
+              transform: "translateX(5px)"
+            }}
+            transition="all 0.3s ease"
+          >
+            {text}
+          </Text>
+        ))}
+      </HStack>
+
+      <VStack 
+        spacing={4} 
+        align={{ base: "center", md: "flex-end" }}
       >
-        <Text fontSize="16px" fontWeight="500">
-          FOLLOWS US AT
+        <Text 
+          fontSize="sm" 
+          fontWeight="600"
+          letterSpacing="wide"
+          bgGradient="linear(to-r, blue.400, purple.500)"
+          bgClip="text"
+          _hover={{
+            bgGradient: "linear(to-r, blue.500, purple.600)"
+          }}
+          transition="all 0.3s ease"
+        >
+          FOLLOW US ON
         </Text>
-        <Flex gap="2">
-          <AiFillFacebook size="30px" />
-          <AiOutlineInstagram size="30px" />
-          <TfiTwitter size="30px" />
-        </Flex>
-      </Grid>
+        <HStack spacing={6}>
+          {socialIcons.map((item, index) => (
+            <Box
+              key={index}
+              position="relative"
+              _hover={{
+                "& > div": {
+                  opacity: 1,
+                  transform: "translateY(-20px)"
+                }
+              }}
+            >
+              <Icon
+                as={item.icon}
+                boxSize={7}
+                cursor="pointer"
+                color="whiteAlpha.900"
+                _hover={{ 
+                  bgGradient: "linear(to-r, blue.400, purple.500)",
+                  bgClip: "text",
+                  transform: "scale(1.2)"
+                }}
+                transition="all 0.3s ease"
+                animation={item.animation}
+                sx={{
+                  "&:hover": {
+                    animation: "none"
+                  }
+                }}
+                aria-label={item.label}
+              />
+              <Box
+                position="absolute"
+                top="-2"
+                left="50%"
+                transform="translateX(-50%) translateY(0)"
+                opacity="0"
+                bg="whiteAlpha.900"
+                color="gray.800"
+                px="2"
+                py="1"
+                borderRadius="md"
+                fontSize="xs"
+                pointerEvents="none"
+                transition="all 0.3s ease"
+                whiteSpace="nowrap"
+                bgGradient="linear(to-r, blue.400, purple.500)"
+                bgClip="text"
+              >
+                {item.label}
+              </Box>
+            </Box>
+          ))}
+        </HStack>
+      </VStack>
     </Grid>
   );
 };
