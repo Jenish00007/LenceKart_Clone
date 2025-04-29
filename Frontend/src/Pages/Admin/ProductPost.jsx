@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { API_URL } from "../../config";
 
 const ProductPost = () => {
   const toast = useToast();
@@ -64,7 +65,7 @@ const ProductPost = () => {
         };
 
         const response = await fetch(
-          "https://harlequin-fawn-tutu.cyclic.app/product",
+          `${API_URL}/product`,
           {
             method: "POST",
             body: JSON.stringify(payload),

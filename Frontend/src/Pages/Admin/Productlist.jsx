@@ -20,6 +20,7 @@ import {
   Input,
   Select
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 
 const Productlist = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const Productlist = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://harlequin-fawn-tutu.cyclic.app/product?sort=${sort}&productRefLink=${productref}&gender=${gender}&productType=${filter}&shape=${shape}&style=${style}&page=${page}`
+        `${API_URL}/product?sort=${sort}&productRefLink=${productref}&gender=${gender}&productType=${filter}&shape=${shape}&style=${style}&page=${page}`
       );
       const postData = await response.json();
       setData(postData);
@@ -57,7 +58,7 @@ const Productlist = () => {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `https://harlequin-fawn-tutu.cyclic.app/product/${id}`,
+        `${API_URL}/product/${id}`,
         {
           method: "DELETE"
         }

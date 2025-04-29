@@ -9,6 +9,7 @@ import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
 import { Grid, GridItem, Image } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -38,7 +39,7 @@ const SingleProduct = () => {
   };
 
   const fetchSingleProduct = () => {
-    axios(`https://harlequin-fawn-tutu.cyclic.app/product/${id}`)
+    axios(`${API_URL}/product/${id}`)
       .then((res) => setData(res.data.product))
       .catch((err) => console.log(err));
   };
