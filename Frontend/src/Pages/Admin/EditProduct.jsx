@@ -13,6 +13,7 @@ import {
   Select,
   FormLabel
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 
 const EditProduct = () => {
   const toast = useToast();
@@ -36,7 +37,7 @@ const EditProduct = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`https://harlequin-fawn-tutu.cyclic.app/product/${id}`, {
+    fetch(`${API_URL}/product/${id}`, {
       headers: {
         Authorization: localStorage.getItem("token")
       }
@@ -86,7 +87,7 @@ const EditProduct = () => {
       };
 
       const response = await fetch(
-        `https://harlequin-fawn-tutu.cyclic.app/product/${id}`,
+        `${API_URL}/product/${id}`,
         {
           method: "PATCH",
           headers: {

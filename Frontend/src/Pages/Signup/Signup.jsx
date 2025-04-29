@@ -20,6 +20,7 @@ import {
   InputRightElement,
   Text
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 
 const Signup = () => {
   const init = {
@@ -110,48 +111,46 @@ const Signup = () => {
     }
   };
 
-  const getData = (body) => {
-    setLoading(true);
-
-    fetch(`https://harlequin-fawn-tutu.cyclic.app/user`)
-      .then((res) => res.json())
-      .then((res) => {
-        res.map((el) => {
-          if (el.email === body.email) {
-            flag = true;
-            setExist(true);
-            return el;
-          }
-          setLoading(false);
-        });
-      })
-      .then(() => {
-        if (flag === false) {
-          fetch(`https://harlequin-fawn-tutu.cyclic.app/user/register`, {
+  const getData = async () => {
+    try {
+      setLoading(true);
+      setExist(false);
+      if (userData.email !== "" && userData.password !== "") {
+        const res = await fetch(
+          `${API_URL}/user/register`,
+          {
             method: "POST",
-            body: JSON.stringify(body),
+            body: JSON.stringify(userData),
             headers: {
-              "Content-Type": "application/json"
+              "Content-type": "application/json"
             }
-          })
-            .then((res) => res.json())
-            .then((res) => {
-              setAuth(true);
-              setLoading(false);
-              setExist(false);
-            })
-            .catch((err) => setAuth(false))
-            .finally(() => setLoading(false))
-            .finally(() => setExist(false))
-            .finally(() => onClose());
+          }
+        );
+        let data = await res.json();
+        if (res) {
+          const credential = await fetch(
+            `${API_URL}/user`
+          );
+          let cred = await credential.json();
+          localStorage.setItem("token", data.token);
+          flag = cred.filter((el) => el.email === userData.email).length > 0;
+          setExist(flag);
+          setAuth(true);
+          setLoading(false);
         } else {
           setLoading(false);
+          setExist(true);
         }
-      });
+      }
+    } catch (error) {
+      setLoading(false);
+      setExist(true);
+      console.log("An error occurred. Please try again later.");
+    }
   };
 
   const handleRegister = () => {
-    getData(userData);
+    getData();
   };
 
   return (

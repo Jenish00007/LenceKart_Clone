@@ -15,6 +15,7 @@ import {
   Frame1,
   Frame2
 } from "./FilterDetails";
+import { API_URL } from "../../config";
 
 const NewProduct = () => {
   const [products, setProducts] = useState([]);
@@ -29,7 +30,7 @@ const NewProduct = () => {
     setIsLoaded(true);
     try {
       const response = await fetch(
-        `https://harlequin-fawn-tutu.cyclic.app/product?sort=${sort}&productRefLink=${productRef}&productType=${types}&gender=${gender}&page=${page}`
+        `${API_URL}/product?sort=${sort}&productRefLink=${productRef}&productType=${types}&gender=${gender}&page=${page}`
       );
       const postData = await response.json();
       setProducts(postData);

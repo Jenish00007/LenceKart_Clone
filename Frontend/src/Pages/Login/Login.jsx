@@ -22,6 +22,7 @@ import {
   InputGroup,
   InputRightElement
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 
 const Login = (props) => {
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ const Login = (props) => {
       setinCorrect(false);
       if (loginData.email !== "" && loginData.password !== "") {
         const res = await fetch(
-          "https://harlequin-fawn-tutu.cyclic.app/user/login",
+          `${API_URL}/user/login`,
           {
             method: "POST",
             body: JSON.stringify(loginData),
@@ -72,7 +73,7 @@ const Login = (props) => {
         let data = await res.json();
         if (res) {
           const credential = await fetch(
-            "https://harlequin-fawn-tutu.cyclic.app/user"
+            `${API_URL}/user`
           );
           let cred = await credential.json();
           localStorage.setItem("token", data.token);
