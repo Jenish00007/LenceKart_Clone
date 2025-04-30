@@ -3,29 +3,29 @@ import { Box, Grid, Image, Text, Heading, Button } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
 
-const RecommendedCategories = () => {
-  const [recommendedProducts, setRecommendedProducts] = useState([]);
+const TrendingEyeglasses = () => {
+  const [trendingProducts, setTrendingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchRecommendedProducts = async () => {
+    const fetchTrendingProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/product/recommended`);
+        const response = await fetch(`${API_URL}/api/product/trending`);
         const data = await response.json();
-        setRecommendedProducts(data);
+        setTrendingProducts(data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching recommended products:", error);
+        console.error("Error fetching trending products:", error);
         setLoading(false);
       }
     };
 
-    fetchRecommendedProducts();
+    fetchTrendingProducts();
   }, []);
 
   if (loading) {
-    return <Text>Loading recommended products...</Text>;
+    return <Text>Loading trending products...</Text>;
   }
 
   return (
@@ -39,17 +39,17 @@ const RecommendedCategories = () => {
           bgGradient: "linear(to-r, blue.500, purple.600)",
         }}
       >
-        Recommended Products
+        Trending Eyeglasses
       </Heading>
       <Grid
         templateColumns={{
           base: "repeat(1, 1fr)",
           md: "repeat(2, 1fr)",
-          lg: "repeat(3, 1fr)",
+          lg: "repeat(4, 1fr)",
         }}
         gap={6}
       >
-        {recommendedProducts.map((product) => (
+        {trendingProducts.map((product) => (
           <Box
             key={product._id}
             borderWidth="1px"
@@ -74,20 +74,9 @@ const RecommendedCategories = () => {
               <Text fontWeight="bold" fontSize="lg" mb={2}>
                 {product.name}
               </Text>
-              <Text fontSize="sm" color="gray.600" mb={2}>
-                {product.description}
+              <Text color="blue.600" fontSize="xl" mb={4}>
+                ₹{product.price}
               </Text>
-              <Box display="flex" alignItems="center" mb={2}>
-                <Text color="blue.600" fontSize="xl" mr={2}>
-                  ₹{product.price}
-                </Text>
-                <Text as="s" color="gray.500" fontSize="sm">
-                  ₹{product.originalPrice}
-                </Text>
-                <Text color="green.500" fontSize="sm" ml={2}>
-                  {product.offer}
-                </Text>
-              </Box>
               <Button
                 colorScheme="blue"
                 width="100%"
@@ -103,4 +92,4 @@ const RecommendedCategories = () => {
   );
 };
 
-export default RecommendedCategories; 
+export default TrendingEyeglasses; 

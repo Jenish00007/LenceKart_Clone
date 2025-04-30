@@ -12,6 +12,7 @@ import Footer from "../../Components/Footer/Footer";
 import CategoryGrid from "../../Components/CategoryGrid/CategoryGrid";
 import RecommendedCategories from "../../Components/RecommendedCategories/RecommendedCategories";
 import LenskartSwaps from "../../Components/LenskartSwaps/LenskartSwaps";
+import TrendingEyeglasses from "../../Components/TrendingEyeglasses/TrendingEyeglasses";
 import {
   HomeDetails,
   HomeDetails1,
@@ -43,6 +44,7 @@ const Home = () => {
       <CategoryGrid />
       <RecommendedCategories />
       <LenskartSwaps />
+      <TrendingEyeglasses />
       <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" />
       <br />
       <br />
