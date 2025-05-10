@@ -2,6 +2,9 @@ import React from "react";
 import HomeCard from "./HomeCard";
 import HomeCard1 from "./HomeCard1";
 import HomeCard2 from "./HomeCard2";
+import axios from "axios";  
+
+import { useState, useEffect } from "react";
 import { HomeCard4, HomeCard4a, HomeCard4b } from "./HomeCard4";
 import { HomeCard5, HomeCard5a, HomeCard5b, HomeCard5c } from "./HomeCard5";
 import HomeCard6 from "./HomeCard6";
@@ -14,8 +17,6 @@ import RecommendedCategories from "../../Components/RecommendedCategories/Recomm
 import LenskartSwaps from "../../Components/LenskartSwaps/LenskartSwaps";
 import TrendingEyeglasses from "../../Components/TrendingEyeglasses/TrendingEyeglasses";
 import {
-  HomeDetails,
-  HomeDetails1,
   HomeDetails2,
   HomeDetails4,
   HomeDetails5,
@@ -23,7 +24,6 @@ import {
   HomeDetails7,
   HomeDetails8,
   HomeDetails9,
-  HomeDetails10,
   HomeDetails11,
   HomeDetails12,
   HomeDetails14,
@@ -32,18 +32,70 @@ import {
 import { Image, Box } from "@chakra-ui/react";
 
 const Home = () => {
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [adBanners, setAdBanners] = useState([]);
+  const [adBannersLoading, setAdBannersLoading] = useState(true);
+  const [adBannersError, setAdBannersError] = useState(null);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/banner/banners');
+        console.log('Banner API Response:', response.data);
+        if (!response.data || response.data.length === 0) {
+          console.warn('No banner data received from API');
+        }
+        setBanners(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching banners:', err);
+        setError('Failed to fetch banners: ' + (err.message || 'Unknown error'));
+        setLoading(false);
+      }
+    };
+
+    const fetchAdBanners = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/adbanner/banners');
+        setAdBanners(response.data);
+        setAdBannersLoading(false);
+      } catch (err) {
+        console.error('Error fetching ad banners:', err);
+        setAdBannersError('Failed to fetch ad banners: ' + (err.message || 'Unknown error'));
+        setAdBannersLoading(false);
+      }
+    };
+
+    fetchBanners();
+    fetchAdBanners();
+  }, []);
+
+  const renderAdBanner = (banner) => (
+    <Box key={banner._id} mt="10">
+      <Image
+        src={banner.imageUrl}
+        alt={banner.altText}
+        width="100%"
+      />
+    </Box>
+  );
+
   return (
     <Box>
       <Navbar />
-      <HomeCard1 type={HomeDetails1} />
-      <Image
-        src="https://static1.lenskart.com/media/desktop/img/Apr22/Bannerforexport.jpg"
-        alt="img"
-        mt="10"
-      />
+      <HomeCard1 type={banners} loading={loading} error={error}/>
+      
+      {/* Top Ad Banner */}
+      {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
+      
       <CategoryGrid />
       <RecommendedCategories />
       <LenskartSwaps />
+       {/* Middle Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+      
       <TrendingEyeglasses />
       <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" />
       <br />
@@ -77,7 +129,6 @@ const Home = () => {
       <br />
       <br />
      
-    
       <HomeCard6 type={HomeDetails6} heading="EYEGLASSES" />
       <br />
       <br />
@@ -86,15 +137,9 @@ const Home = () => {
       <HomeCard6 type={HomeDetails7} heading="SUNGLASSES" />
       <br />
       <br />
-      <br />
-      <br />
+       {/* Bottom Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
       
-      <HomeCard4b
-        text=""
-        src="https://static1.lenskart.com/media/desktop/img/Aug21/25-Aug/LK-Readers-Banner.jpg"
-      />
-      <br />
-      <br />
       <br />
       <br />
       
@@ -109,19 +154,14 @@ const Home = () => {
       />
       <br />
       <br />
-      <br />
-      <br />
-      <HomeCard4b
-        text=""
-        src="https://static1.lenskart.com/media/desktop/img/June22/Our-Brands-Banner.jpg"
-      />
-      <br />
-      <br />
+
+      
       <br />
       <br />
       <HomeCard6 type={HomeDetails11} heading="CONTACT LENSES" />
       <br />
       <br />
+      
       <br />
       <br />
       <HomeCard6 type={HomeDetails12} heading="COLOR CONTACT LENSES" />
@@ -133,6 +173,7 @@ const Home = () => {
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
       
+     
       <Footer />
     </Box>
   );
