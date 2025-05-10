@@ -2,6 +2,7 @@ const express = require("express");
 const { userModel } = require("../Models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require('dotenv').config();
 
 const userRouter = express.Router();
 
@@ -48,18 +49,37 @@ userRouter.post("/login", async (req, res) => {
     if (user.length > 0) {
       bcrypt.compare(password, hashed_password, (err, result) => {
         if (result) {
-          const token = jwt.sign({ userID: user[0]._id }, "masai");
-          res.send({ msg: "Login Successful", token: token });
+          if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ 
+              message: 'Server configuration error',
+              error: 'JWT secret is not configured'
+            });
+          }
+          const token = jwt.sign({ 
+            userID: user[0]._id,
+            email: user[0].email,
+            name: `${user[0].first_name} ${user[0].last_name}`
+          }, process.env.JWT_SECRET, { expiresIn: '24h' });
+          
+          res.status(200).json({ 
+            message: "Login Successful", 
+            token: token,
+            user: {
+              id: user[0]._id,
+              email: user[0].email,
+              name: `${user[0].first_name} ${user[0].last_name}`
+            }
+          });
         } else {
-          res.send("Wrong Credential");
+          res.status(401).json({ message: "Invalid credentials" });
         }
       });
     } else {
-      res.send("Wrong Credential");
+      res.status(401).json({ message: "Invalid credentials" });
     }
   } catch (err) {
-    res.send("Something went wrong");
-    console.log(err);
+    console.error('Login error:', err);
+    res.status(500).json({ message: "Something went wrong", error: err.message });
   }
 });
 

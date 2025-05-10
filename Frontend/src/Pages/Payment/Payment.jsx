@@ -1,328 +1,254 @@
-import React, { useState } from "react";
-import Navbar from "../../Components/Navbar/Navbar";
-import Footer from "../../Components/Footer/Footer";
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { cartReset } from "../../redux/CartPage/action";
-import { addToOrder } from "../../redux/order/order.actions";
-import { Box, Button, Flex, Image, Input, Grid } from "@chakra-ui/react";
-import "../../App.css";
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {
+  Box,
+  Button,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  useToast,
+  Divider
+} from '@chakra-ui/react';
+import { createPaymentOrder, verifyPayment, loadRazorpayScript } from '../../services/payment.service';
+import { AuthContext } from '../../ContextApi/AuthContext';
+import Navbar from '../../Components/Navbar/Navbar';
+import Footer from '../../Components/Footer/Footer';
 
 const Payment = () => {
-  const init = {
-    card: "",
-    date: "",
-    cvv: "",
-    cardname: ""
-  };
-
   const navigate = useNavigate();
-  const { cart } = useSelector((state) => state.CartReducer);
-  const dispatch = useDispatch();
-  const [userData, setUserData] = useState(init);
-  const [cards, setCards] = useState();
-  const [dates, setDates] = useState();
-  const [cv, setCv] = useState();
-  const [names, setNames] = useState();
+  const toast = useToast();
+  const { cart, coupon } = useSelector((state) => state.CartReducer);
+  const [loading, setLoading] = useState(false);
+  const { Authdata } = useContext(AuthContext);
+  const userName = Authdata?.[0]?.first_name || 'Guest';
 
-  const Required = (props) => {
-    return (
-      <Box
-        fontSize={"14px"}
-        m="3px 0px 3px 0px"
-        color={"#ff1f1f"}
-        fontWeight="500"
-        letterSpacing={"-0.4px"}
-      >
-        {props.info}
-      </Box>
+  // Check authentication on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to proceed with payment",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/login');
+    }
+  }, [navigate, toast]);
+
+  const getTotalPrice = () => {
+    const totalPrice = cart.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
     );
+    return totalPrice;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
+  const handlePayment = async () => {
+    try {
+      // Check authentication before proceeding
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to proceed with payment",
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate('/login');
+        return;
+      }
 
-    switch (name) {
-      case "card":
-        setCards(
-          value === "" ? (
-            <Required info="This is a required feild" />
-          ) : (
-            <Required info="Card Number should be 16 digit (eg. XXXXXXXXXXXXXXXX)" />
-          )
-        );
-        break;
+      setLoading(true);
+      // Calculate total amount with tax and coupon
+      const subtotal = getTotalPrice();
+      const tax = Math.round(subtotal * 0.18);
+      const total = Math.round(subtotal + tax) - (coupon || 0);
+      
+      // Prepare order details
+      const orderDetails = {
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.productRefLink || "Vincent Chase Eyeglasses",
+          quantity: item.quantity,
+          price: item.price,
+          image: item.imageTsrc
+        })),
+        subtotal,
+        tax,
+        coupon: coupon || 0,
+        total
+      };
 
-      case "date":
-        setDates(
-          value === "" ? (
-            <Required info="This is a required feild" />
-          ) : (
-            <Required info="Please enter a valid month and year format (eg. MM/YY)" />
-          )
-        );
-        break;
+      // Create order in backend with user's name
+      const orderData = await createPaymentOrder(total, orderDetails, userName);
+      console.log('Order created:', orderData);
 
-      case "cvv":
-        setCv(
-          value === "" ? (
-            <Required info="This is a required feild" />
-          ) : (
-            <Required info="CVV should be 3 digit (eg. XXX)" />
-          )
-        );
-        break;
+      // Load Razorpay script
+      const res = await loadRazorpayScript();
+      if (!res) {
+        toast({
+          title: "Error",
+          description: "Razorpay SDK failed to load",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
 
-      case "cardname":
-        setNames(
-          value === "" ? <Required info="This is a required feild" /> : ""
-        );
-        break;
+      // Configure Razorpay options
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Lenskart",
+        description: "Payment for your order",
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          try {
+            // Verify payment
+            const verification = await verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
 
-      default:
-        break;
+            if (verification.message === "Payment verified successfully") {
+              toast({
+                title: "Payment Successful",
+                description: "Your order has been placed successfully",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+              });
+              
+              // Navigate to success page
+              navigate("/payment-success");
+            }
+          } catch (error) {
+            toast({
+              title: "Payment Verification Failed",
+              description: error.message,
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+            });
+          }
+        },
+        prefill: {
+          name: "Customer Name",
+          email: "customer@example.com",
+          contact: "9999999999"
+        },
+        theme: {
+          color: "#3bb3a9"
+        },
+        modal: {
+          ondismiss: function() {
+            toast({
+              title: "Payment Cancelled",
+              description: "You can try again later",
+              status: "info",
+              duration: 5000,
+              isClosable: true,
+            });
+          }
+        }
+      };
+
+      // Initialize Razorpay
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Failed",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleClick = () => {
-    dispatch(addToOrder(cart));
-    navigate("/confirm");
-    dispatch(cartReset());
-  };
-
   return (
-    <>
+    <Box>
       <Navbar />
-      <Box>
-        <br />
-        <br />
-        <Box>
-          <Box
-            w={{ xl: "75%", lg: "80%", md: "90%", sm: "90%", base: "95%" }}
-            m="auto"
-          >
-            <Box
-              m="auto"
-              boxShadow={"rgba(0, 0, 0, 0.24) 0px 3px 8px"}
-              borderRadius="lg"
-            >
-              <Box
-                bg="#00bac6"
-                color={"white"}
-                fontWeight="700"
-                p="4px 0px 6px 6px "
-                fontSize="xl"
-                textAlign="left"
-              >
-                PAYMENT OPTION
-              </Box>
-              <br />
-              <Box display={"flex"} fontSize="lg" gap="9">
-                <Flex
-                  w="200px"
-                  flexDirection="column"
-                  borderRight="2px solid gray"
-                  borderBottom="2px solid gray"
-                  borderRadius="2xl"
-                  display={{ md: "inherit", base: "none" }}
-                >
-                  <Box
-                    p="16px 0px 16px 16px"
-                    fontWeight={"500"}
-                    _hover={{ bg: "blackAlpha.200" }}
-                    bg="blackAlpha.200"
-                  >
-                    Credit/Debit Card
-                  </Box>
-                  <Box
-                    p="16px 0px 16px 16px"
-                    fontWeight={"500"}
-                    _hover={{ bg: "blackAlpha.200" }}
-                  >
-                    BHIM/UPI Phone Pe
-                  </Box>
-                  <Box
-                    p="16px 0px 16px 16px"
-                    fontWeight={"500"}
-                    _hover={{ bg: "blackAlpha.200" }}
-                  >
-                    Net Banking
-                  </Box>
-                  <Box
-                    p="16px 0px 16px 16px"
-                    fontWeight={"500"}
-                    _hover={{ bg: "blackAlpha.200" }}
-                  >
-                    UPI QR Code
-                  </Box>
-                  <Box
-                    p="16px 0px 16px 16px"
-                    fontWeight={"500"}
-                    _hover={{ bg: "blackAlpha.200" }}
-                  >
-                    Paytm
-                  </Box>
-                </Flex>
-                <Box m="10px 10px 10px 10px ">
-                  <Grid
-                    templateColumns={{
-                      base: "repeat(1,1fr)",
-                      sm: "repeat(1,1fr)",
-                      md: "20% 75%",
-                      lg: "20% 75%",
-                      xl: "20% 80%"
-                    }}
-                    fontSize="lg"
-                    justifyContent={{
-                      md: "left",
-                      sm: "center",
-                      base: "center"
-                    }}
-                  >
-                    <Box
-                      fontWeight="bold"
-                      color="gray.600"
-                      display={{ md: "inherit", base: "none" }}
-                    >
-                      100% Secure
-                    </Box>
-                    <Image
-                      ml={{ md: "80px", sm: "0px", base: "0px" }}
-                      h={{ xl: "40px", lg: "40px", base: "40px" }}
-                      src="https://static5.lenskart.com/images/cust_mailer/Mar-03/CheckoutStrip.png"
-                      w={{
-                        xl: "100%",
-                        lg: "80%",
-                        md: "80%",
-                        sm: "100%",
-                        base: "100%"
-                      }}
-                    />
-                  </Grid>
-                  <br />
-                  <Box>
-                    <Input
-                      placeholder="Enter Card Number"
-                      name="card"
-                      type="Number"
-                      onChange={handleChange}
-                      m="20px 10px 10px 10px "
-                      fontSize="lg"
-                      h="40px"
-                      borderRadius="lg"
-                      p="2%"
-                      w="70%"
-                    />
-                    <Box pl="4" mt="-2">
-                      {userData.card.length === 16 ? "" : cards}
-                    </Box>
-                  </Box>
-
-                  <Flex m="20px 0px " w="50%">
-                    <Input
-                      placeholder="MM/YY"
-                      name="date"
-                      type="text"
-                      onChange={handleChange}
-                      mr="10px"
-                      ml="10px"
-                      fontSize="lg"
-                      h="40px"
-                      w="40%"
-                      borderRadius="lg"
-                      p="2%"
-                    />
-
-                    <Input
-                      placeholder="CVV"
-                      type="Number"
-                      name="cvv"
-                      onChange={handleChange}
-                      fontSize="lg"
-                      h="40px"
-                      borderRadius="lg"
-                      p="2%"
-                      w="30%"
-                      maxLength="3"
-                    />
-                  </Flex>
-
-                  <Box mt="-2" ml="2%">
-                    {userData.date.includes("/") ? "" : dates}
-                  </Box>
-                  <Box ml="2%">{userData.cvv.length === 3 ? "" : cv}</Box>
-
-                  <Box>
-                    <Input
-                      placeholder="Cardholder Name"
-                      type="text"
-                      name="cardname"
-                      onChange={handleChange}
-                      fontSize="lg"
-                      h="40px"
-                      borderRadius="lg"
-                      p="2%"
-                      m="20px 10px 20px 10px"
-                      w="70%"
-                    />
-                    <Box mt="-4" ml="2%">
-                      {names}
-                    </Box>
-                  </Box>
-
-                  <br />
-                  <br />
-                  {userData.cardname.length >= 1 &&
-                  userData.card.length === 16 &&
-                  userData.cvv.length === 3 &&
-                  userData.date.includes("/") ? (
-                    <Button
-                      fontSize={"16px"}
-                      bg="#3bb3a9"
-                      color={"white"}
-                      p="25px 22px"
-                      _hover={{ backgroundColor: "teal" }}
-                      onClick={handleClick}
-                      borderRadius="lg"
-                    >
-                      PLACE ORDER
-                    </Button>
-                  ) : (
-                    <Button
-                      fontSize={"16px"}
-                      bg="#cccccc"
-                      color={"white"}
-                      p="25px 22px"
-                      borderRadius="lg"
-                    >
-                      PLACE ORDER
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-              <Box p="10px" fontSize="lg" fontWeight="medium" color="gray.500">
-                GlassCart Assurance
-              </Box>
-              <Image
-                p="10px"
-                w="90%"
-                m="auto"
-                src="https://static1.lenskart.com/media/desktop/img/all-assurance-offering.png"
-                _hover={{ transform: "scale(1.1)" }}
-              />
-              <br />
-            </Box>
-            <br />
-            <br />
+      <Container maxW="container.xl" py={8}>
+        <VStack spacing={8} align="stretch">
+          <Heading size="lg" textAlign="center">Payment Details</Heading>
+          
+          <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="lg">
+            <VStack spacing={4} align="stretch">
+              <Heading size="md">Order Summary</Heading>
+              <Divider />
+              
+              {cart.map((item) => (
+                <HStack key={item.id} justify="space-between">
+                  <Text>{item.productRefLink || "Vincent Chase Eyeglasses"}</Text>
+                  <Text>₹{Math.round(item.price + item.price * 0.18)}.00</Text>
+                </HStack>
+              ))}
+              
+              <Divider />
+              
+              <HStack justify="space-between">
+                <Text fontWeight="bold">Subtotal:</Text>
+                <Text>₹{getTotalPrice()}.00</Text>
+              </HStack>
+              
+              <HStack justify="space-between">
+                <Text fontWeight="bold">Tax (18%):</Text>
+                <Text>₹{Math.round(getTotalPrice() * 0.18)}.00</Text>
+              </HStack>
+              
+              {coupon > 0 && (
+                <HStack justify="space-between">
+                  <Text fontWeight="bold">Coupon Discount:</Text>
+                  <Text color="green.500">-₹{coupon}.00</Text>
+                </HStack>
+              )}
+              
+              <Divider />
+              
+              <HStack justify="space-between">
+                <Text fontWeight="bold" fontSize="xl">Total:</Text>
+                <Text fontWeight="bold" fontSize="xl">
+                  ₹{Math.round(getTotalPrice() + getTotalPrice() * 0.18) - (coupon || 0)}.00
+                </Text>
+              </HStack>
+            </VStack>
           </Box>
-        </Box>
-      </Box>
-      <br />
-      <br />
-      <br />
+
+          <Button
+            colorScheme="teal"
+            size="lg"
+            onClick={handlePayment}
+            isLoading={loading}
+            loadingText="Processing..."
+          >
+            Proceed to Pay
+          </Button>
+
+          <Button
+            variant="outline"
+            colorScheme="teal"
+            onClick={() => navigate(-1)}
+          >
+            Back to Checkout
+          </Button>
+        </VStack>
+      </Container>
       <Footer />
-    </>
+    </Box>
   );
 };
 
