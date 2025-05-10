@@ -49,7 +49,7 @@ const TrendingEyeglasses = () => {
         }}
         gap={6}
       >
-        {trendingProducts.map((product) => (
+        {trendingProducts?.map((product) => (
           <Box
             key={product._id}
             borderWidth="1px"

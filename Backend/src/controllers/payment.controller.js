@@ -1,5 +1,11 @@
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
+require('dotenv').config();
+
+// Validate Razorpay credentials
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error('Razorpay credentials are missing in environment variables');
+}
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -12,6 +18,10 @@ const createOrder = async (req, res) => {
   try {
     const { amount, currency = "INR" } = req.body;
 
+    if (!amount) {
+      return res.status(400).json({ message: "Amount is required" });
+    }
+
     const options = {
       amount: amount * 100, // amount in smallest currency unit (paise)
       currency,
@@ -22,7 +32,7 @@ const createOrder = async (req, res) => {
     res.status(200).json(order);
   } catch (error) {
     console.error("Create order error:", error);
-    res.status(500).json({ message: "Error creating order" });
+    res.status(500).json({ message: "Error creating order", error: error.message });
   }
 };
 
@@ -30,6 +40,10 @@ const createOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: "Missing required payment details" });
+    }
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
@@ -44,7 +58,7 @@ const verifyPayment = async (req, res) => {
     }
   } catch (error) {
     console.error("Verify payment error:", error);
-    res.status(500).json({ message: "Error verifying payment" });
+    res.status(500).json({ message: "Error verifying payment", error: error.message });
   }
 };
 
