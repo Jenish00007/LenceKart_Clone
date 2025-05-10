@@ -1,16 +1,57 @@
-import { useSelector } from "react-redux";
-import { Box, Text, Stack, Heading, Image, Grid } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { Box, Text, Stack, Heading, Image, Grid, Badge } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
+import axios from "axios";
 
 const OrderHistory = () => {
-  const orders = useSelector((store) => store.orderManager.order);
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = (today.getMonth() + 1).toString().padStart(2, "0");
-  const day = today.getDate().toString().padStart(2, "0");
-  const currentDate = `${day}-${month}-${year}`;
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:8080/api/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setOrders(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch orders");
+        setLoading(false);
+        console.error("Error fetching orders:", err);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "completed":
+        return "green";
+      case "pending":
+        return "yellow";
+      case "failed":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
 
   return (
     <Box>
@@ -32,7 +73,15 @@ const OrderHistory = () => {
         >
           Order History
         </Heading>
-        {orders.length === 0 ? (
+        {loading ? (
+          <Text textAlign="center" fontSize="20px" mt="20px">
+            Loading orders...
+          </Text>
+        ) : error ? (
+          <Text textAlign="center" fontSize="20px" color="red" mt="20px">
+            {error}
+          </Text>
+        ) : orders.length === 0 ? (
           <Text
             textAlign="center"
             fontSize="28px"
@@ -44,95 +93,93 @@ const OrderHistory = () => {
           </Text>
         ) : (
           <Stack spacing={4}>
-            {orders &&
-              orders &&
-              orders.map(
-                (order, i) =>
-                  order.id && (
-                    <Grid
-                      key={order.id}
-                      borderRadius="20px 20px 20px 20px"
-                      fontSize="16px"
-                      textAlign="center"
+            {orders.map((order) => (
+              <Grid
+                key={order._id}
+                borderRadius="20px"
+                fontSize="16px"
+                textAlign="center"
+                bg="whiteAlpha.900"
+                p={4}
+                boxShadow="dark-lg"
+                gap="5"
+                color="gray.600"
+              >
+                <Grid
+                  templateColumns={{
+                    base: "repeat(1,1fr)",
+                    md: "30% 60%",
+                    lg: "30% 60%",
+                    xl: "20% 60%"
+                  }}
+                  gap="5"
+                >
+                  <Box>
+                    <Image
+                      src={order.orderDetails.items[0].image}
+                      w={{
+                        base: "60%",
+                        sm: "50%",
+                        md: "100%",
+                        lg: "100%",
+                        xl: "100%",
+                        "2xl": "100%"
+                      }}
+                      m="auto"
+                    />
+                  </Box>
+                  <Box
+                    textAlign={{
+                      lg: "left",
+                      md: "left",
+                      sm: "center",
+                      base: "center"
+                    }}
+                  >
+                    <Text fontWeight="bold">
+                      Order ID: {order.orderId}
+                    </Text>
+                    <Text fontWeight="600">
+                      Order Date: {formatDate(order.createdAt)}
+                    </Text>
+                    <Text
+                      fontSize="18px"
+                      fontWeight="bold"
+                      textTransform="capitalize"
                     >
-                      <Link to={`/products/${order.id}`}>
-                        <Grid
-                          m="auto"
-                          templateColumns={{
-                            base: "repeat(1,1fr)",
-                            md: "30% 60%",
-                            lg: "30% 60%",
-                            xl: "20% 60%"
-                          }}
-                          key={order.id + i + Math.random()}
-                          bg="whiteAlpha.900"
-                          p={4}
-                          boxShadow="dark-lg"
-                          gap="5"
-                          color="gray.600"
-                        >
-                          <Box>
-                            <Image
-                              src={order.imageTsrc}
-                              w={{
-                                base: "60%",
-                                sm: "50%",
-                                md: "100%",
-                                lg: "100%",
-                                xl: "100%",
-                                "2xl": "100%"
-                              }}
-                              m="auto"
-                            />
-                          </Box>
-                          <Box
-                            textAlign={{
-                              lg: "left",
-                              md: "left",
-                              sm: "center",
-                              base: "center"
-                            }}
-                          >
-                            <Text fontWeight="bold">
-                              Product ID: {order.productId}
-                            </Text>
-                            <Text fontWeight="600">
-                              Order Date : {currentDate}
-                            </Text>
-                            <Text
-                              fontSize="18px"
-                              fontWeight="bold"
-                              textTransform="capitalize"
-                            >
-                              {order.productRefLink}
-                            </Text>
-                            <Text
-                              textTransform="capitalize"
-                              fontWeight="500"
-                              fontSize="17px"
-                            >
-                              {order.productType}
-                            </Text>
-                            <Text fontWeight="bold" fontSize="18px">
-                              Price: ₹{" "}
-                              {Math.round(order.price + order.price * 0.18)}.00
-                              /-
-                            </Text>
-                            <Text fontWeight="500" fontSize="15px">
-                              Colors : {order.colors}
-                            </Text>
-                            <Text fontWeight="500" fontSize="15px">
-                              Dimension : {order.dimension}
-                            </Text>
-                            <Text fontWeight="500" fontSize="15px">
-                              Status : Completed
-                            </Text>
-                          </Box>
-                        </Grid>
-                      </Link>
-                    </Grid>
-                  )
-              )}
+                      {order.orderDetails.items[0].name}
+                    </Text>
+                    <Text fontWeight="500" fontSize="15px">
+                      Quantity: {order.orderDetails.items[0].quantity}
+                    </Text>
+                    <Text fontWeight="bold" fontSize="18px">
+                      Price: ₹{order.orderDetails.items[0].price}.00
+                    </Text>
+                    <Text fontWeight="500" fontSize="15px">
+                      Subtotal: ₹{order.orderDetails.subtotal}.00
+                    </Text>
+                    <Text fontWeight="500" fontSize="15px">
+                      Tax: ₹{order.orderDetails.tax}.00
+                    </Text>
+                    <Text fontWeight="500" fontSize="15px">
+                      Coupon Discount: ₹{order.orderDetails.coupon}.00
+                    </Text>
+                    <Text fontWeight="bold" fontSize="18px">
+                      Total: ₹{order.orderDetails.total}.00
+                    </Text>
+                    <Badge
+                      colorScheme={getStatusColor(order.status)}
+                      fontSize="16px"
+                      p="2"
+                      borderRadius="md"
+                      mt="2"
+                    >
+                      Status: {order.status.toUpperCase()}
+                    </Badge>
+                  </Box>
+                </Grid>
+              </Grid>
+            ))}
           </Stack>
         )}
       </Box>
