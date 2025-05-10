@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
@@ -31,10 +31,36 @@ const Login = (props) => {
   const [pass, setpass] = useState(false);
   const [show, setShow] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { setisAuth, setAuthData } = useContext(AuthContext);
+  const { setisAuth, setAuthData, isAuth } = useContext(AuthContext);
   const [incorrect, setinCorrect] = useState(false);
   const navigate = useNavigate();
   let res1 = [];
+
+  // Check for existing token on component mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          // Fetch user data using token
+          const response = await fetch(`${API_URL}/user`);
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData && userData.length > 0) {
+              setisAuth(true);
+              setAuthData(userData);
+            }
+          }
+        } catch (error) {
+          console.log("Error verifying authentication:", error);
+        }
+      }
+    };
+
+    if (!isAuth) {
+      checkAuthStatus();
+    }
+  }, [setisAuth, setAuthData, isAuth]);
 
   const handlechange = (e) => {
     setinCorrect(false);
@@ -60,6 +86,7 @@ const Login = (props) => {
       setLoading(true);
       setinCorrect(false);
       if (loginData.email !== "" && loginData.password !== "") {
+        // Login request
         const res = await fetch(
           `${API_URL}/user/login`,
           {
@@ -70,36 +97,70 @@ const Login = (props) => {
             }
           }
         );
-        let data = await res.json();
-        if (res) {
-          const credential = await fetch(
-            `${API_URL}/user`
-          );
-          let cred = await credential.json();
-          localStorage.setItem("token", data.token);
-          res1 = cred.filter((el) => el.email === loginData.email);
-          setisAuth(true);
-          setAuthData(res1);
-          if (loginData.email.includes(process.env.admin)) {
-            setLoading(false);
-            setinCorrect(false);
-            onClose();
-            navigate("/productlist");
+        
+        if (res.ok) {
+          let data = await res.json();
+          const token = data.token;
+          
+          if (token) {
+            // Save token in local storage
+            localStorage.setItem("token", token);
+            
+            // Clear any expired/old tokens
+            sessionStorage.removeItem("token");
+            
+            // Fetch user data with token
+            const userResponse = await fetch(
+              `${API_URL}/user`,
+              {
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
+              }
+            );
+            
+            if (userResponse.ok) {
+              const allUsers = await userResponse.json();
+              // Find the current user
+              const currentUser = allUsers.filter(el => el.email === loginData.email);
+              
+              if (currentUser && currentUser.length > 0) {
+                // Store user data
+                setAuthData(currentUser);
+                setisAuth(true);
+                
+                // If admin, navigate to product list
+                if (loginData.email.includes(process.env.admin)) {
+                  navigate("/productlist");
+                }
+                
+                setLoading(false);
+                setinCorrect(false);
+                onClose();
+              } else {
+                handleLoginError();
+              }
+            } else {
+              handleLoginError();
+            }
           } else {
-            setLoading(false);
-            setinCorrect(false);
-            onClose();
+            handleLoginError();
           }
         } else {
-          setLoading(false);
-          setinCorrect(true);
+          handleLoginError();
         }
       }
     } catch (error) {
-      setLoading(false);
-      setinCorrect(true);
-      console.log("An error occurred. Please try again later.");
+      handleLoginError();
+      console.log("An error occurred during login:", error);
     }
+  };
+  
+  // Helper function to handle login errors
+  const handleLoginError = () => {
+    setLoading(false);
+    setinCorrect(true);
+    localStorage.removeItem("token"); // Clear any invalid token
   };
 
   const handleClick = () => {
