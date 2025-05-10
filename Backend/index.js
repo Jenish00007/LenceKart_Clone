@@ -7,6 +7,7 @@ const paymentRouter = require("./routes/payment.routes");
 const searchRouter = require("./routes/search.routes");
 const bannerRouter = require("./routes/banner.route");
 const adBannerRouter = require("./routes/adBannerRoutes");
+const sectionBannerRoutes = require('./routes/sectionBannerRoutes');
 require("dotenv").config();
 const cors = require("cors");
 
@@ -39,6 +40,7 @@ app.use('/api/payment', paymentRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/banner', bannerRouter);
 app.use('/api/adbanner', adBannerRouter);
+app.use('/api/sectionbanner', sectionBannerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

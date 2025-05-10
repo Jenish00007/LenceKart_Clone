@@ -16,6 +16,7 @@ import CategoryGrid from "../../Components/CategoryGrid/CategoryGrid";
 import RecommendedCategories from "../../Components/RecommendedCategories/RecommendedCategories";
 import LenskartSwaps from "../../Components/LenskartSwaps/LenskartSwaps";
 import TrendingEyeglasses from "../../Components/TrendingEyeglasses/TrendingEyeglasses";
+import SectionBanner from "../../Components/SectionBanner/SectionBanner";
 import {
   HomeDetails2,
   HomeDetails4,
@@ -38,6 +39,13 @@ const Home = () => {
   const [adBanners, setAdBanners] = useState([]);
   const [adBannersLoading, setAdBannersLoading] = useState(true);
   const [adBannersError, setAdBannersError] = useState(null);
+  const [sectionBanners, setSectionBanners] = useState({
+    top: [],
+    middle: [],
+    bottom: []
+  });
+  const [sectionBannersLoading, setSectionBannersLoading] = useState(true);
+  const [sectionBannersError, setSectionBannersError] = useState(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -68,8 +76,30 @@ const Home = () => {
       }
     };
 
+    const fetchSectionBanners = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/sectionbanner/banners');
+        const banners = response.data;
+        
+        // Organize banners by section
+        const organizedBanners = {
+          top: banners.filter(banner => banner.section === 'top'),
+          middle: banners.filter(banner => banner.section === 'middle'),
+          bottom: banners.filter(banner => banner.section === 'bottom')
+        };
+        
+        setSectionBanners(organizedBanners);
+        setSectionBannersLoading(false);
+      } catch (err) {
+        console.error('Error fetching section banners:', err);
+        setSectionBannersError('Failed to fetch section banners: ' + (err.message || 'Unknown error'));
+        setSectionBannersLoading(false);
+      }
+    };
+
     fetchBanners();
     fetchAdBanners();
+    fetchSectionBanners();
   }, []);
 
   const renderAdBanner = (banner) => (
@@ -86,22 +116,48 @@ const Home = () => {
     <Box>
       <Navbar />
       <HomeCard1 type={banners} loading={loading} error={error}/>
-      
+            
       {/* Top Ad Banner */}
       {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
+           
+     
       
       <CategoryGrid />
       <RecommendedCategories />
+
+       {/* Top Section Banners */}
+       {!sectionBannersLoading && !sectionBannersError && sectionBanners.top.map((banner, index) => (
+        <SectionBanner
+          key={banner._id}
+          title={banner.title}
+          leftImage={banner.leftImage}
+          rightImage={banner.rightImage}
+        />
+      ))}
+
       <LenskartSwaps />
-       {/* Middle Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+         {/* Middle Ad Banner */}
+         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+      
+      {/* Middle Section Banners */}
+      {!sectionBannersLoading && !sectionBannersError && sectionBanners.middle.map((banner, index) => (
+        <SectionBanner
+          key={banner._id}
+          title={banner.title}
+          leftImage={banner.leftImage}
+          rightImage={banner.rightImage}
+        />
+      ))}
       
       <TrendingEyeglasses />
       <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" />
       <br />
       <br />
       <br />
-      <br />
+       {/* Bottom Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
+      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
+      {/* <br />
       <HomeCard4
         text="As Seen on Shark Tank"
         src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"
@@ -109,26 +165,11 @@ const Home = () => {
       <br />
       <br />
       <br />
-      <br />
+      <br /> */}
+    
       
-     
-      <HomeCard5 />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <HomeCard5a type={HomeDetails4} heading="CONTACT LENSES & MORE" />
-      <br />
-      <br />
-      <br />
-      <br />
-      <HomeCard5b type={HomeDetails5} heading="BUY IT YOUR WAY" />
-      <br />
-      <br />
-      <br />
-      <br />
-     
+      
+      
       <HomeCard6 type={HomeDetails6} heading="EYEGLASSES" />
       <br />
       <br />
@@ -137,13 +178,7 @@ const Home = () => {
       <HomeCard6 type={HomeDetails7} heading="SUNGLASSES" />
       <br />
       <br />
-       {/* Bottom Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-      
-      <br />
-      <br />
-      
-      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
+            
       <br />
       <br />
       <br />
@@ -154,14 +189,20 @@ const Home = () => {
       />
       <br />
       <br />
-
-      
       <br />
       <br />
       <HomeCard6 type={HomeDetails11} heading="CONTACT LENSES" />
       <br />
       <br />
-      
+      {/* Bottom Section Banners */}
+      {!sectionBannersLoading && !sectionBannersError && sectionBanners.bottom.map((banner, index) => (
+        <SectionBanner
+          key={banner._id}
+          title={banner.title}
+          leftImage={banner.leftImage}
+          rightImage={banner.rightImage}
+        />
+      ))}
       <br />
       <br />
       <HomeCard6 type={HomeDetails12} heading="COLOR CONTACT LENSES" />
@@ -169,11 +210,8 @@ const Home = () => {
       <br />
       <br />
       <br />
-     
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
-      
-     
       <Footer />
     </Box>
   );
