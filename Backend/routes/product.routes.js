@@ -5,6 +5,42 @@ const productRouter = express.Router();
 
 productRouter.use(express.json());
 
+// Get trending products
+productRouter.get("/trending", async (req, res) => {
+  try {
+    const trendingProducts = await ProductModel.find()
+      .sort({ rating: -1, userRated: -1 })
+      .limit(8);
+
+    res.status(200).json({
+      success: true,
+      products: trendingProducts
+    });
+  } catch (error) {
+    console.error("Error fetching trending products:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch trending products" 
+    });
+  }
+});
+
+// Get recommended products
+productRouter.get("/recommended", async (req, res) => {
+  try {
+    const recommendedProducts = await ProductModel.find({
+      recommended: true
+    })
+    .sort({ createdAt: -1 })
+    .limit(6);
+
+    res.status(200).json(recommendedProducts);
+  } catch (error) {
+    console.error("Error fetching recommended products:", error);
+    res.status(500).json({ error: "Failed to fetch recommended products" });
+  }
+});
+
 productRouter.get("/", (req, res) => {
   const query = {};
   let data = ProductModel.find();
@@ -123,39 +159,6 @@ productRouter.delete("/:id", async (req, res) => {
   } catch {
     console.log("err :", err);
     res.send({ msg: err });
-  }
-});
-
-// Get trending eyeglasses
-productRouter.get("/trending", async (req, res) => {
-  try {
-    const trendingProducts = await ProductModel.find({
-      productType: "eyeglasses",
-      trending: true
-    })
-    .sort({ createdAt: -1 })
-    .limit(8);
-
-    res.status(200).json(trendingProducts);
-  } catch (error) {
-    console.error("Error fetching trending products:", error);
-    res.status(500).json({ error: "Failed to fetch trending products" });
-  }
-});
-
-// Get recommended products
-productRouter.get("/recommended", async (req, res) => {
-  try {
-    const recommendedProducts = await ProductModel.find({
-      recommended: true
-    })
-    .sort({ createdAt: -1 })
-    .limit(6);
-
-    res.status(200).json(recommendedProducts);
-  } catch (error) {
-    console.error("Error fetching recommended products:", error);
-    res.status(500).json({ error: "Failed to fetch recommended products" });
   }
 });
 

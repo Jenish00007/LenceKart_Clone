@@ -11,9 +11,11 @@ const TrendingEyeglasses = () => {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/product/trending`);
+        const response = await fetch(`${API_URL}/product/trending`);
         const data = await response.json();
-        setTrendingProducts(data);
+        if (data.success) {
+          setTrendingProducts(data.products);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching trending products:", error);
@@ -64,23 +66,29 @@ const TrendingEyeglasses = () => {
             }}
           >
             <Image
-              src={product.image}
+              src={product.imageTsrc}
               alt={product.name}
               height="200px"
               width="100%"
               objectFit="cover"
             />
             <Box p={4}>
-              <Text fontWeight="bold" fontSize="lg" mb={2}>
+              <Text fontWeight="bold" fontSize="lg" mb={2} noOfLines={2}>
                 {product.name}
               </Text>
-              <Text color="blue.600" fontSize="xl" mb={4}>
+              <Text color="gray.600" fontSize="sm" mb={2}>
+                {product.productType}
+              </Text>
+              <Text color="blue.600" fontSize="xl" mb={2}>
                 ₹{product.price}
+              </Text>
+              <Text color="gray.500" fontSize="sm" mb={4} textDecoration="line-through">
+                ₹{product.mPrice}
               </Text>
               <Button
                 colorScheme="blue"
                 width="100%"
-                onClick={() => navigate(`/product/${product._id}`)}
+                onClick={() => navigate(`/product/${product.id}`)}
               >
                 View Details
               </Button>

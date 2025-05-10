@@ -11,7 +11,7 @@ const RecommendedCategories = () => {
   useEffect(() => {
     const fetchRecommendedProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/product/recommended`);
+        const response = await fetch(`${API_URL}/product/recommended`);
         const data = await response.json();
         setRecommendedProducts(data);
         setLoading(false);
