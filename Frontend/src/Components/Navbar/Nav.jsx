@@ -5,6 +5,7 @@ import { AuthContext } from "../../ContextApi/AuthContext";
 import { Link, Navigate } from "react-router-dom";
 import { HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
+import LogoutButton from "../LogoutButton";
 import {
   DrawerCloseButton,
   Button,
@@ -57,7 +58,7 @@ const glowAnimation = keyframes`
 function Nav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const firstField = React.useRef();
-  const { isAuth, setisAuth, Authdata } = useContext(AuthContext);
+  const { isAuth, Authdata, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const placeholders = [
@@ -123,7 +124,7 @@ function Nav() {
             <DrawerContent color="blackAlpha.900">
               <DrawerCloseButton />
               <DrawerHeader bg="whiteAlpha.900">
-                {isAuth ? (
+                {isAuth && Authdata && Authdata.length > 0 ? (
                   <Flex
                     borderBottom="2px solid #18CFA8"
                     p="5%"
@@ -144,7 +145,7 @@ function Nav() {
                         alignItems="flex-start"
                       >
                         <Text mt="10px" fontSize="20px" color="blackAlpha.900">
-                          {Authdata[0].first_name}
+                          {Authdata[0]?.first_name || "User"}
                         </Text>
                         <Text color="gray.500" mt="5%" fontSize="sm">
                           Enjoy Buy 1 Get 1 offer for 365 days
@@ -450,20 +451,13 @@ function Nav() {
               </DrawerBody>
               {isAuth && (
                 <DrawerFooter bg="whiteAlpha.900">
-                  <Button
+                  <LogoutButton 
                     mt="5%"
                     fontSize="18px"
-                    colorScheme="blue"
                     borderBottom="1px solid #526171"
                     p="6% 15%"
                     _hover={{ bg: "blue.200" }}
-                    onClick={() => {
-                      setisAuth(false);
-                      return <Navigate to="/" />;
-                    }}
-                  >
-                    Sign Out
-                  </Button>
+                  />
                 </DrawerFooter>
               )}
             </DrawerContent>

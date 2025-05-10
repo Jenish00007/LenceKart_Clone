@@ -178,7 +178,7 @@ function NavbarCard5() {
                   <Flex direction="column" fontSize="md" gap="2">
                     <Box _hover={{ fontWeight: "bold" }}>Vincent Chase</Box>
                     <Box _hover={{ fontWeight: "bold" }}>Lenskart Air</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>John Jacobs</Box>
+                    <Box _hover={{ fontWeight: "bold" }}>f Jacobs</Box>
                     <Box _hover={{ fontWeight: "bold" }}>OJOS</Box>
                     <Box _hover={{ fontWeight: "bold" }}>New Balance</Box>
                     <Box _hover={{ fontWeight: "bold" }}>Carrera</Box>

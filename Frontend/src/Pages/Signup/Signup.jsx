@@ -18,7 +18,8 @@ import {
   Input,
   Checkbox,
   InputRightElement,
-  Text
+  Text,
+  useToast
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 
@@ -41,7 +42,9 @@ const Signup = () => {
   const [show, setShow] = useState(false);
   const [Auth, setAuth] = useState();
   const [exist, setExist] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
   var flag = false;
 
   const Required = (props) => {
@@ -59,9 +62,13 @@ const Signup = () => {
   };
 
   const handleChange = (e) => {
-    setExist(false);
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
+
+    // Reset the "email exists" error when email is changed
+    if (name === "email") {
+      setExist(false);
+    }
 
     switch (name) {
       case "first_name":
@@ -126,26 +133,74 @@ const Signup = () => {
             }
           }
         );
-        let data = await res.json();
-        if (res) {
-          const credential = await fetch(
-            `${API_URL}/user`
-          );
-          let cred = await credential.json();
-          localStorage.setItem("token", data.token);
-          flag = cred.filter((el) => el.email === userData.email).length > 0;
-          setExist(flag);
-          setAuth(true);
-          setLoading(false);
+        
+        // Check if response is ok (status 200-299)
+        if (res.ok) {
+          try {
+            let data = await res.json();
+            // Store token if present
+            if (data.token) {
+              localStorage.setItem("token", data.token);
+            }
+            setAuth(true);
+            setLoading(false);
+            setSuccess(true);
+            toast({
+              title: "Registration Successful",
+              description: "You have successfully registered!",
+              status: "success",
+              duration: 5000,
+              isClosable: true
+            });
+            // Close the modal after a brief delay to show success
+            setTimeout(() => {
+              onClose();
+            }, 1500);
+          } catch (error) {
+            // Handle case where response is not JSON (like plain text "Registered")
+            console.log("Registration successful");
+            setAuth(true);
+            setLoading(false);
+            setSuccess(true);
+            toast({
+              title: "Registration Successful",
+              description: "You have successfully registered!",
+              status: "success",
+              duration: 5000,
+              isClosable: true
+            });
+            // Close the modal after a brief delay to show success
+            setTimeout(() => {
+              onClose();
+            }, 1500);
+          }
         } else {
+          // Check if the error is due to existing email
+          try {
+            const errorData = await res.json();
+            
+            if (res.status === 409 || 
+               (errorData && (
+                errorData.message?.includes("exists") || 
+                errorData.error?.includes("exists")
+               ))) {
+              setExist(true);
+            } else {
+              console.log("Registration failed:", errorData);
+              setExist(true); // Generic error for now, can be refined later
+            }
+          } catch (error) {
+            // If we can't parse the error as JSON
+            console.log("Error parsing response:", error);
+            setExist(res.status === 409); // Set true only for 409 Conflict status
+          }
           setLoading(false);
-          setExist(true);
         }
       }
     } catch (error) {
       setLoading(false);
       setExist(true);
-      console.log("An error occurred. Please try again later.");
+      console.log("An error occurred. Please try again later.", error);
     }
   };
 
@@ -153,13 +208,32 @@ const Signup = () => {
     getData();
   };
 
+  const handleOpen = () => {
+    setExist(false);
+    setSuccess(false);
+    setUserData(init);
+    setFirst(undefined);
+    setLast(undefined);
+    setPh(undefined);
+    setMail(undefined);
+    setPass(undefined);
+    onOpen();
+  };
+
+  const handleModalClose = () => {
+    setExist(false);
+    setSuccess(false);
+    setUserData(init);
+    onClose();
+  };
+
   return (
     <div>
-      <Center onClick={onOpen} fontWeight={"400"} fontSize="15px" w="60px">
+      <Center onClick={handleOpen} fontWeight={"400"} fontSize="15px" w="60px">
         Sign Up
       </Center>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
+      <Modal isOpen={isOpen} onClose={handleModalClose} isCentered size="md">
         <ModalOverlay />
         <ModalContent w="lg" pt="5" rounded="3xl">
           <ModalCloseButton />
@@ -320,6 +394,18 @@ const Signup = () => {
                 <Required info="Email Id already exists" />
               ) : (
                 ""
+              )}
+
+              {success && (
+                <Box
+                  fontSize={"14px"}
+                  m="3px 0px 8px 0px"
+                  color={"green.500"}
+                  fontWeight="500"
+                  letterSpacing={"-0.4px"}
+                >
+                  Registration successful! Redirecting...
+                </Box>
               )}
 
               <HStack spacing={"3px"} mb="10px">

@@ -28,6 +28,7 @@ import {
   InputGroup,
   InputLeftElement
 } from "@chakra-ui/react";
+import LogoutButton from "../LogoutButton";
 
 const typingAnimation = keyframes`
   0% { width: 0; opacity: 0; }
@@ -137,7 +138,7 @@ export const NavbarCard2 = () => {
             >
               Track Order
             </Button>
-            {isAuth === true ? (
+            {isAuth === true && Authdata && Authdata.length > 0 ? (
               <Popover trigger="hover">
                 <PopoverTrigger>
                   <Box
@@ -148,7 +149,7 @@ export const NavbarCard2 = () => {
                     w="90px"
                     textAlign="center"
                   >
-                    {Authdata[0].first_name}
+                    {Authdata[0]?.first_name || "User"}
                     <TriangleDownIcon
                       ml="2px"
                       fontSize={"9px"}
@@ -166,15 +167,16 @@ export const NavbarCard2 = () => {
                     fontSize="15px"
                     _hover={{ fontWeight: "bold" }}
                   >
-                    <Box
+                    <LogoutButton
                       color="#333368"
-                      onClick={() => {
-                        setisAuth(false);
-                        return <Navigate to="/" />;
-                      }}
-                    >
-                      Sign Out
-                    </Box>
+                      variant="ghost"
+                      h="auto"
+                      p="0"
+                      fontWeight="normal"
+                      fontSize="15px"
+                      _hover={{ fontWeight: "bold" }}
+                      customText="Sign Out"
+                    />
                   </PopoverBody>
                 </PopoverContent>
               </Popover>
