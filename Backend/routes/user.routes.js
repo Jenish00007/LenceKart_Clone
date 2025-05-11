@@ -6,16 +6,48 @@ require('dotenv').config();
 
 const userRouter = express.Router();
 
+// userRouter.get("/", async (req, res) => {
+//   let query = req.query;
+//   try {
+//     const users = await userModel.find(query);
+//     res.status(200).send(users);
+//   } catch (error) {
+//     console.log(err);
+//     res.status(500).send({ err: "Something went wrong" });
+//   }
+// });
 userRouter.get("/", async (req, res) => {
-  let query = req.query;
   try {
-    const users = await userModel.find(query);
-    res.status(200).send(users);
+    const { search = "" } = req.query;
+
+    // Search filter (optional)
+    const searchFilter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { mobile: { $regex: search, $options: "i" } }
+          ]
+        }
+      : {};
+
+    // Fetch all matching users
+    const users = await userModel.find(searchFilter);
+
+    // Count matching users
+    const totalCount = await userModel.countDocuments(searchFilter);
+
+    res.status(200).json({
+      success: true,
+      users,
+      totalCount
+    });
   } catch (error) {
-    console.log(err);
-    res.status(500).send({ err: "Something went wrong" });
+    console.error("Error fetching users:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 });
+
+
 
 userRouter.post("/register", async (req, res) => {
   const { email, password, first_name, last_name, ph_no } = req.body;

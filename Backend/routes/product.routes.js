@@ -98,8 +98,14 @@ productRouter.get("/", async (req, res) => {
       .skip(parseInt(req.query.page) * 12)
       .limit(12);
 
+    const totalCount = await ProductModel.countDocuments(query);
+
     console.log("Found products:", products.length);
-    res.status(200).json(products);
+    res.status(200).json({
+      success: true,
+      totalCount: totalCount,
+      products: products
+    });
   } catch (error) {
     console.error("Error in product search:", error);
     res.status(500).json({ 

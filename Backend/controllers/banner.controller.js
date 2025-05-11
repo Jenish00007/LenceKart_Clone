@@ -19,3 +19,13 @@ exports.createBanners = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+//delete banner
+exports.deleteBanner = async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndDelete(req.params.id);
+    res.status(200).json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
