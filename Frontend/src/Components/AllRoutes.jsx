@@ -85,25 +85,25 @@ const AllRoutes = () => {
       <Route
         path="/productlist"
         element={
-          <Privateroutes>
+          // <Privateroutes>
             <Productlist />
-          </Privateroutes>
+          // </Privateroutes>
         }
       />
       <Route
         path="/productpost"
         element={
-          <Privateroutes>
+          // <Privateroutes>
             <ProductPost />
-          </Privateroutes>
+          // </Privateroutes>
         }
       />
       <Route
         path="/editproduct/:id"
         element={
-          <Privateroutes>
+          // <Privateroutes>
             <EditProduct />
-          </Privateroutes>
+          // </Privateroutes>
         }
       />
     </Routes>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Text, Stack, Heading, Image, Grid, Badge } from "@chakra-ui/react";
+import { Box, Text, Stack, Heading, Image, Grid, Badge, useColorModeValue } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -9,6 +9,8 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const cardBg = useColorModeValue("white", "gray.800");
+  const cardHoverBg = useColorModeValue("gray.50", "gray.700");
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -54,27 +56,29 @@ const OrderHistory = () => {
   };
 
   return (
-    <Box>
+    <Box bg={useColorModeValue("gray.50", "gray.900")} minH="100vh">
       <Navbar />
-      <br />
       <Box
         minHeight="635"
         p={8}
-        w={{ lg: "70%", md: "70%", sm: "98%", base: "98%" }}
+        w={{ lg: "80%", md: "90%", sm: "95%", base: "95%" }}
         m="auto"
       >
         <Heading
-          fontSize="25px"
-          mt="1%"
+          fontSize="28px"
+          mt="2%"
           textAlign="left"
-          p="2"
+          p="4"
           bg="teal.400"
           color="whiteAlpha.900"
+          borderRadius="lg"
+          boxShadow="md"
+          mb="6"
         >
           Order History
         </Heading>
         {loading ? (
-          <Text textAlign="center" fontSize="20px" mt="20px">
+          <Text textAlign="center" fontSize="20px" mt="20px" color="gray.500">
             Loading orders...
           </Text>
         ) : error ? (
@@ -86,24 +90,30 @@ const OrderHistory = () => {
             textAlign="center"
             fontSize="28px"
             color="gray"
-            mt="1%"
+            mt="5%"
             fontWeight="bolder"
           >
             No Order History Found
           </Text>
         ) : (
-          <Stack spacing={4}>
+          <Stack spacing={6}>
             {orders.map((order) => (
               <Grid
                 key={order._id}
-                borderRadius="20px"
+                borderRadius="xl"
                 fontSize="16px"
                 textAlign="center"
-                bg="whiteAlpha.900"
-                p={4}
-                boxShadow="dark-lg"
+                bg={cardBg}
+                p={6}
+                boxShadow="lg"
                 gap="5"
                 color="gray.600"
+                transition="all 0.3s"
+                _hover={{
+                  transform: "translateY(-4px)",
+                  boxShadow: "xl",
+                  bg: cardHoverBg,
+                }}
               >
                 <Grid
                   templateColumns={{
@@ -112,7 +122,7 @@ const OrderHistory = () => {
                     lg: "30% 60%",
                     xl: "20% 60%"
                   }}
-                  gap="5"
+                  gap="8"
                 >
                   <Box>
                     <Image
@@ -126,6 +136,10 @@ const OrderHistory = () => {
                         "2xl": "100%"
                       }}
                       m="auto"
+                      borderRadius="lg"
+                      boxShadow="md"
+                      transition="transform 0.3s"
+                      _hover={{ transform: "scale(1.05)" }}
                     />
                   </Box>
                   <Box
@@ -136,43 +150,48 @@ const OrderHistory = () => {
                       base: "center"
                     }}
                   >
-                    <Text fontWeight="bold">
+                    <Text fontWeight="bold" fontSize="lg" color="teal.500" mb="2">
                       Order ID: {order.orderId}
                     </Text>
-                    <Text fontWeight="600">
+                    <Text fontWeight="600" color="gray.500" mb="2">
                       Order Date: {formatDate(order.createdAt)}
                     </Text>
                     <Text
-                      fontSize="18px"
+                      fontSize="xl"
                       fontWeight="bold"
                       textTransform="capitalize"
+                      color="gray.700"
+                      mb="3"
                     >
                       {order.orderDetails.items[0].name}
                     </Text>
-                    <Text fontWeight="500" fontSize="15px">
-                      Quantity: {order.orderDetails.items[0].quantity}
-                    </Text>
-                    <Text fontWeight="bold" fontSize="18px">
-                      Price: ₹{order.orderDetails.items[0].price}.00
-                    </Text>
-                    <Text fontWeight="500" fontSize="15px">
-                      Subtotal: ₹{order.orderDetails.subtotal}.00
-                    </Text>
-                    <Text fontWeight="500" fontSize="15px">
-                      Tax: ₹{order.orderDetails.tax}.00
-                    </Text>
-                    <Text fontWeight="500" fontSize="15px">
-                      Coupon Discount: ₹{order.orderDetails.coupon}.00
-                    </Text>
-                    <Text fontWeight="bold" fontSize="18px">
-                      Total: ₹{order.orderDetails.total}.00
-                    </Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={4} mb="4">
+                      <Text fontWeight="500" fontSize="md">
+                        Quantity: {order.orderDetails.items[0].quantity}
+                      </Text>
+                      <Text fontWeight="bold" fontSize="md">
+                        Price: ₹{order.orderDetails.items[0].price}.00
+                      </Text>
+                      <Text fontWeight="500" fontSize="md">
+                        Subtotal: ₹{order.orderDetails.subtotal}.00
+                      </Text>
+                      <Text fontWeight="500" fontSize="md">
+                        Tax: ₹{order.orderDetails.tax}.00
+                      </Text>
+                      <Text fontWeight="500" fontSize="md">
+                        Coupon: ₹{order.orderDetails.coupon}.00
+                      </Text>
+                      <Text fontWeight="bold" fontSize="lg" color="teal.500">
+                        Total: ₹{order.orderDetails.total}.00
+                      </Text>
+                    </Grid>
                     <Badge
                       colorScheme={getStatusColor(order.status)}
-                      fontSize="16px"
+                      fontSize="md"
                       p="2"
                       borderRadius="md"
                       mt="2"
+                      boxShadow="sm"
                     >
                       Status: {order.status.toUpperCase()}
                     </Badge>
@@ -183,8 +202,6 @@ const OrderHistory = () => {
           </Stack>
         )}
       </Box>
-      <br />
-      <br />
       <Footer />
     </Box>
   );
