@@ -14,6 +14,14 @@ import Wishlist from "../Pages/Wishlist/Wishlist";
 import Productlist from "../Pages/Admin/Productlist";
 import ProductPost from "../Pages/Admin/ProductPost";
 import EditProduct from "../Pages/Admin/EditProduct";
+import BuyingGuide from "../Pages/FooterPages/BuyingGuide";
+import FrameSize from "../Pages/FooterPages/FrameSize";
+import AboutUs from "../Pages/FooterPages/AboutUs";
+import Help from "../Pages/FooterPages/Help";
+import FAQ from "../Pages/FooterPages/FAQ";
+import TermsAndConditions from "../Pages/FooterPages/TermsAndConditions";
+import PrivacyPolicy from "../Pages/FooterPages/PrivacyPolicy";
+import Disclaimer from "../Pages/FooterPages/Disclaimer";
 
 const AllRoutes = () => {
   const location = useLocation();
@@ -106,6 +114,15 @@ const AllRoutes = () => {
           // </Privateroutes>
         }
       />
+      {/* Footer Pages */}
+      <Route path="/buying-guide" element={<BuyingGuide />} />
+      <Route path="/frame-size" element={<FrameSize />} />
+      <Route path="/about-us" element={<AboutUs />} />
+      <Route path="/help" element={<Help />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/disclaimer" element={<Disclaimer />} />
     </Routes>
   );
 };

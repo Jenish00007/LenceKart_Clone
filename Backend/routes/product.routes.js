@@ -41,56 +41,73 @@ productRouter.get("/recommended", async (req, res) => {
   }
 });
 
-productRouter.get("/", (req, res) => {
-  const query = {};
-  let data = ProductModel.find();
-  if (req.query.rating) {
-    query.rating = req.query.rating;
+productRouter.get("/", async (req, res) => {
+  try {
+    const query = {};
+    console.log("Received query params:", req.query);
+    
+    if (req.query.rating) {
+      query.rating = req.query.rating;
+    }
+    if (req.query.colors) {
+      query.colors = { $in: [req.query.colors] };
+    }
+    if (req.query.price) {
+      query.price = req.query.price;
+    }
+    if (req.query.mPrice) {
+      query.mPrice = req.query.mPrice;
+    }
+    if (req.query.shape) {
+      query.shape = req.query.shape;
+    }
+    if (req.query.gender) {
+      query.gender = req.query.gender;
+    }
+    if (req.query.style) {
+      query.style = req.query.style;
+    }
+    if (req.query.dimension) {
+      query.dimension = req.query.dimension;
+    }
+    if (req.query.productType) {
+      query.productType = req.query.productType;
+    }
+    if (req.query.userRated) {
+      query.userRated = req.query.userRated;
+    }
+    if (req.query.search) {
+      query.$or = [
+        { name: { $regex: req.query.search, $options: "i" } },
+        { productRefLink: { $regex: req.query.search, $options: "i" } },
+        { productType: { $regex: req.query.search, $options: "i" } }
+      ];
+      console.log("Search query:", query.$or);
+    }
+    if (req.query.productRefLink) {
+      query.productRefLink = { $regex: req.query.productRefLink, $options: "i" };
+    }
+    if (req.query.frameType) {
+      query.frameType = req.query.frameType;
+    }
+
+    console.log("Final query:", query);
+
+    const products = await ProductModel.find(query)
+      .sort({ price: req.query.sort === "lowtohigh" ? 1 : -1 })
+      .skip(parseInt(req.query.page) * 12)
+      .limit(12);
+
+    console.log("Found products:", products.length);
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error in product search:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Error searching products",
+      details: error.message 
+    });
   }
-  if (req.query.colors) {
-    query.colors = { $regex: req.query.colors };
-  }
-  if (req.query.price) {
-    query.price = req.query.price;
-  }
-  if (req.query.mPrice) {
-    query.mPrice = req.query.mPrice;
-  }
-  if (req.query.shape) {
-    query.shape = req.query.shape;
-  }
-  if (req.query.gender) {
-    query.gender = { $regex: req.query.gender };
-  }
-  if (req.query.style) {
-    query.style = req.query.style;
-  }
-  if (req.query.dimension) {
-    query.dimension = req.query.dimension;
-  }
-  if (req.query.productType) {
-    query.productType = req.query.productType;
-  }
-  if (req.query.userRated) {
-    query.userRated = req.query.userRated;
-  }
-  if (req.query.search) {
-    query.name = { $regex: req.query.search, $options: "i" };
-  }
-  if (req.query.productRefLink) {
-    query.productRefLink = { $regex: req.query.productRefLink, $options: "i" };
-  }
-  data
-    .find(query, (error, prod) => {
-      if (error) {
-        res.status(500).send(error);
-      } else {
-        res.send(prod);
-      }
-    })
-    .sort({ price: req.query.sort === "lowtohigh" ? 1 : -1 })
-    .skip(parseInt(req.query.page) * 12)
-    .limit(12);
 });
 
 productRouter.get("/:id", async (req, res) => {

@@ -145,7 +145,7 @@ function NavbarCard5() {
                   </Flex>
                 </Flex>
 
-                <Flex direction="column" gap="6">
+                <Flex direction="column" gap="8">
                   <Box
                     fontSize="md"
                     fontWeight="bold"
@@ -166,8 +166,8 @@ function NavbarCard5() {
                   </Flex>
                 </Flex>
 
-                <Flex direction="column" gap="6">
-                  <Box
+               {/*   <Flex direction="column" gap="6">
+                 <Box
                     fontSize="md"
                     fontWeight="bold"
                     borderBottom="1px solid black"
@@ -184,7 +184,7 @@ function NavbarCard5() {
                     <Box _hover={{ fontWeight: "bold" }}>Carrera</Box>
                     <Box _hover={{ fontWeight: "bold" }}>Fossil</Box>
                   </Flex>
-                </Flex>
+                </Flex> */}
               </Grid>
             </Box>
           </Link>
@@ -568,7 +568,6 @@ function NavbarCard5() {
                   </Box>
                   <Flex direction="column" fontSize="md" gap="2">
                     <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Best Seller</Box>
                     <Box _hover={{ fontWeight: "bold" }}>Pilot Style</Box>
                     <Box _hover={{ fontWeight: "bold" }}>Power Sunglasses</Box>
                     <Box _hover={{ fontWeight: "bold" }}>

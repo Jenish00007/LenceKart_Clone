@@ -72,6 +72,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  frameType: {
+    type: String,
+    enum: ["Full Rim", "Half Rim", "Rimless"]
+  },
   createdAt: {
     type: Date,
     default: Date.now

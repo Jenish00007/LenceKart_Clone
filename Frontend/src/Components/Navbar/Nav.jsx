@@ -61,6 +61,7 @@ function Nav() {
   const { isAuth, Authdata, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const placeholders = [
     "Search for eyeglasses...",
     "Search for sunglasses...",
@@ -75,6 +76,12 @@ function Nav() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+      navigate(`/products?search=${searchQuery}`);
+    }
+  };
 
   return (
     <Box
@@ -473,6 +480,9 @@ function Nav() {
             fontSize="16px"
             h="35px"
             pl="40px"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleSearch}
             _placeholder={{
               animation: `${typingAnimation} 3s steps(40, end) infinite, ${slideAnimation} 3s ease-in-out infinite, ${glowAnimation} 3s ease-in-out infinite`,
               whiteSpace: "nowrap",

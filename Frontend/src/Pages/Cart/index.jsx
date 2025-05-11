@@ -92,9 +92,9 @@ const CartPage = () => {
               totalPrice={getTotalPrice()}
               discountPrice={getdiscountPrice()}
             />
-            <SaleBox />
+            {/* <SaleBox /> */}
 
-            <CouponBox />
+            {/* <CouponBox /> */}
             <Button
               backgroundColor={"#12daac"}
               color="#091e52"
