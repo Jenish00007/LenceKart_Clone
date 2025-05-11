@@ -1,10 +1,20 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Text, Button, Heading, Grid } from "@chakra-ui/react";
+import { Box, Text, Button, Heading, Grid, keyframes } from "@chakra-ui/react";
 import { removeFromWishlist } from "../../redux/wishlist/wishlist.actions";
 import { addToCart } from "../../redux/CartPage/action";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
 import { useNavigate } from "react-router-dom";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const slideIn = keyframes`
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
 
 const Wishlist = () => {
   const wishlistItems = useSelector((store) => store.wishlistManager.wishlist);
@@ -43,11 +53,19 @@ const Wishlist = () => {
         <Heading
           fontSize="25px"
           textAlign="left"
-          p="2"
-          bg="teal.400"
+          p="4"
+          bgGradient="linear(to-r, teal.400, blue.500)"
           color="whiteAlpha.900"
           w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
           m="auto"
+          borderRadius="lg"
+          boxShadow="lg"
+          _hover={{
+            transform: "translateY(-2px)",
+            boxShadow: "xl"
+          }}
+          transition="all 0.3s ease"
+          animation={`${fadeIn} 0.8s ease-out`}
         >
           Wishlist
         </Heading>
@@ -56,8 +74,9 @@ const Wishlist = () => {
             textAlign="center"
             fontSize="28px"
             color="gray"
-            mt="1%"
+            mt="5%"
             fontWeight="bolder"
+            animation={`${fadeIn} 0.8s ease-out`}
           >
             Your wishlist is empty.
           </Text>
@@ -66,15 +85,23 @@ const Wishlist = () => {
             <Grid templateColumns="repeat(1,1fr)" gap={18} w={"100%"}>
               {wishlistItems &&
                 wishlistItems &&
-                wishlistItems.map((item) => (
+                wishlistItems.map((item, index) => (
                   <Box
                     key={item.id}
                     borderWidth="1px"
                     boxShadow="2xl"
-                    p="4"
+                    p="6"
                     my="4"
                     w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
                     m="auto"
+                    borderRadius="lg"
+                    bg="white"
+                    _hover={{
+                      transform: "translateY(-5px)",
+                      boxShadow: "xl"
+                    }}
+                    transition="all 0.3s ease"
+                    animation={`${fadeIn} 0.8s ease-out ${index * 0.1}s`}
                   >
                     <Grid
                       m="auto"
@@ -86,13 +113,19 @@ const Wishlist = () => {
                         xl: "70% 30%"
                       }}
                       justify="space-between"
-                      mb="2"
+                      mb="4"
                     >
                       <Text
                         fontSize="xl"
                         fontWeight="bold"
                         textTransform="capitalize"
                         mb={{ sm: "4", base: "4" }}
+                        bgGradient="linear(to-r, blue.500, purple.500)"
+                        bgClip="text"
+                        _hover={{
+                          transform: "translateX(10px)"
+                        }}
+                        transition="all 0.3s ease"
                       >
                         {item.productRefLink}
                       </Text>
@@ -110,14 +143,24 @@ const Wishlist = () => {
                         mb="2"
                       >
                         <Button
-                          colorScheme="red"
+                          colorScheme="blue"
                           onClick={() => handleAddToCart(item)}
+                          _hover={{
+                            transform: "scale(1.05)",
+                            boxShadow: "lg"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           Add to Cart
                         </Button>
                         <Button
                           colorScheme="red"
                           onClick={() => handleDelete(item._id)}
+                          _hover={{
+                            transform: "scale(1.05)",
+                            boxShadow: "lg"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           Remove
                         </Button>
@@ -136,12 +179,22 @@ const Wishlist = () => {
                       align="center"
                       mb="1"
                     >
-                      <img
-                        src={item.imageTsrc}
-                        alt={item.name}
-                        boxSize="180px"
-                        m="auto"
-                      />
+                      <Box
+                        position="relative"
+                        _hover={{
+                          transform: "scale(1.05)"
+                        }}
+                        transition="all 0.3s ease"
+                      >
+                        <img
+                          src={item.imageTsrc}
+                          alt={item.name}
+                          boxSize="180px"
+                          m="auto"
+                          borderRadius="lg"
+                          boxShadow="md"
+                        />
+                      </Box>
 
                       <Box
                         ml="4"
@@ -156,10 +209,23 @@ const Wishlist = () => {
                           fontSize="lg"
                           fontWeight="bold"
                           textTransform="capitalize"
+                          _hover={{
+                            color: "blue.500",
+                            transform: "translateX(10px)"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           {item.name}
                         </Text>
-                        <Text fontSize="lg" fontWeight="bold">
+                        <Text 
+                          fontSize="lg" 
+                          fontWeight="bold"
+                          _hover={{
+                            color: "green.500",
+                            transform: "translateX(10px)"
+                          }}
+                          transition="all 0.3s ease"
+                        >
                           Price : ₹ {item.price}.00 /-
                         </Text>
                         <Text
@@ -167,6 +233,11 @@ const Wishlist = () => {
                           fontWeight="bold"
                           color="gray.600"
                           textTransform="capitalize"
+                          _hover={{
+                            color: "purple.500",
+                            transform: "translateX(10px)"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           {item.productType}
                         </Text>
@@ -175,14 +246,24 @@ const Wishlist = () => {
                           fontWeight="bold"
                           color="gray.600"
                           textTransform="capitalize"
+                          _hover={{
+                            color: "purple.500",
+                            transform: "translateX(10px)"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           Colour : {item.colors}
-                        </Text>{" "}
+                        </Text>
                         <Text
                           fontSize="md"
                           fontWeight="600"
                           color="gray.600"
                           textTransform="capitalize"
+                          _hover={{
+                            color: "purple.500",
+                            transform: "translateX(10px)"
+                          }}
+                          transition="all 0.3s ease"
                         >
                           Shape : {item.shape}
                         </Text>
