@@ -21,7 +21,10 @@ function App() {
         <Route path="Banners" element={<Banners />} />
         <Route path="/admin/section-banners" element={<SectionBanners />} />
         <Route path="/admin/users" element={<Users />} />
+
         <Route path="/admin/productpost" element={<ProductPost />} />
+
+
       </Route>
       
       {/* Regular Routes */}

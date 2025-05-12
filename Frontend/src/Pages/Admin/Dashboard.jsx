@@ -9,7 +9,11 @@ const Dashboard = () => {
   const menuItems = [
     { path: '/admin', label: 'Analytics', icon: '📊' },
     { path: '/admin/products', label: 'Products', icon: '📦' },
+
     { path: '/admin/productpost', label: 'Add Product', icon: '➕' },
+
+    { path: '/admin/add-product', label: 'Add Product', icon: '➕' },
+
     { path: '/admin/orders', label: 'Orders', icon: '📋' },
     { path: '/admin/Banners', label: 'Banners', icon: '🖼️' },
     // { path: '/admin/add-banner', label: 'Add Banner', icon: '➕' },

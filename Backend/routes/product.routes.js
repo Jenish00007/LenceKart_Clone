@@ -101,6 +101,7 @@ productRouter.get("/", async (req, res) => {
     const totalCount = await ProductModel.countDocuments(query);
 
     console.log("Found products:", products.length);
+
     res.status(200).json({
       success: true,
       totalCount: totalCount,

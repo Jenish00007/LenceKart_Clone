@@ -5,13 +5,13 @@ import PropTypes from 'prop-types';
 
 const ProductCard = ({ type = [] }) => {
   // If type is not an array or is empty, show a message
-  if (!Array.isArray(type) || type.length === 0) {
-    return (
-      <Box textAlign="center" p={4}>
-        <Text>No products available</Text>
-      </Box>
-    );
-  }
+  // if (!Array.isArray(type) || type.length === 0) {
+  //   return (
+  //     <Box textAlign="center" p={4}>
+  //       <Text>No products available</Text>
+  //     </Box>
+  //   );
+  // }
 
   return (
     <Grid
@@ -25,7 +25,7 @@ const ProductCard = ({ type = [] }) => {
       height="100vh"
       gap={6}
     >
-      {type.map((ele) => (
+      {type?.products?.map((ele) => (
         <GridItem key={ele._id}>
           <Link to={`/products/${ele._id}`}>
             <Box
