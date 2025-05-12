@@ -10,10 +10,10 @@ import "./App.css";
 import Banners from './Pages/Admin/Banners';
 import AllRoutes from "./Components/AllRoutes";
 import ProductPost from './Pages/Admin/ProductPost';
+
 function App() {
   return (
     <Routes>
-      {/* Admin Routes */}
       <Route path="/admin" element={<Dashboard />}>
         <Route index element={<Analytics />} />
         <Route path="products" element={<Products />} />
@@ -21,13 +21,8 @@ function App() {
         <Route path="Banners" element={<Banners />} />
         <Route path="/admin/section-banners" element={<SectionBanners />} />
         <Route path="/admin/users" element={<Users />} />
-
         <Route path="/admin/productpost" element={<ProductPost />} />
-
-
       </Route>
-      
-      {/* Regular Routes */}
       <Route path="/*" element={<AllRoutes />} />
     </Routes>
   );

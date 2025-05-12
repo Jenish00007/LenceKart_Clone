@@ -25,7 +25,7 @@ const NewProduct = () => {
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState("");
   const [gender, setGender] = useState("");
-  const [productRef, setProductRef] = useState("");
+  const [frametype, setFrametype] = useState("");
   const [shape, setShape] = useState("");
   const [style, setStyle] = useState("");
   const [colors, setColors] = useState("");
@@ -35,7 +35,7 @@ const NewProduct = () => {
     setIsLoaded(true);
     try {
       const searchQuery = searchParams.get('search') || '';
-      const url = `${API_URL}/product?sort=${sort}&productRefLink=${productRef}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
+      const url = `${API_URL}/product?sort=${sort}&productRefLink=${frametype}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
       
       console.log("Fetching URL:", url);
       
@@ -57,14 +57,14 @@ const NewProduct = () => {
   useEffect(() => {
     console.log("Search params changed:", searchParams.toString());
     fetchproduct();
-  }, [page, sort, gender, types, productRef, shape, style, colors, searchParams]);
+  }, [page, sort, gender, types, frametype, shape, style, colors, searchParams]);
 
   const handleClick = (value) => {
-    setProductRef(value);
+    setFrametype(value);
   };
 
   const handleClick2 = (value) => {
-    setProductRef(value);
+    setShape(value);
   };
 
   return (
@@ -107,8 +107,8 @@ const NewProduct = () => {
               val1={types}
               type2={FrameColor}
               heading2={"FRAME COLOR"}
-              handlechange2={setProductRef}
-              val2={productRef}
+              handlechange2={setColors}
+              val2={colors}
             />
 
             <hr />
