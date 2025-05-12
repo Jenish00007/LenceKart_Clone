@@ -76,44 +76,51 @@ userRouter.post("/register", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await userModel.find({ email });
-    const hashed_password = user[0].password;
-    if (user.length > 0) {
-      bcrypt.compare(password, hashed_password, (err, result) => {
-        if (result) {
-          if (!process.env.JWT_SECRET) {
-            return res.status(500).json({ 
-              message: 'Server configuration error',
-              error: 'JWT secret is not configured'
-            });
-          }
-          const token = jwt.sign({ 
-            userID: user[0]._id,
-            email: user[0].email,
-            name: `${user[0].first_name} ${user[0].last_name}`
-          }, process.env.JWT_SECRET, { expiresIn: '24h' });
-          
-          res.status(200).json({ 
-            message: "Login Successful", 
-            token: token,
-            user: {
-              id: user[0]._id,
-              email: user[0].email,
-              name: `${user[0].first_name} ${user[0].last_name}`
-            }
-          });
-        } else {
-          res.status(401).json({ message: "Invalid credentials" });
-        }
-      });
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
+    const user = await userModel.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ 
+        message: 'Server configuration error',
+        error: 'JWT secret is not configured'
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userID: user._id,
+        email: user.email,
+        name: `${user.first_name} ${user.last_name}`
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({
+      message: "Login Successful",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: `${user.first_name} ${user.last_name}`
+      }
+    });
+
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: "Something went wrong", error: err.message });
   }
 });
+
 
 module.exports = {
   userRouter,

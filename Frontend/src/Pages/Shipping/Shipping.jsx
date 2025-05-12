@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CartItem from "./CartItem";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -12,12 +12,15 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Flex
+  Flex,
+  useToast
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 import "../../App.css";
 
 function Shipping() {
   const navigate = useNavigate();
+  const toast = useToast();
 
   const init = {
     first_name: "",
@@ -42,6 +45,14 @@ function Shipping() {
   const [cities, setCities] = useState();
   const [countries, setCountries] = useState();
   const [statess, setStatess] = useState();
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Fetch cart items from localStorage or your cart management system
+    const items = JSON.parse(localStorage.getItem('cart')) || [];
+    setCartItems(items);
+  }, []);
 
   const Required = (props) => {
     return (
@@ -132,6 +143,96 @@ function Shipping() {
         break;
     }
   };
+
+  const calculateOrderDetails = () => {
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.18; // 18% tax
+    const total = subtotal + tax;
+
+    return {
+      items: cartItems.map(item => ({
+        id: item._id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.imageTsrc
+      })),
+      subtotal,
+      tax,
+      coupon: 0,
+      total
+    };
+  };
+
+  const handlePlaceOrder = async () => {
+    try {
+      setLoading(true);
+
+      const orderDetails = calculateOrderDetails();
+      const userId = localStorage.getItem('userId'); // Get userId from your auth system
+
+      const orderData = {
+        userId,
+        amount: orderDetails.total,
+        orderDetails,
+        shippingAddress: userData
+      };
+
+      const response = await fetch(`${API_URL}/api/orders/place-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add your auth token if required
+          // 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Order Placed Successfully",
+          description: "Your order has been placed successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        
+        // Clear cart after successful order
+        localStorage.removeItem('cart');
+        
+        // Navigate to order confirmation or checkout page
+        navigate("/checkout", { state: { orderId: data.order.orderId } });
+      } else {
+        throw new Error(data.message || 'Failed to place order');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to place order",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFormValid = 
+    userData.first_name.length >= 1 &&
+    userData.last_name.length >= 1 &&
+    userData.phone.length === 10 &&
+    userData.email.includes("@") &&
+    userData.email.includes(".com") &&
+    userData.address.length >= 1 &&
+    userData.pincode.length === 6 &&
+    userData.city.length >= 1 &&
+    userData.country.length >= 1 &&
+    userData.state.length >= 1;
 
   return (
     <>
@@ -372,43 +473,22 @@ function Shipping() {
               </Grid>
               <br />
 
-              {userData.first_name.length >= 1 &&
-              userData.last_name.length >= 1 &&
-              userData.phone.length === 10 &&
-              userData.email.includes("@") &&
-              userData.email.includes(".com") &&
-              userData.address.length >= 1 &&
-              userData.pincode.length === 6 &&
-              userData.city.length >= 1 &&
-              userData.country.length >= 1 &&
-              userData.state.length >= 1 ? (
-                <Button
-                  onClick={() => navigate("/checkout")}
-                  bg="#00b9c6"
-                  p="25px 20px"
-                  color="#fff"
-                  textAlign="center"
-                  fontWeight="bold"
-                  borderRadius="5px"
-                  fontSize="18px"
-                  ml={{ lg: "80%", sm: "70%", base: "50%" }}
-                >
-                  CONTINUE
-                </Button>
-              ) : (
-                <Button
-                  bg="#cccccc"
-                  p="25px 20px"
-                  color="#fff"
-                  textAlign="center"
-                  fontWeight="bold"
-                  borderRadius="5px"
-                  fontSize="18px"
-                  ml={{ lg: "80%", md: "72%", sm: "60%", base: "40%" }}
-                >
-                  CONTINUE
-                </Button>
-              )}
+              <Button
+                onClick={isFormValid ? handlePlaceOrder : undefined}
+                bg={isFormValid ? "#00b9c6" : "#cccccc"}
+                p="25px 20px"
+                color="#fff"
+                textAlign="center"
+                fontWeight="bold"
+                borderRadius="5px"
+                fontSize="18px"
+                ml={{ lg: "80%", sm: "70%", base: "50%" }}
+                isLoading={loading}
+                loadingText="Placing Order..."
+                disabled={!isFormValid || loading}
+              >
+                CONTINUE
+              </Button>
             </Box>
             <br />
           </Box>

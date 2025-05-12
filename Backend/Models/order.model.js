@@ -35,6 +35,45 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  shippingAddress: {
+    first_name: {
+      type: String,
+      required: true
+    },
+    last_name: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    address: {
+      type: String,
+      required: true
+    },
+    pincode: {
+      type: String,
+      required: true
+    },
+    city: {
+      type: String,
+      required: true
+    },
+    state: {
+      type: String,
+      required: true
+    },
+    country: {
+      type: String,
+      required: true,
+      default: 'India'
+    }
+  },
   orderDetails: {
     items: [{
       id: String,

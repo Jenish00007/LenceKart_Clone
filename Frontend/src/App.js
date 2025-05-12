@@ -9,7 +9,7 @@ import Users from './Pages/Admin/Users';
 import "./App.css";
 import Banners from './Pages/Admin/Banners';
 import AllRoutes from "./Components/AllRoutes";
-
+import ProductPost from './Pages/Admin/ProductPost';
 function App() {
   return (
     <Routes>
@@ -21,6 +21,7 @@ function App() {
         <Route path="Banners" element={<Banners />} />
         <Route path="/admin/section-banners" element={<SectionBanners />} />
         <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/productpost" element={<ProductPost />} />
       </Route>
       
       {/* Regular Routes */}

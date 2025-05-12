@@ -105,4 +105,67 @@ router.patch('/status/:orderId', async (req, res) => {
   }
 });
 
+// Place a new order
+router.post('/place-order', auth, async (req, res) => {
+  try {
+    const {
+      amount,
+      orderDetails,
+      shippingAddress
+    } = req.body;
+
+    // Get userId from authenticated user
+    const userId = req.user.userID;
+
+    // Generate a unique order ID
+    const orderId = 'ORD' + Date.now();
+
+    // Validate required fields
+    if (!amount || !orderDetails || !shippingAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    // Validate shipping address fields
+    const requiredAddressFields = ['first_name', 'last_name', 'phone', 'email', 'address', 'pincode', 'city', 'state'];
+    for (const field of requiredAddressFields) {
+      if (!shippingAddress[field]) {
+        return res.status(400).json({
+          success: false,
+          message: `Missing required shipping address field: ${field}`
+        });
+      }
+    }
+
+    // Create new order
+    const newOrder = new Order({
+      orderId,
+      userId,
+      amount,
+      orderDetails,
+      shippingAddress,
+      receipt: orderId,
+      status: 'pending'
+    });
+
+    // Save the order
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Order placed successfully',
+      order: savedOrder
+    });
+  } catch (error) {
+    console.error('Error placing order:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error placing order',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router; 

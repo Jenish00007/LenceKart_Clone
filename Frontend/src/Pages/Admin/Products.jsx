@@ -77,7 +77,12 @@ const Products = () => {
   };
 
   const handleEdit = (product) => {
-    setEditingProduct(product);
+    navigate('/admin/productpost', { 
+      state: { 
+        product,
+        isEditing: true 
+      }
+    });
   };
 
   const handleSave = async (e) => {
@@ -117,7 +122,7 @@ const Products = () => {
         <div className="total-orders">
           Total Products: {totalOrders}
         </div>
-        <button className="add-btn" onClick={() => navigate('/admin/addproduct')}>Add New Product</button>
+        <button className="add-btn" onClick={() => navigate('/admin/productpost')}>Add New Product</button>
       </div>
 
       <div className="filters-container">

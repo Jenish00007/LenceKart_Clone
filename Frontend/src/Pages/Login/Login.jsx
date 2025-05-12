@@ -20,11 +20,12 @@ import {
   Flex,
   Center,
   InputGroup,
-  InputRightElement
+  InputRightElement,
+  useToast
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 
-const Login = (props) => {
+const Login = () => {
   const [loading, setLoading] = useState(false);
   const [btn, setbtn] = useState();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -34,144 +35,179 @@ const Login = (props) => {
   const { setisAuth, setAuthData, isAuth } = useContext(AuthContext);
   const [incorrect, setinCorrect] = useState(false);
   const navigate = useNavigate();
-  let res1 = [];
+  const toast = useToast();
 
   // Check for existing token on component mount
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          // Fetch user data using token
-          const response = await fetch(`${API_URL}/user`);
-          if (response.ok) {
-            const userData = await response.json();
-            if (userData && userData.length > 0) {
-              setisAuth(true);
-              setAuthData(userData);
-            }
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      setisAuth(true);
+      setAuthData([JSON.parse(user)]);
+    } else if (token) {
+      // fallback: fetch user profile if user data is not in localStorage
+      fetch(`${API_URL}/user/profile`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(userData => {
+          if (userData) {
+            setisAuth(true);
+            setAuthData([userData]);
+            localStorage.setItem("user", JSON.stringify(userData));
+          } else {
+            localStorage.removeItem("token");
           }
-        } catch (error) {
-          console.log("Error verifying authentication:", error);
-        }
-      }
-    };
-
-    if (!isAuth) {
-      checkAuthStatus();
+        })
+        .catch(() => localStorage.removeItem("token"));
     }
-  }, [setisAuth, setAuthData, isAuth]);
+  }, [setisAuth, setAuthData]);
 
   const handlechange = (e) => {
     setinCorrect(false);
     const { name, value } = e.target;
     setLoginData({ ...loginData, [name]: value });
 
-    const buton = (
-      <Box
-        fontSize={"14px"}
-        mt="5px"
-        color={"#ff1f1f"}
-        fontWeight="500"
-        letterSpacing={"-0.4px"}
-      >
-        Please enter a valid Email or Mobile Number.
-      </Box>
-    );
-    setbtn(buton);
+    if (name === "email" && !value.includes("@") && !value.includes(".com")) {
+      const buton = (
+        <Box
+          fontSize={"14px"}
+          mt="5px"
+          color={"#ff1f1f"}
+          fontWeight="500"
+          letterSpacing={"-0.4px"}
+        >
+          Please enter a valid Email or Mobile Number.
+        </Box>
+      );
+      setbtn(buton);
+    } else {
+      setbtn(null);
+    }
   };
 
-  const getData = async () => {
+  const handleLogin = async () => {
     try {
       setLoading(true);
       setinCorrect(false);
-      if (loginData.email !== "" && loginData.password !== "") {
-        // Login request
-        const res = await fetch(
-          `${API_URL}/user/login`,
-          {
-            method: "POST",
-            body: JSON.stringify(loginData),
-            headers: {
-              "Content-type": "application/json"
-            }
-          }
-        );
+
+      if (!loginData.email || !loginData.password) {
+        toast({
+          title: "Error",
+          description: "Please fill in all fields",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/user/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(loginData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        // Save token
+        localStorage.setItem("token", data.token);
         
-        if (res.ok) {
-          let data = await res.json();
-          const token = data.token;
+        // Check if user data is included in the login response
+        if (data.user) {
+          // If user data is in the login response, use it directly
+          setAuthData([data.user]);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setisAuth(true);
           
-          if (token) {
-            // Save token in local storage
-            localStorage.setItem("token", token);
-            
-            // Clear any expired/old tokens
-            sessionStorage.removeItem("token");
-            
-            // Fetch user data with token
-            const userResponse = await fetch(
-              `${API_URL}/user`,
-              {
-                headers: {
-                  "Authorization": `Bearer ${token}`
-                }
-              }
-            );
-            
-            if (userResponse.ok) {
-              const allUsers = await userResponse.json();
-              // Find the current user
-              const currentUser = allUsers.filter(el => el.email === loginData.email);
-              
-              if (currentUser && currentUser.length > 0) {
-                // Store user data
-                setAuthData(currentUser);
-                setisAuth(true);
-                
-                // If admin, navigate to product list
-                if (loginData.email.includes(process.env.admin)) {
-                  navigate("/productlist");
-                }
-                
-                setLoading(false);
-                setinCorrect(false);
-                onClose();
-              } else {
-                handleLoginError();
-              }
-            } else {
-              handleLoginError();
-            }
+          toast({
+            title: "Login Successful",
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+            position: "bottom"
+          });
+
+          // Close modal and navigate based on user role
+          onClose();
+          if (data.user.role === "admin") {
+            navigate("/productlist");
           } else {
-            handleLoginError();
+            navigate("/");
           }
         } else {
-          handleLoginError();
+          // If user data is not in login response, fetch it
+          const userResponse = await fetch(`${API_URL}/user/profile`, {
+            headers: {
+              "Authorization": `Bearer ${data.token}`
+            }
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            setAuthData([userData]);
+            localStorage.setItem("user", JSON.stringify(userData));
+            setisAuth(true);
+            
+            toast({
+              title: "Login Successful",
+              status: "success",
+              duration: 2000,
+              isClosable: true,
+              position: "bottom"
+            });
+
+            // Close modal and navigate based on user role
+            onClose();
+            if (userData.role === "admin") {
+              navigate("/productlist");
+            } else {
+              navigate("/");
+            }
+          } else {
+            throw new Error("Failed to fetch user profile");
+          }
         }
+      } else {
+        throw new Error(data.message || "Invalid credentials");
       }
     } catch (error) {
-      handleLoginError();
-      console.log("An error occurred during login:", error);
+      console.error("Login error:", error);
+      setinCorrect(true);
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid email or password",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } finally {
+      setLoading(false);
     }
-  };
-  
-  // Helper function to handle login errors
-  const handleLoginError = () => {
-    setLoading(false);
-    setinCorrect(true);
-    localStorage.removeItem("token"); // Clear any invalid token
   };
 
   const handleClick = () => {
-    loginData.password = "";
+    setLoginData(prev => ({ ...prev, password: "" }));
     setpass(false);
   };
 
-  const handlesign = () => {
-    setpass(true);
-    if (loginData.password.length > 6) {
-      getData(loginData);
+  const handleSignIn = () => {
+    if (loginData.password.length >= 6) {
+      handleLogin();
+    } else {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
   };
 
@@ -212,7 +248,7 @@ const Login = (props) => {
                 Sign In
               </Heading>
 
-              {pass === false ? (
+              {!pass ? (
                 <Input
                   name="email"
                   placeholder="Email"
@@ -272,7 +308,7 @@ const Login = (props) => {
                     </InputRightElement>
                   </InputGroup>
 
-                  {incorrect === true ? (
+                  {incorrect && (
                     <Box
                       fontSize={"14px"}
                       m="3px 0px 3px 0px"
@@ -283,22 +319,21 @@ const Login = (props) => {
                     >
                       Wrong email or password
                     </Box>
-                  ) : (
-                    ""
                   )}
                 </Box>
               )}
+
               <Box
                 textDecoration={"underline"}
                 m="15px 0px 0px 0px"
                 color="#000042"
                 fontSize="15px"
+                cursor="pointer"
               >
                 Forget Password
               </Box>
-              {loginData.email.includes("@") && loginData.email.includes(".com")
-                ? ""
-                : btn}
+
+              {btn}
 
               <HStack fontSize="16px">
                 <Checkbox mb={"20px"} mt="20px" size="sm">
@@ -310,32 +345,20 @@ const Login = (props) => {
                   h="22px"
                 />
               </HStack>
-              {loginData.email.includes("@") &&
-              loginData.email.includes(".com") ? (
-                <Button
-                  isLoading={loading}
-                  onClick={handlesign}
-                  bgColor={"#11daac"}
-                  width="100%"
-                  borderRadius={"35px/35px"}
-                  h="50px"
-                  fontSize="18px"
-                  _hover={{ backgroundColor: "#11daac" }}
-                >
-                  Sign In
-                </Button>
-              ) : (
-                <Button
-                  bgColor={"#cccccc"}
-                  width="100%"
-                  borderRadius={"35px/35px"}
-                  fontSize="18px"
-                  h="50px"
-                  _hover={{ backgroundColor: "#cccccc" }}
-                >
-                  Sign In
-                </Button>
-              )}
+
+              <Button
+                isLoading={loading}
+                onClick={pass ? handleSignIn : () => setpass(true)}
+                bgColor={loginData.email.includes("@") && loginData.email.includes(".com") ? "#11daac" : "#cccccc"}
+                width="100%"
+                borderRadius={"35px/35px"}
+                h="50px"
+                fontSize="18px"
+                _hover={{ backgroundColor: loginData.email.includes("@") && loginData.email.includes(".com") ? "#11daac" : "#cccccc" }}
+                disabled={!loginData.email.includes("@") || !loginData.email.includes(".com")}
+              >
+                Sign In
+              </Button>
 
               <HStack spacing={"0px"} mt="19px" gap="2">
                 <Box fontSize={"14px"}> New member?</Box>
@@ -343,6 +366,10 @@ const Login = (props) => {
                   fontSize={"15px"}
                   fontWeight="500"
                   textDecoration={"underline"}
+                  onClick={() => {
+                    onClose();
+                    navigate("/signup");
+                  }}
                 >
                   Create an Account
                 </Link>
