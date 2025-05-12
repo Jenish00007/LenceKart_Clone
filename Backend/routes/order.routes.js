@@ -106,22 +106,17 @@ router.patch('/status/:orderId', async (req, res) => {
 });
 
 // Place a new order
-router.post('/place-order', auth, async (req, res) => {
+router.post('/place-order', async (req, res) => {
   try {
     const {
+      userId,
       amount,
       orderDetails,
       shippingAddress
     } = req.body;
 
-    // Get userId from authenticated user
-    const userId = req.user.userID;
-
-    // Generate a unique order ID
-    const orderId = 'ORD' + Date.now();
-
     // Validate required fields
-    if (!amount || !orderDetails || !shippingAddress) {
+    if (!userId || !amount || !orderDetails || !shippingAddress) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
@@ -138,6 +133,9 @@ router.post('/place-order', auth, async (req, res) => {
         });
       }
     }
+
+    // Generate a unique order ID
+    const orderId = 'ORD' + Date.now();
 
     // Create new order
     const newOrder = new Order({
@@ -167,6 +165,5 @@ router.post('/place-order', auth, async (req, res) => {
     });
   }
 });
-
 
 module.exports = router; 

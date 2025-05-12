@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import CartItem from "./CartItem";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
+import { AuthContext } from "../../ContextApi/AuthContext";
 import {
   Box,
   Text,
@@ -21,6 +22,7 @@ import "../../App.css";
 function Shipping() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { authData, isAuth, setAuthData, setisAuth } = useContext(AuthContext);
 
   const init = {
     first_name: "",
@@ -49,10 +51,61 @@ function Shipping() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch cart items from localStorage or your cart management system
-    const items = JSON.parse(localStorage.getItem('cart')) || [];
-    setCartItems(items);
+    // Load cart items from localStorage
+    const loadCartItems = () => {
+      try {
+        const cartData = localStorage.getItem('cart');
+        console.log('Raw cart data from localStorage:', cartData);
+        
+        if (cartData) {
+          const parsedCart = JSON.parse(cartData);
+          console.log('Parsed cart items:', parsedCart);
+          
+          if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+            setCartItems(parsedCart);
+          } else {
+            console.log('Cart is empty or invalid format');
+            setCartItems([]);
+          }
+        } else {
+          console.log('No cart data found in localStorage');
+          setCartItems([]);
+        }
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        setCartItems([]);
+      }
+    };
+
+    loadCartItems();
   }, []);
+
+  // Load user data from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        setAuthData([parsedUserData]);
+        setisAuth(true);
+        console.log('User data loaded from localStorage:', parsedUserData);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, [setAuthData, setisAuth]);
+
+  // Debug logging for auth state
+  useEffect(() => {
+    console.log('Current Auth State:', {
+      isAuth,
+      authData,
+      token: localStorage.getItem('token'),
+      userData: localStorage.getItem('user')
+    });
+  }, [isAuth, authData]);
 
   const Required = (props) => {
     return (
@@ -168,27 +221,88 @@ function Shipping() {
     try {
       setLoading(true);
 
-      const orderDetails = calculateOrderDetails();
-      const userId = localStorage.getItem('userId'); // Get userId from your auth system
+      // Check if cart is empty
+      if (!cartItems || cartItems.length === 0) {
+        toast({
+          title: "Error",
+          description: "Your cart is empty. Please add items before placing an order.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
 
+      // Get user data from localStorage as fallback
+      const userData = localStorage.getItem('user');
+      let user;
+      
+      if (authData && authData.length > 0) {
+        user = authData[0];
+      } else if (userData) {
+        try {
+          user = JSON.parse(userData);
+          setAuthData([user]);
+          setisAuth(true);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+
+      if (!user || !user._id) {
+        toast({
+          title: "Error",
+          description: "Please login to place an order",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      const orderDetails = calculateOrderDetails();
+      const token = localStorage.getItem('token');
+      
+      // Match exact API requirements
       const orderData = {
-        userId,
+        userId: user._id,
         amount: orderDetails.total,
         orderDetails,
-        shippingAddress: userData
+        shippingAddress: {
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          phone: userData.phone,
+          email: userData.email,
+          address: userData.address,
+          pincode: userData.pincode,
+          city: userData.city,
+          state: userData.state,
+          country: userData.country
+        }
       };
+
+      // Log the request data for debugging
+      console.log('Sending order data:', orderData);
 
       const response = await fetch(`${API_URL}/api/orders/place-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add your auth token if required
-          // 'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(orderData)
       });
 
       const data = await response.json();
+
+      // Log the response for debugging
+      console.log('API Response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || `Server error: ${response.status}`);
+      }
 
       if (data.success) {
         toast({
@@ -209,6 +323,7 @@ function Shipping() {
         throw new Error(data.message || 'Failed to place order');
       }
     } catch (error) {
+      console.error('Order placement error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to place order",
