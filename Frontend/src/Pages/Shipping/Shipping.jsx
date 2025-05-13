@@ -235,14 +235,14 @@ function Shipping() {
       }
 
       // Get user data from localStorage as fallback
-      const userData = localStorage.getItem('user');
+      const storedUserData = localStorage.getItem('user');
       let user;
       
       if (authData && authData.length > 0) {
         user = authData[0];
-      } else if (userData) {
+      } else if (storedUserData) {
         try {
-          user = JSON.parse(userData);
+          user = JSON.parse(storedUserData);
           setAuthData([user]);
           setisAuth(true);
         } catch (error) {
@@ -250,10 +250,25 @@ function Shipping() {
         }
       }
 
-      if (!user || !user._id) {
+      if (!user || !user.id) {
         toast({
           title: "Error",
           description: "Please login to place an order",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      // Validate shipping form data
+      if (!userData.first_name || !userData.last_name || !userData.phone || 
+          !userData.email || !userData.address || !userData.pincode || 
+          !userData.city || !userData.state || !userData.country) {
+        toast({
+          title: "Error",
+          description: "Please fill in all shipping details",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -267,7 +282,7 @@ function Shipping() {
       
       // Match exact API requirements
       const orderData = {
-        userId: user._id,
+        userId: user.id,
         amount: orderDetails.total,
         orderDetails,
         shippingAddress: {
@@ -286,7 +301,7 @@ function Shipping() {
       // Log the request data for debugging
       console.log('Sending order data:', orderData);
 
-      const response = await fetch(`${API_URL}/api/orders/place-order`, {
+      const response = await fetch(`${API_URL}/api/orders/placeorder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

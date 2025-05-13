@@ -12,7 +12,7 @@ const Dashboard = () => {
 
     { path: '/admin/productpost', label: 'Add Product', icon: '➕' },
 
-    { path: '/admin/add-product', label: 'Add Product', icon: '➕' },
+    // { path: '/admin/add-product', label: 'Add Product', icon: '➕' },
 
     { path: '/admin/orders', label: 'Orders', icon: '📋' },
     { path: '/admin/Banners', label: 'Banners', icon: '🖼️' },

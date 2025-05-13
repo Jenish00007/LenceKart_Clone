@@ -61,7 +61,7 @@ const categories = [
     title: 'Special Powers',
     badge: 'Exclusive',
     sections: [
-      { name: 'Zero Power', image: 'https://static1.lenskart.com/media/desktop/img/May22/zero-power.jpg' },
+      { name: 'Zero Power', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
       { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/May22/progressive.jpg' },
       { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/May22/reading.jpg' },
       { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/May22/power-sun.jpg' }

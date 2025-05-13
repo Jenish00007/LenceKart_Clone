@@ -1,5 +1,7 @@
 const express = require("express");
 const ProductModel = require("../Models/product.model");
+const ProductVisit = require("../Models/productVisit.model");
+const auth = require("../middlwares/auth");
 
 const productRouter = express.Router();
 
@@ -41,6 +43,92 @@ productRouter.get("/recommended", async (req, res) => {
   }
 });
 
+// Get last visited products for authenticated user
+productRouter.get("/lastvisited", auth, async (req, res) => {
+  try {
+    console.log("1. Starting last-visited API call");
+    const userId = req.user._id;
+    console.log("2. User ID from token:", userId);
+
+    // Get last visited products for the user with populated product details
+    console.log("3. Finding visits for user");
+    const lastVisits = await ProductVisit.find({ userId })
+      .sort({ visitedAt: -1 })
+      .limit(8)
+      .populate({
+        path: 'productId',
+        model: 'product',
+        select: 'name price image rating colors shape gender style dimension productType imageTsrc'
+      });
+    console.log("4. Found visits:", lastVisits.length);
+
+    // Filter out any null products and map to get only product data
+    const lastVisitedProducts = lastVisits
+      .filter(visit => visit.productId)
+      .map(visit => visit.productId);
+    console.log("5. Filtered products:", lastVisitedProducts.length);
+
+    console.log("6. Sending response");
+    res.status(200).json({
+      success: true,
+      products: lastVisitedProducts
+    });
+  } catch (error) {
+    console.error("Error in last-visited API:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to fetch last visited products",
+      details: error.message 
+    });
+  }
+});
+
+// Record product visit for authenticated user
+productRouter.post("/visit/:id", auth, async (req, res) => {
+  try {
+    console.log("1. Starting visit recording");
+    const userId = req.user._id;
+    const productId = req.params.id;
+    console.log("2. User ID:", userId, "Product ID:", productId);
+
+    // Check if product exists
+    console.log("3. Checking if product exists");
+    const product = await ProductModel.findById(productId);
+    if (!product) {
+      console.log("4. Product not found");
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+    console.log("4. Product found:", product.name);
+
+    // Update or create visit record
+    console.log("5. Updating visit record");
+    const visitRecord = await ProductVisit.findOneAndUpdate(
+      { userId, productId },
+      { visitedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    console.log("6. Visit record updated:", visitRecord);
+
+    console.log("7. Sending response");
+    res.status(200).json({
+      success: true,
+      message: "Visit recorded successfully",
+      product: product
+    });
+  } catch (error) {
+    console.error("Error in visit recording:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to record product visit",
+      details: error.message
+    });
+  }
+});
+
+// Get all products with filters
 productRouter.get("/", async (req, res) => {
   try {
     const query = {};
@@ -117,6 +205,26 @@ productRouter.get("/", async (req, res) => {
   }
 });
 
+<<<<<<< Updated upstream
+=======
+// Get product by ID
+productRouter.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const product = await ProductModel.findById({ _id: id });
+    if (product) {
+      res.status(200).json({
+        success: true,
+        product: product,
+      });
+    }
+  } catch (err) {
+    console.log({ err: err });
+    res.status(400).send({ success: false, err: err });
+  }
+});
+
+>>>>>>> Stashed changes
 productRouter.post("/", async (req, res) => {
   const payload = req.body;
   try {
