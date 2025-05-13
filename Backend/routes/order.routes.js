@@ -106,7 +106,7 @@ router.patch('/status/:orderId', async (req, res) => {
 });
 
 // Place a new order
-router.post('/place-order', async (req, res) => {
+router.post('/placeorder', async (req, res) => {
   try {
     const {
       userId,

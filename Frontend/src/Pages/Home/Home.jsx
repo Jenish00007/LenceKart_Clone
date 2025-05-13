@@ -31,6 +31,7 @@ import {
   HomeDetails15
 } from "./HomeDetails";
 import { Image, Box } from "@chakra-ui/react";
+import RecentlyViewed from '../../Components/RecentlyViewed/RecentlyViewed';
 
 const Home = () => {
   const [banners, setBanners] = useState([]);
@@ -212,6 +213,7 @@ const Home = () => {
       <br />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
+      <RecentlyViewed />
       <Footer />
     </Box>
   );

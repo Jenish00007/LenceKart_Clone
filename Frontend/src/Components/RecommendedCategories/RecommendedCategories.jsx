@@ -64,7 +64,7 @@ const RecommendedCategories = () => {
             }}
           >
             <Image
-              src={product.image}
+              src={product.imageTsrc}
               alt={product.name}
               height="200px"
               width="100%"
@@ -91,7 +91,7 @@ const RecommendedCategories = () => {
               <Button
                 colorScheme="blue"
                 width="100%"
-                onClick={() => navigate(`/product/${product._id}`)}
+                onClick={() => navigate(`/products/${product._id}`)}
               >
                 View Details
               </Button>
