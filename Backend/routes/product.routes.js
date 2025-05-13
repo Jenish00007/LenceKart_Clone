@@ -18,9 +18,9 @@ productRouter.get("/trending", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching trending products:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Failed to fetch trending products" 
+      error: "Failed to fetch trending products"
     });
   }
 });
@@ -31,8 +31,8 @@ productRouter.get("/recommended", async (req, res) => {
     const recommendedProducts = await ProductModel.find({
       recommended: true
     })
-    .sort({ createdAt: -1 })
-    .limit(6);
+      .sort({ createdAt: -1 })
+      .limit(6);
 
     res.status(200).json(recommendedProducts);
   } catch (error) {
@@ -45,7 +45,7 @@ productRouter.get("/", async (req, res) => {
   try {
     const query = {};
     console.log("Received query params:", req.query);
-    
+
     if (req.query.rating) {
       query.rating = req.query.rating;
     }
@@ -109,27 +109,11 @@ productRouter.get("/", async (req, res) => {
     });
   } catch (error) {
     console.error("Error in product search:", error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: "Error searching products",
-      details: error.message 
+      details: error.message
     });
-  }
-});
-
-productRouter.get("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const product = await ProductModel.findById({ _id: id });
-    if (product) {
-      res.status(200).json({
-        success: true,
-        product: product,
-      });
-    }
-  } catch (err) {
-    console.log({ err: err });
-    res.status(400).send({ success: false, err: err });
   }
 });
 
@@ -186,6 +170,102 @@ productRouter.delete("/:id", async (req, res) => {
   }
 });
 
+productRouter.get("/filter", async (req, res) => {
+  try {
+    const {
+      productType,
+      frameWidth,
+      gender,
+      frameSize,
+      frameShape,
+      supportedPowers,
+      prescriptionType,
+      weightGroup,
+      priceRange,
+      frameColors,
+      frameType,
+      search,
+      limit = 10,
+      offset = 0
+    } = req.query;
+
+    const query = {};
+
+    if (productType) query.productType = productType;
+    if (frameWidth) query.frameWidth = frameWidth;
+    if (gender) query.gender = gender;
+    if (frameShape) query.frameShape = frameShape;
+    if (prescriptionType) query.prescriptionType = prescriptionType;
+    if (weightGroup) query.weightGroup = weightGroup;
+    if (frameType) query.frameType = frameType;
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    if (priceRange) {
+      const [min, max] = priceRange.split(',').map(Number);
+      query.price = {};
+      if (!isNaN(min)) query.price.$gte = min;
+      if (!isNaN(max)) query.price.$lte = max;
+    }
+
+    if (supportedPowers) {
+      const powers = supportedPowers.split(',');
+      query.supportedPowers = { $in: powers };
+    }
+
+    if (frameSize) {
+      const sizes = frameSize.split(',');
+      query.frameSize = { $in: sizes };
+    }
+
+    if (frameColors) {
+      const colors = frameColors.split(',');
+      query.frameColors = { $in: colors };
+    }
+
+    const parsedLimit = Math.max(1, parseInt(limit));
+    const parsedOffset = Math.max(0, parseInt(offset));
+
+    const [products, total] = await Promise.all([
+      ProductModel.find(query).skip(parsedOffset).limit(parsedLimit),
+      ProductModel.countDocuments(query)
+    ]);
+
+    return res.status(200).json({
+      status: true,
+      total,
+      limit: parsedLimit,
+      offset: parsedOffset,
+      count: products.length,
+      data: products
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+productRouter.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const product = await ProductModel.findById({ _id: id });
+    if (product) {
+      res.status(200).json({
+        success: true,
+        product: product,
+      });
+    }
+  } catch (err) {
+    console.log({ err: err });
+    res.status(400).send({ success: false, err: err });
+  }
+});
 module.exports = {
   productRouter,
 };
