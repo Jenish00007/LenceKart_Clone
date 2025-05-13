@@ -1,6 +1,6 @@
 import { Box, Grid, GridItem, Text, Image } from "@chakra-ui/react";
 
-const ProdFrame = ({ heading, type, filter }) => {
+const ProdFrame = ({ heading, type, filter, selectedValue }) => {
   return (
     <Box mb="20px">
       <br />
@@ -14,15 +14,16 @@ const ProdFrame = ({ heading, type, filter }) => {
               onClick={() => filter(ele.name)}
               mr="3px"
               border="1px solid"
-              borderColor="gray.300"
-              _hover={{ border: "5px solid gray" }}
+              borderColor={selectedValue === ele.name ? "blue.500" : "gray.300"}
+              _hover={{ border: selectedValue === ele.name ? "1px solid blue.500" : "5px solid gray" }}
+              bg={selectedValue === ele.name ? "blue.50" : "transparent"}
             >
               <Image m="7px auto" width="70px" src={ele.src} />
               <Text
                 mx="5px"
                 textAlign="center"
                 fontSize="14px"
-                color="gray.500"
+                color={selectedValue === ele.name ? "blue.500" : "gray.500"}
               >
                 {ele.title}
               </Text>

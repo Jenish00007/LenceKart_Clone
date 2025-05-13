@@ -35,7 +35,7 @@ const NewProduct = () => {
     setIsLoaded(true);
     try {
       const searchQuery = searchParams.get('search') || '';
-      const url = `${API_URL}/product?sort=${sort}&productRefLink=${frametype}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
+      const url = `${API_URL}/product?sort=${sort}&frameType=${frametype}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
       
       console.log("Fetching URL:", url);
       
@@ -60,11 +60,11 @@ const NewProduct = () => {
   }, [page, sort, gender, types, frametype, shape, style, colors, searchParams]);
 
   const handleClick = (value) => {
-    setFrametype(value);
+    setFrametype(frametype === value ? "" : value);
   };
 
   const handleClick2 = (value) => {
-    setShape(value);
+    setShape(shape === value ? "" : value);
   };
 
   return (
@@ -88,12 +88,14 @@ const NewProduct = () => {
               heading={"FRAME TYPE"}
               type={Frame1}
               filter={handleClick}
+              selectedValue={frametype}
             />
 
             <ProdFrame
               heading={"FRAME SHAPE"}
               type={Frame2}
               filter={handleClick2}
+              selectedValue={shape}
             />
 
             <ProdFilter
