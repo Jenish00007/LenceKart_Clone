@@ -89,11 +89,8 @@ const TrendingEyeglasses = () => {
               <Button
                 colorScheme="blue"
                 width="100%"
-<<<<<<< Updated upstream
-               // onClick={() => navigate(`/product/${product.id}`)}
-=======
                 onClick={() => navigate(`/products/${product._id}`)}
->>>>>>> Stashed changes
+
               >
                 View Details
               </Button>

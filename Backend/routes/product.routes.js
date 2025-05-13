@@ -205,8 +205,6 @@ productRouter.get("/", async (req, res) => {
   }
 });
 
-<<<<<<< Updated upstream
-=======
 // Get product by ID
 productRouter.get("/:id", async (req, res) => {
   try {
@@ -224,7 +222,6 @@ productRouter.get("/:id", async (req, res) => {
   }
 });
 
->>>>>>> Stashed changes
 productRouter.post("/", async (req, res) => {
   const payload = req.body;
   try {
