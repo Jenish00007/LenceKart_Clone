@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Grid, Image, Text, Heading, Button } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 const TrendingEyeglasses = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,13 +85,15 @@ const TrendingEyeglasses = () => {
               <Text color="gray.500" fontSize="sm" mb={4} textDecoration="line-through">
                 ₹{product.mPrice}
               </Text>
+              <Link to={`/products/${product._id}`}>
               <Button
                 colorScheme="blue"
                 width="100%"
-                onClick={() => navigate(`/product/${product.id}`)}
+               // onClick={() => navigate(`/product/${product.id}`)}
               >
                 View Details
               </Button>
+              </Link>
             </Box>
           </Box>
         ))}
