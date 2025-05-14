@@ -6,6 +6,8 @@ const userSchema = mongoose.Schema({
   email: { type: String, require: true },
   password: { type: String, require: true },
   ph_no: Number
+}, {
+  timestamps: true  // This will add createdAt and updatedAt fields
 });
 
 const userModel = mongoose.model("user", userSchema);
