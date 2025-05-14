@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/CartPage/action";
@@ -10,6 +10,7 @@ import { ProdImage } from "./ProdImage";
 import axios from "axios";
 import { Grid, GridItem, Image } from "@chakra-ui/react";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../ContextApi/AuthContext";
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const SingleProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cart } = useSelector((state) => state.CartReducer);
+  const { isAuth } = useContext(AuthContext);
 
   const handleAddToCart = () => {
     const existingItem = cart.findIndex((item) => item._id === data._id);
@@ -38,11 +40,44 @@ const SingleProduct = () => {
     }, 1000);
   };
 
+  const trackProductVisit = async () => {
+    if (isAuth) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        console.log('Tracking product visit for:', id);
+        
+        const response = await fetch(`${API_URL}/product/visit/${id}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        console.log('Visit tracking response:', data);
+        
+        if (!response.ok) {
+          console.error('Failed to track product visit:', data.message);
+        }
+      } catch (error) {
+        console.error('Error tracking product visit:', error);
+      }
+    }
+  };
+
   const fetchSingleProduct = () => {
     axios(`${API_URL}/product/${id}`)
-      .then((res) => setData(res.data.product))
+      .then((res) => {
+        setData(res.data.product);
+        // Track visit after product data is loaded
+        trackProductVisit();
+      })
       .catch((err) => console.log(err));
   };
+
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
