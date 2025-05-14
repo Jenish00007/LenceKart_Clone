@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../Models/order.model');
 const auth = require('../middlwares/auth');
+const mongoose = require('mongoose');
 
 // Get all orders
 router.get('/', auth, async (req, res) => {
@@ -77,8 +78,15 @@ router.patch('/status/:orderId', async (req, res) => {
       });
     }
 
+    // Check if orderId is a valid ObjectId
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(orderId);
+    
+    const query = isValidObjectId 
+      ? { $or: [{ _id: orderId }, { orderId: orderId }] }
+      : { orderId: orderId };
+
     const updatedOrder = await Order.findOneAndUpdate(
-      { _id: orderId },
+      query,
       { status: status },
       { new: true }
     );
@@ -162,6 +170,34 @@ router.post('/placeorder', async (req, res) => {
       success: false,
       message: 'Error placing order',
       error: error.message
+    });
+  }
+});
+
+// Get order by ID without auth (Admin)
+router.get('/admin/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findOne({ 
+      orderId: req.params.orderId
+    });
+    
+    if (!order) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Order not found' 
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      order: order
+    });
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error fetching order',
+      error: error.message 
     });
   }
 });

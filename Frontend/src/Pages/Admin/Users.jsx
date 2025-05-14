@@ -1,6 +1,60 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Input,
+  Select,
+  Flex,
+  Heading,
+  Text,
+  Badge,
+  useToast,
+  Grid,
+  GridItem,
+  IconButton,
+  Tooltip,
+  useColorModeValue,
+  Card,
+  CardBody,
+  Stack,
+  HStack,
+  VStack,
+  Divider,
+  InputGroup,
+  InputLeftElement,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  Progress,
+  Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Wrap,
+  WrapItem
+} from '@chakra-ui/react';
+import { FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiMail, FiPhone, FiCalendar } from 'react-icons/fi';
 import { API_URL } from '../../config';
-import './AdminPages.css';
+import Navbar from "./Navbar";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -8,7 +62,15 @@ const Users = () => {
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [totalUsers, setTotalUsers] = useState(0);
-    const [searchType, setSearchType] = useState('name'); // 'name' or 'mobile'
+    const [searchType, setSearchType] = useState('name');
+    const [selectedUser, setSelectedUser] = useState(null);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const toast = useToast();
+
+    // Color mode values
+    const bgColor = useColorModeValue("white", "gray.800");
+    const borderColor = useColorModeValue("gray.200", "gray.600");
+    const cardBg = useColorModeValue("gray.50", "gray.700");
 
     const fetchUsers = async () => {
         try {
@@ -30,6 +92,13 @@ const Users = () => {
         } catch (error) {
             console.error('Error fetching users:', error);
             setError('Failed to fetch users');
+            toast({
+                title: "Error",
+                description: "Failed to fetch users",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
             setUsers([]);
             setTotalUsers(0);
         } finally {
@@ -47,7 +116,7 @@ const Users = () => {
 
     const handleSearchTypeChange = (e) => {
         setSearchType(e.target.value);
-        setSearchTerm(''); // Reset search term when changing search type
+        setSearchTerm('');
     };
 
     const filteredUsers = users.filter(user => {
@@ -55,7 +124,8 @@ const Users = () => {
 
         const searchTermLower = searchTerm.toLowerCase();
         if (searchType === 'name') {
-            return user.name?.toLowerCase().includes(searchTermLower) ||
+            return user.first_name?.toLowerCase().includes(searchTermLower) ||
+                user.last_name?.toLowerCase().includes(searchTermLower) ||
                 user.email?.toLowerCase().includes(searchTermLower);
         } else if (searchType === 'mobile') {
             return user.ph_no?.includes(searchTerm);
@@ -63,135 +133,267 @@ const Users = () => {
         return true;
     });
 
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
     if (loading) {
         return (
-            <div className="admin-page">
-                <div className="loading">Loading...</div>
-            </div>
+            <Box bg="gray.50" minH="100vh">
+                <Navbar />
+                <Box p={6}>
+                    <Text>Loading...</Text>
+                </Box>
+            </Box>
         );
     }
 
     return (
-        <div className="admin-page">
-            <div className="page-header">
-                <h2>User Management</h2>
-                <div className="user-stats" style={{
-                    backgroundColor: '#f8f9fa',
-                    padding: '10px 20px',
-                    borderRadius: '4px',
-                    fontSize: '1.1rem',
-                    color: '#333'
-                }}>
-                    Total Users: {totalUsers}
-                </div>
-            </div>
+        <Box bg="gray.50" minH="100vh">
+            <Navbar />
+            <Box p={6}>
+                <VStack spacing={6} align="stretch">
+                    {/* Header Section */}
+                    <Flex justify="space-between" align="center">
+                        <Heading size="lg" color="blue.600">User Management</Heading>
+                        <Text color="gray.600">Total Users: {totalUsers}</Text>
+                    </Flex>
 
-            {error && <div className="error-message">{error}</div>}
+                    {/* Stats Section */}
+                    <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={6}>
+                        <Card bg={cardBg}>
+                            <CardBody>
+                                <Stat>
+                                    <StatLabel>Total Users</StatLabel>
+                                    <StatNumber>{totalUsers}</StatNumber>
+                                    <StatHelpText>
+                                        <StatArrow type="increase" />
+                                        23.36%
+                                    </StatHelpText>
+                                </Stat>
+                            </CardBody>
+                        </Card>
+                        <Card bg={cardBg}>
+                            <CardBody>
+                                <Stat>
+                                    <StatLabel>Active Users</StatLabel>
+                                    <StatNumber>{users.filter(u => u.isActive).length}</StatNumber>
+                                    <Progress value={users.filter(u => u.isActive).length} max={totalUsers} colorScheme="green" />
+                                </Stat>
+                            </CardBody>
+                        </Card>
+                        <Card bg={cardBg}>
+                            <CardBody>
+                                <Stat>
+                                    <StatLabel>New Users Today</StatLabel>
+                                    <StatNumber>
+                                        {users.filter(u => {
+                                            const today = new Date();
+                                            const userDate = new Date(u.createdAt);
+                                            return userDate.toDateString() === today.toDateString();
+                                        }).length}
+                                    </StatNumber>
+                                </Stat>
+                            </CardBody>
+                        </Card>
+                    </Grid>
 
-            <div className="search-section" style={{
-                marginBottom: '20px',
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'center'
-            }}>
-                <select
-                    value={searchType}
-                    onChange={handleSearchTypeChange}
-                    style={{
-                        padding: '8px',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd',
-                        minWidth: '120px'
-                    }}
-                >
-                    <option value="name">Search by Name</option>
-                    {/* <option value="mobile">Search by Mobile</option> */}
-                </select>
-                <input
-                    type="text"
-                    placeholder={`Search by ${searchType === 'name' ? 'name or email' : 'mobile number'}`}
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    style={{
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd',
-                        flex: 1,
-                        maxWidth: '400px'
-                    }}
-                />
-            </div>
+                    {/* Search Section */}
+                    <Card bg={cardBg} p={4}>
+                        <CardBody>
+                            <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
+                                <GridItem>
+                                    <InputGroup>
+                                        <InputLeftElement pointerEvents="none">
+                                            <FiSearch color="gray.300" />
+                                        </InputLeftElement>
+                                        <Input
+                                            placeholder="Search users..."
+                                            value={searchTerm}
+                                            onChange={handleSearch}
+                                        />
+                                    </InputGroup>
+                                </GridItem>
 
-            <div className="table-container">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            {/* <th>Role</th> */}
-                            {/* <th>Created At</th>
-              <th>Status</th> */}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" style={{ textAlign: 'center' }}>
-                                    No users found
-                                </td>
-                            </tr>
-                        ) : (
-                            filteredUsers.map((user) => (
-                                <tr key={user._id}>
-                                    <td>{user.first_name}</td>
-                                    <td>{user.last_name}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.ph_no}</td>
-                                    {/* <td>
-                    <span className={`status-badge ${user.role || 'user'}`}>
-                      {user.role || 'user'}
-                    </span>
-                  </td> */}
-                                    {/* <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td> */}
-                                </tr>
-                            ))
+                                <GridItem>
+                                    <Select
+                                        value={searchType}
+                                        onChange={handleSearchTypeChange}
+                                    >
+                                        <option value="name">Search by Name/Email</option>
+                                        <option value="mobile">Search by Mobile</option>
+                                    </Select>
+                                </GridItem>
+
+                                <GridItem>
+                                    <Select
+                                        placeholder="Filter by status"
+                                        onChange={(e) => {
+                                            // Add status filter logic here
+                                        }}
+                                    >
+                                        <option value="all">All Users</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </Select>
+                                </GridItem>
+                            </Grid>
+                        </CardBody>
+                    </Card>
+
+                    {/* Users Table */}
+                    <Card bg={bgColor} overflowX="auto">
+                        <CardBody>
+                            <Table variant="simple">
+                                <Thead>
+                                    <Tr>
+                                        <Th>User</Th>
+                                        <Th>Contact</Th>
+                                        <Th>Status</Th>
+                                        <Th>Joined</Th>
+                                        <Th>Actions</Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {filteredUsers.map((user) => (
+                                        <Tr key={user._id}>
+                                            <Td>
+                                                <HStack spacing={3}>
+                                                    <Avatar
+                                                        size="sm"
+                                                        name={`${user.first_name} ${user.last_name}`}
+                                                        src={user.avatar}
+                                                    />
+                                                    <VStack align="start" spacing={0}>
+                                                        <Text fontWeight="medium">
+                                                            {user.first_name} {user.last_name}
+                                                        </Text>
+                                                        <Text fontSize="sm" color="gray.500">
+                                                            {user.email}
+                                                        </Text>
+                                                    </VStack>
+                                                </HStack>
+                                            </Td>
+                                            <Td>
+                                                <VStack align="start" spacing={0}>
+                                                    <Text>{user.ph_no || 'N/A'}</Text>
+                                                    <Text fontSize="sm" color="gray.500">
+                                                        {user.address || 'No address'}
+                                                    </Text>
+                                                </VStack>
+                                            </Td>
+                                            <Td>
+                                                <Badge
+                                                    colorScheme={user.isActive ? "green" : "red"}
+                                                    variant="subtle"
+                                                    px={2}
+                                                    py={1}
+                                                    borderRadius="full"
+                                                >
+                                                    {user.isActive ? "Active" : "Inactive"}
+                                                </Badge>
+                                            </Td>
+                                            <Td>
+                                                <Text>{formatDate(user.createdAt)}</Text>
+                                            </Td>
+                                            <Td>
+                                                <HStack spacing={2}>
+                                                    <Tooltip label="View Details">
+                                                        <IconButton
+                                                            icon={<FiEye />}
+                                                            colorScheme="blue"
+                                                            variant="ghost"
+                                                            onClick={() => {
+                                                                setSelectedUser(user);
+                                                                onOpen();
+                                                            }}
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip label="Edit User">
+                                                        <IconButton
+                                                            icon={<FiEdit />}
+                                                            colorScheme="yellow"
+                                                            variant="ghost"
+                                                        />
+                                                    </Tooltip>
+                                                    <Tooltip label="Delete User">
+                                                        <IconButton
+                                                            icon={<FiTrash2 />}
+                                                            colorScheme="red"
+                                                            variant="ghost"
+                                                        />
+                                                    </Tooltip>
+                                                </HStack>
+                                            </Td>
+                                        </Tr>
+                                    ))}
+                                </Tbody>
+                            </Table>
+                        </CardBody>
+                    </Card>
+                </VStack>
+            </Box>
+
+            {/* User Details Modal */}
+            <Modal isOpen={isOpen} onClose={onClose} size="xl">
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>User Details</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody pb={6}>
+                        {selectedUser && (
+                            <VStack spacing={4} align="stretch">
+                                <HStack spacing={4}>
+                                    <Avatar
+                                        size="xl"
+                                        name={`${selectedUser.first_name} ${selectedUser.last_name}`}
+                                        src={selectedUser.avatar}
+                                    />
+                                    <VStack align="start" spacing={1}>
+                                        <Heading size="md">
+                                            {selectedUser.first_name} {selectedUser.last_name}
+                                        </Heading>
+                                        <Text color="gray.500">{selectedUser.email}</Text>
+                                        <Badge
+                                            colorScheme={selectedUser.isActive ? "green" : "red"}
+                                            variant="subtle"
+                                            px={2}
+                                            py={1}
+                                            borderRadius="full"
+                                        >
+                                            {selectedUser.isActive ? "Active" : "Inactive"}
+                                        </Badge>
+                                    </VStack>
+                                </HStack>
+
+                                <Divider />
+
+                                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+                                    <GridItem>
+                                        <VStack align="start" spacing={2}>
+                                            <Text fontWeight="bold">Contact Information</Text>
+                                            <Text>Phone: {selectedUser.ph_no || 'N/A'}</Text>
+                                            <Text>Address: {selectedUser.address || 'N/A'}</Text>
+                                        </VStack>
+                                    </GridItem>
+                                    <GridItem>
+                                        <VStack align="start" spacing={2}>
+                                            <Text fontWeight="bold">Account Information</Text>
+                                            <Text>Joined: {formatDate(selectedUser.createdAt)}</Text>
+                                            <Text>Last Updated: {formatDate(selectedUser.updatedAt)}</Text>
+                                        </VStack>
+                                    </GridItem>
+                                </Grid>
+                            </VStack>
                         )}
-                    </tbody>
-                </table>
-            </div>
-
-            <style jsx>{`
-        .status-badge {
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-        .status-badge.active {
-          background-color: #d4edda;
-          color: #155724;
-        }
-        .status-badge.inactive {
-          background-color: #f8d7da;
-          color: #721c24;
-        }
-        .status-badge.admin {
-          background-color: #cce5ff;
-          color: #004085;
-        }
-        .status-badge.user {
-          background-color: #e2e3e5;
-          color: #383d41;
-        }
-      `}</style>
-        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+        </Box>
     );
 };
 

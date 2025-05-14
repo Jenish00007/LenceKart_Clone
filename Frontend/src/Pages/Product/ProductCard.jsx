@@ -164,4 +164,5 @@ ProductCard.propTypes = {
   )
 };
 
+// export default ProductCard;
 export default ProductCard;

@@ -1,8 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import './AdminPages.css';
+import {
+  Box,
+  Button,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Input,
+  Select,
+  Flex,
+  Heading,
+  Text,
+  Badge,
+  useToast,
+  Grid,
+  GridItem,
+  IconButton,
+  Tooltip,
+  useColorModeValue,
+  Card,
+  CardBody,
+  Stack,
+  HStack,
+  VStack,
+  Divider,
+  InputGroup,
+  InputLeftElement,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  Progress,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  Image,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Wrap,
+  WrapItem
+} from '@chakra-ui/react';
+import { FiSearch, FiEye, FiEdit, FiTrash2, FiChevronDown, FiDollarSign, FiCalendar, FiUser, FiPackage } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config';
+import Navbar from './Navbar';
 
 const Orders = () => {
+  const navigate = useNavigate();
+  const toast = useToast();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -13,6 +66,17 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [limit] = useState(10); // Items per page
   const [totalOrders, setTotalOrders] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    completed: 0,
+    failed: 0
+  });
+
+  // Color mode values
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const cardBg = useColorModeValue("gray.50", "gray.700");
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -25,12 +89,27 @@ const Orders = () => {
         setOrders(data.orders || []);
         setTotalOrders(data.totalCount || 0);
         setTotalPages(Math.ceil(data.totalCount / limit));
+        
+        // Calculate stats
+        const newStats = {
+          total: data.totalCount || 0,
+          pending: data.orders.filter(o => o.status === 'pending').length,
+          completed: data.orders.filter(o => o.status === 'completed').length,
+          failed: data.orders.filter(o => o.status === 'failed').length
+        };
+        setStats(newStats);
       } else {
         console.error('Failed to fetch orders:', data.message);
       }
-      setLoading(false);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      toast({
+        title: "Error fetching orders",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -51,7 +130,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [page, statusFilter, limit]);
+  }, [page, statusFilter, limit, searchQuery]);
 
   // Debounced search effect
   useEffect(() => {
@@ -86,6 +165,13 @@ const Orders = () => {
       console.log('Status update response:', data);
       
       if (data.success) {
+        toast({
+          title: "Status Updated",
+          description: `Order status changed to ${newStatus}`,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
         // Update the order status in the local state
         setOrders(prevOrders => {
           const updatedOrders = prevOrders.map(order => {
@@ -112,7 +198,13 @@ const Orders = () => {
         await fetchOrders();
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      toast({
+        title: "Error updating status",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
       // Revert the status in the UI if there was an error
       await fetchOrders();
     }
@@ -141,137 +233,239 @@ const Orders = () => {
     setSearchQuery(e.target.value);
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed': return 'green';
+      case 'pending': return 'yellow';
+      case 'failed': return 'red';
+      default: return 'gray';
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
 
   return (
-    <div className="admin-page">
-      <div className="page-header">
-        <h2>Orders Management</h2>
-        <div className="total-orders">
-          Total Orders: {totalOrders}
-        </div>
-      </div>
+    <Box bg="gray.50" minH="100vh">
+      <Navbar />
+      <Box p={6}>
+        <VStack spacing={6} align="stretch">
+          {/* Header Section */}
+          <Flex justify="space-between" align="center">
+            <Heading size="lg" color="blue.600">Orders Management</Heading>
+            <Text color="gray.600">Total Orders: {totalOrders}</Text>
+          </Flex>
 
-      {/* <div className="filters-container">
-        <input
-          type="search"
-          placeholder="Search orders..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="search-input"
-        />
-        <select
-          value={statusFilter}
-          onChange={handleFilterChange}
-          className="filter-select"
-        >
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-          <option value="failed">Failed</option>
-        </select>
-      </div> */}
+          {/* Stats Section */}
+          <Grid templateColumns={{ base: "1fr", md: "repeat(4, 1fr)" }} gap={6}>
+            <Card bg={cardBg}>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Total Orders</StatLabel>
+                  <StatNumber>{stats.total}</StatNumber>
+                  <StatHelpText>
+                    <StatArrow type="increase" />
+                    23.36%
+                  </StatHelpText>
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card bg={cardBg}>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Pending Orders</StatLabel>
+                  <StatNumber>{stats.pending}</StatNumber>
+                  <Progress value={stats.pending} max={stats.total} colorScheme="yellow" />
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card bg={cardBg}>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Completed Orders</StatLabel>
+                  <StatNumber>{stats.completed}</StatNumber>
+                  <Progress value={stats.completed} max={stats.total} colorScheme="green" />
+                </Stat>
+              </CardBody>
+            </Card>
+            <Card bg={cardBg}>
+              <CardBody>
+                <Stat>
+                  <StatLabel>Failed Orders</StatLabel>
+                  <StatNumber>{stats.failed}</StatNumber>
+                  <Progress value={stats.failed} max={stats.total} colorScheme="red" />
+                </Stat>
+              </CardBody>
+            </Card>
+          </Grid>
 
-      <div className="orders-container" style={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        height: 'calc(100vh - 200px)', // Adjust based on your header height
-        overflow: 'hidden'
-      }}>
-        <div className="table-container" style={{ 
-          flex: 1,
-          overflowY: 'auto',
-          marginBottom: '20px'
-        }}>
-          <table className="admin-table">
-            <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-              <tr>
-                <th>Order ID</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Payment ID</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order.orderId}</td>
-                  <td>₹{order.amount}</td>
-                  <td>{formatDate(order.createdAt)}</td>
-                  <td>
-                    <select
-                      value={order.status}
-                      onChange={(e) => {
-                        console.log('Status change triggered:', order._id, e.target.value);
-                        handleStatusChange(order._id, e.target.value);
-                      }}
-                      className={`status-select ${order.status}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
-                      <option value="failed">Failed</option>
-                    </select>
-                  </td>
-                  <td>{order.paymentId || 'N/A'}</td>
-                  <td>
-                    <button
-                      className="view-btn"
-                      onClick={() => fetchOrderDetails(order._id)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          {/* Filters Section */}
+          <Card bg={cardBg} p={4}>
+            <CardBody>
+              <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
+                <GridItem>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none">
+                      <FiSearch color="gray.300" />
+                    </InputLeftElement>
+                    <Input
+                      placeholder="Search orders..."
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                    />
+                  </InputGroup>
+                </GridItem>
 
-        <div className="pagination" style={{
-          position: 'sticky',
-          bottom: 0,
-          backgroundColor: 'white',
-          padding: '10px 0',
-          borderTop: '1px solid #eee',
-          zIndex: 1
-        }}>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(1)}
-            disabled={page === 1}
-          >
-            First
-          </button>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page === 1}
-          >
-            Previous
-          </button>
-          <span className="page-info">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page === totalPages}
-          >
-            Next
-          </button>
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(totalPages)}
-            disabled={page === totalPages}
-          >
-            Last
-          </button>
-        </div>
-      </div>
+                <GridItem>
+                  <Select
+                    placeholder="Filter by status"
+                    value={statusFilter}
+                    onChange={handleFilterChange}
+                  >
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                  </Select>
+                </GridItem>
+
+                <GridItem>
+                  <Select
+                    placeholder="Sort by"
+                    onChange={(e) => {
+                      // Add sorting logic here
+                    }}
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="amount_high">Amount: High to Low</option>
+                    <option value="amount_low">Amount: Low to High</option>
+                  </Select>
+                </GridItem>
+              </Grid>
+            </CardBody>
+          </Card>
+
+          {/* Orders Table */}
+          <Card bg={bgColor} overflowX="auto">
+            <CardBody>
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>Order ID</Th>
+                    <Th>Customer</Th>
+                    <Th>Amount</Th>
+                    <Th>Date</Th>
+                    <Th>Status</Th>
+                    <Th>Payment</Th>
+                    <Th>Actions</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {orders.map((order) => (
+                    <Tr key={order._id}>
+                      <Td>
+                        <VStack align="start" spacing={0}>
+                          <Text fontWeight="medium">{order.orderId}</Text>
+                          <Text fontSize="sm" color="gray.500">
+                            {order.receipt}
+                          </Text>
+                        </VStack>
+                      </Td>
+                      <Td>
+                        <VStack align="start" spacing={0}>
+                          <Text>{order.shippingAddress?.first_name} {order.shippingAddress?.last_name}</Text>
+                          <Text fontSize="sm" color="gray.500">
+                            {order.shippingAddress?.email}
+                          </Text>
+                        </VStack>
+                      </Td>
+                      <Td>
+                        <Text fontWeight="bold">₹{order.amount}</Text>
+                      </Td>
+                      <Td>
+                        <VStack align="start" spacing={0}>
+                          <Text>{formatDate(order.createdAt)}</Text>
+                          <Text fontSize="sm" color="gray.500">
+                            {order.orderDetails?.items?.length} items
+                          </Text>
+                        </VStack>
+                      </Td>
+                      <Td>
+                        <Select
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                          size="sm"
+                          colorScheme={getStatusColor(order.status)}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="completed">Completed</option>
+                          <option value="failed">Failed</option>
+                        </Select>
+                      </Td>
+                      <Td>
+                        <Badge colorScheme={order.paymentId ? "green" : "red"}>
+                          {order.paymentId ? "Paid" : "Unpaid"}
+                        </Badge>
+                      </Td>
+                      <Td>
+                        <HStack spacing={2}>
+                          <Tooltip label="View Details">
+                            <IconButton
+                              icon={<FiEye />}
+                              colorScheme="blue"
+                              variant="ghost"
+                              onClick={() => navigate(`/admin/orders/${order.orderId}`)}
+                            />
+                          </Tooltip>
+                        </HStack>
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </CardBody>
+          </Card>
+
+          {/* Pagination */}
+          {orders.length > 0 && (
+            <Flex justify="center" mt={4}>
+              <HStack spacing={4}>
+                <Button
+                  onClick={() => setPage(1)}
+                  isDisabled={page === 1}
+                  variant="outline"
+                >
+                  First
+                </Button>
+                <Button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  isDisabled={page === 1}
+                  variant="outline"
+                >
+                  Previous
+                </Button>
+                <Text>Page {page} of {totalPages}</Text>
+                <Button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  isDisabled={page === totalPages}
+                  variant="outline"
+                >
+                  Next
+                </Button>
+                <Button
+                  onClick={() => setPage(totalPages)}
+                  isDisabled={page === totalPages}
+                  variant="outline"
+                >
+                  Last
+                </Button>
+              </HStack>
+            </Flex>
+          )}
+        </VStack>
+      </Box>
 
       {selectedOrder && (
         <div className="order-details-modal">
@@ -347,7 +541,7 @@ const Orders = () => {
           </div>
         </div>
       )}
-    </div>
+    </Box>
   );
 };
 
