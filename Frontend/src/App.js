@@ -4,6 +4,7 @@ import Dashboard from './Pages/Admin/Dashboard';
 import Products from './Pages/Admin/Products';
 import Analytics from './Pages/Admin/Analytics';
 import Orders from './Pages/Admin/Orders';
+import OrderDetails from './Pages/Admin/OrderDetails';
 import SectionBanners from './Pages/Admin/SectionBanners';
 import Users from './Pages/Admin/Users';
 import "./App.css";
@@ -18,6 +19,7 @@ function App() {
         <Route index element={<Analytics />} />
         <Route path="products" element={<Products />} />
         <Route path="orders" element={<Orders />} />
+        <Route path="orders/:orderId" element={<OrderDetails />} />
         <Route path="Banners" element={<Banners />} />
         <Route path="/admin/section-banners" element={<SectionBanners />} />
         <Route path="/admin/users" element={<Users />} />
