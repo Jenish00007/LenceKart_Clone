@@ -1,41 +1,33 @@
 import React from "react";
-import { Box, Flex, Image, Spacer } from "@chakra-ui/react";
+import { Box, Flex, Image, Spacer, Text, Center } from "@chakra-ui/react";
 import Slider from "./Slider";
 
-const HomeCard2 = ({ type, src }) => {
+const HomeCard2 = ({ type, loading, error }) => {
+  if (loading) {
+    return <Center>Loading...</Center>;
+  }
+
+  if (error) {
+    return <Center color="red.500">{error}</Center>;
+  }
+
   return (
     <Box justifyContent="left" w="95%" m="auto" mt="6" cursor="pointer">
-      <Flex mt="7">
+      <Flex mt="7" direction={{ base: "column", xl: "row" }}>
         <Box
-          boxSize="sm"
-          w={{
-            xs: "none",
-            sm: "none",
-            md: "none",
-            lg: "none",
-            xl: "50%",
-            base: "none"
-          }}
+          w={{ base: "100%", xl: "25%" }}
           cursor="pointer"
           pr={{ lg: "4", sm: "0", base: "0" }}
+          mb={{ base: "4", xl: "0" }}
         >
-          <Image
-            src={src}
-            boxSize="700px"
-            h="200px"
-            w={{
-              xs: "80%",
-              sm: "80%",
-              md: "80%",
-              lg: "100%",
-              xl: "100%",
-              base: "none"
-            }}
-          />
+          <Center>
+            <Text fontSize="2xl" fontWeight="bold" mb="4">
+              Frame Shapes
+            </Text>
+          </Center>
         </Box>
-        <Spacer />
         <Box
-          w={{ sm: "100%", md: "100%", lg: "100%", xl: "75%", base: "100%" }}
+          w={{ base: "100%", xl: "75%" }}
         >
           <Slider type={type} />
         </Box>

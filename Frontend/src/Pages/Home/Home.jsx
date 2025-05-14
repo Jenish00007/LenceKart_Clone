@@ -32,11 +32,15 @@ import {
 } from "./HomeDetails";
 import { Image, Box } from "@chakra-ui/react";
 import RecentlyViewed from '../../Components/RecentlyViewed/RecentlyViewed';
+import SpecialProducts from '../../Components/SpecialProducts/SpecialProducts';
 
 const Home = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [shapes, setShapes] = useState([]);
+  const [shapesLoading, setShapesLoading] = useState(true);
+  const [shapesError, setShapesError] = useState(null);
   const [adBanners, setAdBanners] = useState([]);
   const [adBannersLoading, setAdBannersLoading] = useState(true);
   const [adBannersError, setAdBannersError] = useState(null);
@@ -47,6 +51,12 @@ const Home = () => {
   });
   const [sectionBannersLoading, setSectionBannersLoading] = useState(true);
   const [sectionBannersError, setSectionBannersError] = useState(null);
+  const [sunglasses, setSunglasses] = useState([]);
+  const [sunglassesLoading, setSunglassesLoading] = useState(true);
+  const [sunglassesError, setSunglassesError] = useState(null);
+  const [eyeglasses, setEyeglasses] = useState([]);
+  const [eyeglassesLoading, setEyeglassesLoading] = useState(true);
+  const [eyeglassesError, setEyeglassesError] = useState(null); 
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -76,6 +86,56 @@ const Home = () => {
         setAdBannersLoading(false);
       }
     };
+    const fetchShapes = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/shape', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Shapes API Response:', response.data);
+        setShapes(response.data);
+        setShapesLoading(false);
+      } catch (err) {
+        console.error('Error fetching shapes:', err);
+        setShapesError('Failed to fetch shapes: ' + (err.message || 'Unknown error'));
+        setShapesLoading(false);
+      }
+    };
+
+    const fetchSunglasses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=sunglasses', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Sunglasses API Response:', response.data);
+        setSunglasses(response.data.products);
+        setSunglassesLoading(false);
+      } catch (err) {
+        console.error('Error fetching sunglasses:', err);
+        setSunglassesError('Failed to fetch sunglasses: ' + (err.message || 'Unknown error'));
+        setSunglassesLoading(false);
+      }
+    };
+    const fetchEyeglasses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=eyeglasses', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Sunglasses API Response:', response.data);
+        setEyeglasses(response.data.products);
+        setEyeglassesLoading(false);
+      } catch (err) {
+        console.error('Error fetching eyeglasses:', err);
+        setEyeglassesError('Failed to fetch eyeglasses: ' + (err.message || 'Unknown error'));
+        setEyeglassesLoading(false);
+      }
+    };
+
 
     const fetchSectionBanners = async () => {
       try {
@@ -101,6 +161,9 @@ const Home = () => {
     fetchBanners();
     fetchAdBanners();
     fetchSectionBanners();
+    fetchShapes();
+    fetchSunglasses();
+    fetchEyeglasses();
   }, []);
 
   const renderAdBanner = (banner) => (
@@ -151,10 +214,13 @@ const Home = () => {
       ))}
       
       <TrendingEyeglasses />
-      <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" />
+      
       <br />
       <br />
+      <RecentlyViewed />
       <br />
+      <br />
+      <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
        {/* Bottom Ad Banner */}
        {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
       <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
@@ -171,16 +237,17 @@ const Home = () => {
       
       
       
-      <HomeCard6 type={HomeDetails6} heading="EYEGLASSES" />
+      <HomeCard6 type={eyeglasses} loading={eyeglassesLoading} error={eyeglassesError} heading="EYEGLASSES" />
       <br />
       <br />
       <br />
       <br />
-      <HomeCard6 type={HomeDetails7} heading="SUNGLASSES" />
+      <HomeCard6 type={sunglasses} loading={sunglassesLoading} error={sunglassesError} heading="SUNGLASSES" />
       <br />
       <br />
             
       <br />
+      
       <br />
       <br />
       <br />
@@ -213,7 +280,8 @@ const Home = () => {
       <br />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
-      <RecentlyViewed />
+     
+      <SpecialProducts />
       <Footer />
     </Box>
   );

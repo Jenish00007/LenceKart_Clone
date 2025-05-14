@@ -14,8 +14,15 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
+import { useNavigate } from "react-router-dom";
 
 const Slider = ({ type }) => {
+  const navigate = useNavigate();
+
+  const handleExplore = (shape) => {
+    navigate(`/products?shape=${shape}`);
+  };
+
   return (
     <Swiper
       modules={[Navigation, Autoplay]}
@@ -48,19 +55,17 @@ const Slider = ({ type }) => {
         },
       }}
     >
-      {type.map((i) => (
-        <Box key={i}>
-          <SwiperSlide>
-            <Link to={i.linked}>
-              <Square m="auto">
-                <Image
-                  src={`${i.img}`}
-                  alt={i.name}
-                  boxSize={{ base: "100px" }}
-                  w="80%"
-                />
-              </Square>
-            </Link>
+      {type?.map((item) => (
+        <SwiperSlide key={item._id}>
+          <Box>
+            <Square m="auto">
+              <Image
+                src={item.imageUrl}
+                alt={item.caption}
+                boxSize={{ base: "100px" }}
+                w="80%"
+              />
+            </Square>
             <VStack m="auto">
               <Center>
                 <Text
@@ -70,15 +75,21 @@ const Slider = ({ type }) => {
                   fontSize="18px"
                   fontFamily="Futura-Medium"
                 >
-                  {i.name}
+                  {item.caption}
                 </Text>
               </Center>
-              <Button p="20px 40px" colorScheme="teal" m="auto" fontSize="17px">
+              <Button 
+                p="20px 40px" 
+                colorScheme="teal" 
+                m="auto" 
+                fontSize="17px"
+                onClick={() => handleExplore(item.name)}
+              >
                 Explore
               </Button>
             </VStack>
-          </SwiperSlide>
-        </Box>
+          </Box>
+        </SwiperSlide>
       ))}
     </Swiper>
   );

@@ -2,6 +2,7 @@ const express = require("express");
 const ProductModel = require("../Models/product.model");
 const ProductVisit = require("../Models/productVisit.model");
 const auth = require("../middlwares/auth");
+const productController = require('../controllers/product.controller');
 
 const productRouter = express.Router();
 
@@ -205,6 +206,50 @@ productRouter.get("/", async (req, res) => {
   }
 });
 
+// Special product category routes - Move these BEFORE the /:id route
+productRouter.get('/categories/top-rated', async (req, res) => {
+  try {
+    const products = await ProductModel.find({ rating: { $gte: 4 } })
+      .sort({ rating: -1 })
+      .limit(10);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching top rated products', error: error.message });
+  }
+});
+
+productRouter.get('/categories/latest', async (req, res) => {
+  try {
+    const products = await ProductModel.find()
+      .sort({ createdAt: -1 })
+      .limit(10);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching latest products', error: error.message });
+  }
+});
+
+productRouter.get('/categories/exclusive', async (req, res) => {
+  try {
+    const products = await ProductModel.find({ isExclusive: true })
+      .limit(10);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching exclusive products', error: error.message });
+  }
+});
+
+productRouter.get('/categories/offered', async (req, res) => {
+  try {
+    const products = await ProductModel.find({ discount: { $gt: 0 } })
+      .sort({ discount: -1 })
+      .limit(10);
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching offered products', error: error.message });
+  }
+});
+
 // Get product by ID
 productRouter.get("/:id", async (req, res) => {
   try {
@@ -356,21 +401,12 @@ productRouter.get("/filter", async (req, res) => {
   }
 });
 
-productRouter.get("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const product = await ProductModel.findById({ _id: id });
-    if (product) {
-      res.status(200).json({
-        success: true,
-        product: product,
-      });
-    }
-  } catch (err) {
-    console.log({ err: err });
-    res.status(400).send({ success: false, err: err });
-  }
-});
+// Special product category routes
+productRouter.get('/top-rated', productController.getTopRatedProducts);
+productRouter.get('/latest', productController.getLatestProducts);
+productRouter.get('/exclusive', productController.getExclusiveProducts);
+productRouter.get('/offered', productController.getOfferedProducts);
+
 module.exports = {
   productRouter,
 };

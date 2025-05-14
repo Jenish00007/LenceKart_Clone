@@ -30,11 +30,12 @@ const NewProduct = () => {
   const [style, setStyle] = useState("");
   const [colors, setColors] = useState("");
   const [searchParams] = useSearchParams();
-
+  const [shapeParams] = useSearchParams();
   const fetchproduct = async () => {
     setIsLoaded(true);
     try {
       const searchQuery = searchParams.get('search') || '';
+      const shape = shapeParams.get('shape') || '';
       const url = `${API_URL}/product?sort=${sort}&frameType=${frametype}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
       
       console.log("Fetching URL:", url);

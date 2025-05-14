@@ -6,7 +6,14 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 
-const HomeCard6 = ({ type, heading }) => {
+const HomeCard6 = ({ type, heading, loading, error }) => {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
+  } 
+  
   return (
     <Box
       justifyContent="left"
@@ -48,13 +55,13 @@ const HomeCard6 = ({ type, heading }) => {
             }
           }}
         >
-          {type.map((i) => (
+          {type?.map((i) => (
             <Box key={i}>
               <SwiperSlide>
                 <Link to={i.linked}>
                   <Square m="auto">
                     <Image
-                      src={`${i.img}`}
+                      src={`${i.imageTsrc}`}
                       alt={i.caption}
                       boxSize="160px"
                       w="80%"
