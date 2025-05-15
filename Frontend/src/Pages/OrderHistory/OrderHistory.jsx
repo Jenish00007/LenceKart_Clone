@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Text, Stack, Heading, Image, Grid, Badge, useColorModeValue } from "@chakra-ui/react";
+import { Box, Text, Stack, Heading, Image, Grid, Badge, useColorModeValue, HStack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -125,22 +125,28 @@ const OrderHistory = () => {
                   gap="8"
                 >
                   <Box>
-                    <Image
-                      src={order.orderDetails.items[0].image}
-                      w={{
-                        base: "60%",
-                        sm: "50%",
-                        md: "100%",
-                        lg: "100%",
-                        xl: "100%",
-                        "2xl": "100%"
-                      }}
-                      m="auto"
-                      borderRadius="lg"
-                      boxShadow="md"
-                      transition="transform 0.3s"
-                      _hover={{ transform: "scale(1.05)" }}
-                    />
+                    {order.orderDetails?.items?.map((item, index) => (
+                      <Image
+                        key={index}
+                        src={item.image}
+                        alt={item.name}
+                        w={{
+                          base: "60%",
+                          sm: "50%",
+                          md: "100%",
+                          lg: "100%",
+                          xl: "100%",
+                          "2xl": "100%"
+                        }}
+                        m="auto"
+                        mb={index < order.orderDetails.items.length - 1 ? 4 : 0}
+                        borderRadius="lg"
+                        boxShadow="md"
+                        transition="transform 0.3s"
+                        _hover={{ transform: "scale(1.05)" }}
+                        fallbackSrc="https://via.placeholder.com/150"
+                      />
+                    ))}
                   </Box>
                   <Box
                     textAlign={{
@@ -164,10 +170,11 @@ const OrderHistory = () => {
                       mb="3"
                     >
                       {order.orderDetails.items[0].name}
+                      {order.orderDetails.items.length > 1 && ` +${order.orderDetails.items.length - 1} more`}
                     </Text>
                     <Grid templateColumns="repeat(2, 1fr)" gap={4} mb="4">
                       <Text fontWeight="500" fontSize="md">
-                        Quantity: {order.orderDetails.items[0].quantity}
+                        Items: {order.orderDetails.items.length}
                       </Text>
                       <Text fontWeight="bold" fontSize="md">
                         Price: ₹{order.orderDetails.items[0].price}.00
@@ -185,16 +192,26 @@ const OrderHistory = () => {
                         Total: ₹{order.orderDetails.total}.00
                       </Text>
                     </Grid>
-                    <Badge
-                      colorScheme={getStatusColor(order.status)}
-                      fontSize="md"
-                      p="2"
-                      borderRadius="md"
-                      mt="2"
-                      boxShadow="sm"
-                    >
-                      Status: {order.status.toUpperCase()}
-                    </Badge>
+                    <HStack spacing={4} mt={2}>
+                      <Badge
+                        colorScheme={getStatusColor(order.status)}
+                        fontSize="md"
+                        p="2"
+                        borderRadius="md"
+                        boxShadow="sm"
+                      >
+                        Status: {order.status.toUpperCase()}
+                      </Badge>
+                      <Badge
+                        colorScheme={order.paymentDetails?.razorpay_payment_id ? "green" : "red"}
+                        fontSize="md"
+                        p="2"
+                        borderRadius="md"
+                        boxShadow="sm"
+                      >
+                        {order.paymentDetails?.razorpay_payment_id ? "PAID" : "UNPAID"}
+                      </Badge>
+                    </HStack>
                   </Box>
                 </Grid>
               </Grid>

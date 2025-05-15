@@ -95,6 +95,13 @@ const Payment = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
+      
+      // Load Razorpay script first
+      const isScriptLoaded = await loadRazorpayScript();
+      if (!isScriptLoaded) {
+        throw new Error('Failed to load Razorpay SDK');
+      }
+
       const subtotal = getTotalPrice();
       const tax = Math.round(subtotal * 0.18);
       const total = validateAmount(Math.round(subtotal + tax) - (coupon || 0));
@@ -118,7 +125,7 @@ const Payment = () => {
       const orderDetails = {
         items: cart.map(item => ({
           productId: item._id || item.id,
-          name: item.productRefLink || "Vincent Chase Eyeglasses",
+          name: item.productRefLink ,
           quantity: item.quantity,
           price: item.price,
           image: item.imageTsrc
@@ -129,8 +136,6 @@ const Payment = () => {
         total,
         shippingAddress
       };
-
-      console.log(orderDetails);
 
       // Create order in backend
       const response = await fetch(`${API_URL}/api/payment/create-order`, {
@@ -147,7 +152,6 @@ const Payment = () => {
       });
 
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         console.error('Order creation failed:', data);
         throw new Error(data.message || data.error || 'Error creating order');
@@ -230,6 +234,11 @@ const Payment = () => {
         }
       };
 
+      // Check if Razorpay is available
+      if (typeof window.Razorpay === 'undefined') {
+        throw new Error('Razorpay SDK not loaded');
+      }
+
       // Initialize Razorpay
       const razorpay = new window.Razorpay(options);
       razorpay.open();
@@ -244,6 +253,8 @@ const Payment = () => {
       } else if (error.message.includes('authentication') || error.message.includes('token')) {
         errorMessage = 'Authentication failed. Please login again.';
         navigate('/login');
+      } else if (error.message.includes('Razorpay')) {
+        errorMessage = 'Payment system is temporarily unavailable. Please try again later.';
       } else {
         errorMessage = error.message || 'Failed to process payment. Please try again.';
       }
