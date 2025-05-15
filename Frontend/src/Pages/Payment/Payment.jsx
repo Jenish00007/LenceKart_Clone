@@ -66,11 +66,19 @@ const Payment = () => {
     return totalPrice;
   };
 
+  const calculateFinalAmount = () => {
+    const subtotal = getTotalPrice();
+    const tax = subtotal * 0.18;
+    const total = subtotal + tax - (coupon || 0);
+    // Convert to paise and ensure it's an integer
+    return Math.round(total * 100);
+  };
+
   const validateAmount = (amount) => {
     if (!amount || isNaN(amount) || amount <= 0) {
       throw new Error('Invalid amount for payment');
     }
-    return Math.round(amount);
+    return amount;
   };
 
   const validateShippingAddress = (address) => {
@@ -102,9 +110,8 @@ const Payment = () => {
         throw new Error('Failed to load Razorpay SDK');
       }
 
-      const subtotal = getTotalPrice();
-      const tax = Math.round(subtotal * 0.18);
-      const total = validateAmount(Math.round(subtotal + tax) - (coupon || 0));
+      const amount = validateAmount(calculateFinalAmount());
+      console.log('Payment amount in paise:', amount); // Debug log
       
       // Get and validate shipping address
       const shippingAddressStr = localStorage.getItem('shippingAddress');
@@ -125,17 +132,19 @@ const Payment = () => {
       const orderDetails = {
         items: cart.map(item => ({
           productId: item._id || item.id,
-          name: item.productRefLink ,
+          name: item.productRefLink,
           quantity: item.quantity,
           price: item.price,
           image: item.imageTsrc
         })),
-        subtotal,
-        tax,
+        subtotal: getTotalPrice(),
+        tax: getTotalPrice() * 0.18,
         coupon: coupon || 0,
-        total,
+        total: amount / 100, // Convert back to rupees for display
         shippingAddress
       };
+
+      console.log('Sending order details:', { amount, orderDetails }); // Debug log
 
       // Create order in backend
       const response = await fetch(`${API_URL}/api/payment/create-order`, {
@@ -145,7 +154,7 @@ const Payment = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          amount: total,
+          amount,
           orderDetails,
           shippingAddress
         })
@@ -157,15 +166,17 @@ const Payment = () => {
         throw new Error(data.message || data.error || 'Error creating order');
       }
 
+      console.log('Order created successfully:', data); // Debug log
+
       // Configure Razorpay options
       const options = {
         key: data.key,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.order.amount, // Use the amount from Razorpay order
+        currency: data.order.currency,
         name: "Lenskart",
         description: "Payment for your order",
-        order_id: data.orderId,
-        notes: data.notes,
+        order_id: data.order.id,
+        notes: data.order.notes,
         handler: async function (response) {
           try {
             const verifyResponse = await fetch(`${API_URL}/api/payment/verify`, {
