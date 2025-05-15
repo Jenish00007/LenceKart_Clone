@@ -54,7 +54,7 @@ const Payment = ({ amount, items, shippingAddress, onSuccess, onFailure }) => {
       });
 
       const data = await response.json();
-  
+
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
         amount: data.amount,

@@ -160,12 +160,12 @@ const Payment = () => {
       // Configure Razorpay options
       const options = {
         key: data.key,
-        amount: data.amount,
-        currency: data.currency,
+        amount: data.order.amount,
+        currency: data.order.currency,
         name: "Lenskart",
         description: "Payment for your order",
-        order_id: data.orderId,
-        notes: data.notes,
+        order_id: data.order.id,
+        notes: data.order.notes,
         handler: async function (response) {
           try {
             const verifyResponse = await fetch(`${API_URL}/api/payment/verify`, {
