@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
     required: true
   },
   amount: {
@@ -22,14 +22,9 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    required: true,
+    enum: ['pending', 'completed', 'failed', 'refunded'],
     default: 'pending'
-  },
-  paymentId: {
-    type: String
-  },
-  paymentSignature: {
-    type: String
   },
   receipt: {
     type: String,
@@ -44,19 +39,15 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    phone: {
-      type: String,
-      required: true
-    },
     email: {
       type: String,
       required: true
     },
-    address: {
+    phone: {
       type: String,
       required: true
     },
-    pincode: {
+    address: {
       type: String,
       required: true
     },
@@ -68,6 +59,10 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    pincode: {
+      type: String,
+      required: true
+    },
     country: {
       type: String,
       required: true,
@@ -76,33 +71,46 @@ const orderSchema = new mongoose.Schema({
   },
   orderDetails: {
     items: [{
-      id: String,
-      name: String,
-      quantity: Number,
-      price: Number,
-      image: String
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+        required: true
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1
+      },
+      price: {
+        type: Number,
+        required: true
+      }
     }],
-    subtotal: Number,
-    tax: Number,
-    coupon: Number,
-    total: Number
+    subtotal: {
+      type: Number,
+      required: true
+    },
+    tax: {
+      type: Number,
+      required: true
+    },
+    coupon: {
+      type: Number,
+      default: 0
+    },
+    total: {
+      type: Number,
+      required: true
+    }
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  paymentDetails: {
+    razorpay_payment_id: String,
+    razorpay_signature: String
   }
+}, {
+  timestamps: true
 });
 
-// Update the updatedAt timestamp before saving
-orderSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-const Order = mongoose.model("order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order; 

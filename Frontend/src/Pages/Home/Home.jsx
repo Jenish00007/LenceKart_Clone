@@ -199,7 +199,7 @@ const Home = () => {
         />
       ))}
 
-      <LenskartSwaps />
+      {/* <LenskartSwaps /> */}
          {/* Middle Ad Banner */}
          {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
       

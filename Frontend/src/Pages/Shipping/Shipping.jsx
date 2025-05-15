@@ -277,71 +277,28 @@ function Shipping() {
         return;
       }
 
-      const orderDetails = calculateOrderDetails();
-      const token = localStorage.getItem('token');
-      
-      // Match exact API requirements
-      const orderData = {
-        userId: user.id,
-        amount: orderDetails.total,
-        orderDetails,
-        shippingAddress: {
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          phone: userData.phone,
-          email: userData.email,
-          address: userData.address,
-          pincode: userData.pincode,
-          city: userData.city,
-          state: userData.state,
-          country: userData.country
-        }
+      // Store shipping address in localStorage
+      const shippingData = {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        phone: userData.phone,
+        email: userData.email,
+        address: userData.address,
+        pincode: userData.pincode,
+        city: userData.city,
+        state: userData.state,
+        country: userData.country
       };
 
-      // Log the request data for debugging
-      console.log('Sending order data:', orderData);
+      localStorage.setItem('shippingAddress', JSON.stringify(shippingData));
 
-      const response = await fetch(`${API_URL}/api/orders/placeorder`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(orderData)
-      });
-
-      const data = await response.json();
-
-      // Log the response for debugging
-      console.log('API Response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || `Server error: ${response.status}`);
-      }
-
-      if (data.success) {
-        toast({
-          title: "Order Placed Successfully",
-          description: "Your order has been placed successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom"
-        });
-        
-        // Clear cart after successful order
-        localStorage.removeItem('cart');
-        
-        // Navigate to order confirmation or checkout page
-        navigate("/checkout", { state: { orderId: data.order.orderId } });
-      } else {
-        throw new Error(data.message || 'Failed to place order');
-      }
+      // Navigate to payment page
+      navigate("/payment");
     } catch (error) {
-      console.error('Order placement error:', error);
+      console.error('Error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to place order",
+        description: error.message || "Something went wrong",
         status: "error",
         duration: 3000,
         isClosable: true,

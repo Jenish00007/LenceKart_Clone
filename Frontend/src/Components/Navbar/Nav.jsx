@@ -227,7 +227,7 @@ function Nav() {
                         <Text color="gray.500" fontSize="sm">
                           {userData.email}
                         </Text>
-                        <Badge 
+                        {/* <Badge 
                           colorScheme="green" 
                           variant="subtle" 
                           mt={1}
@@ -236,10 +236,10 @@ function Nav() {
                           borderRadius="full"
                         >
                           Gold Member
-                        </Badge>
+                        </Badge> */}
                       </Flex>
                     </Flex>
-                    <Button
+                    {/* <Button
                       w="100%"
                       h="40px"
                       mt="5%"
@@ -253,7 +253,7 @@ function Nav() {
                       transition="all 0.2s"
                     >
                       GET GOLD MEMBERSHIP
-                    </Button>
+                    </Button> */}
                   </Flex>
                 ) : (
                   <Box
