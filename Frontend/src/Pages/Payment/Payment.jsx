@@ -171,8 +171,8 @@ const Payment = () => {
       // Configure Razorpay options
       const options = {
         key: data.key,
-        amount: data.order.amount, // Use the amount from Razorpay order
-        currency: data.order.currency,
+        amount: data.amount,
+        currency: data.currency,
         name: "Lenskart",
         description: "Payment for your order",
         order_id: data.order.id,

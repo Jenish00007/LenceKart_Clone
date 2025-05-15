@@ -13,6 +13,10 @@ import {
   MenuButton,
   MenuList
 } from "@chakra-ui/react";
+import CategorySelector from "../CategorySelector/CategorySelector";
+import SelectCategory from "../CategorySelector/SelectCategory";
+import ComputerSelectCategory from "../CategorySelector/ComputerSelectCategory";
+import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCategory";
 import "../../App.css";
 
 function NavbarCard5() {
@@ -40,86 +44,15 @@ function NavbarCard5() {
           <Link to="/products">
             <Box>
               <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Flex direction="column" justifyContent="space-evenly" mt="20">
-                  <Flex gap="5" fontSize="15px">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+                <Box mt="20">
+                  <CategorySelector />
+                </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Women
-                    </Box>
-                  </Flex>
+                <Box>
+                  <SelectCategory />
+                </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kent Dodds"
-                      src="https://static.lenskart.com/media/desktop/img/kid_pic.png"
-                      alt="kid"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Kids
-                    </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    SELECT CATEGORY
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }}>
-                    CLASSIC EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>1199</span>
-                    </p>
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }}>
-                    PREMIUM EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>3000</span>
-                    </p>
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }} p="2">
-                    COMPUTER EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                </Flex>
-
-                <Flex direction="column" gap="6">
+                <Flex direction="column" gap="6" pl={6}>
                   <Box
                     fontSize="md"
                     fontWeight="bold"
@@ -130,7 +63,6 @@ function NavbarCard5() {
                   </Box>
                   <Flex direction="column" fontSize="md" gap="2">
                     <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Best Seller</Box>
                     <Box _hover={{ fontWeight: "bold" }}>
                       Lenskart BLU lenses
                     </Box>
@@ -145,7 +77,7 @@ function NavbarCard5() {
                   </Flex>
                 </Flex>
 
-                <Flex direction="column" gap="8">
+                <Flex direction="column" gap="6">
                   <Box
                     fontSize="md"
                     fontWeight="bold"
@@ -213,83 +145,30 @@ function NavbarCard5() {
           <Link to="/products">
             <Box>
               <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Flex
-                  direction="column"
-                  gap="4"
-                  justifyContent="space-evenly"
-                  mt="20"
-                >
-                  <Flex gap="5">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+                <Box mt="20">
+                  <CategorySelector />
+                </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Women
-                    </Box>
-                  </Flex>
+                <Box>
+                  <ComputerSelectCategory />
+                </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kent Dodds"
-                      src="https://static.lenskart.com/media/desktop/img/kid_pic.png"
-                      alt="kid"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Kids
-                    </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
+                <Flex direction="column" gap="6" pl={6}>
                   <Box
                     fontSize="md"
                     fontWeight="bold"
                     borderBottom="1px solid black"
                     p="1"
                   >
-                    SELECT CATEGORY
+                    Our Top Picks
                   </Box>
-
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    Blu 0 Computer Glasses
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    PREMIUM RANGE
-                    <p>
-                      Starting From ₹ <span>3000</span>
-                    </p>
-                  </Box>
+                  <Flex direction="column" fontSize="md" gap="2">
+                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
+                    <Box _hover={{ fontWeight: "bold" }}>
+                      Lenskart BLU lenses
+                    </Box>
+                    <Box _hover={{ fontWeight: "bold" }}>Trending</Box>
+                  </Flex>
                 </Flex>
               </Grid>
             </Box>
@@ -388,27 +267,6 @@ function NavbarCard5() {
                     borderBottom="1px solid black"
                     p="1"
                   >
-                    Brands
-                  </Box>
-                  <Flex direction="column" gap="2" fontSize="md">
-                    <Box _hover={{ fontWeight: "bold" }}> Aqualens</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Bausch Lomb</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Johnson & Johnson</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Soflens</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Acuvue</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Alcon</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Air Optix</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Pure Vision</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
                     Explore by Disposability
                   </Box>
                   <Flex direction="column" fontSize="md" gap="2">
@@ -499,65 +357,16 @@ function NavbarCard5() {
         >
           <Link to="/products">
             <Box>
-              <Grid gridTemplateColumns="repeat(6, 1fr)">
-                <Flex direction="column" justifyContent="space-evenly">
-                  <Flex gap="5">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+              <Grid gridTemplateColumns="repeat(5, 1fr)">
+                <Box mt="20">
+                  <CategorySelector />
+                </Box>
 
-                  <Flex gap="5" mt="-40%">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Women
-                    </Box>
-                  </Flex>
-                </Flex>
+                <Box>
+                  <SunglassesSelectCategory />
+                </Box>
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    SELECT CATEGORY
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    CLASSIC SUNGLASSES
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md" p="2">
-                    PREMIUM SUNGLASSES
-                    <p>
-                      Starting From ₹ <span>2500</span>
-                    </p>
-                  </Box>
-                </Flex>
-
-                <Flex direction="column" gap="6">
+                <Flex direction="column" gap="6" pl={6}>
                   <Box
                     fontSize="md"
                     fontWeight="bold"
@@ -603,7 +412,7 @@ function NavbarCard5() {
                     borderBottom="1px solid black"
                     p="1"
                   >
-                    Colections
+                    Collections
                   </Box>
                   <Flex direction="column" fontSize="md" gap="2">
                     <Box _hover={{ fontWeight: "bold" }}>Glam Slam</Box>
@@ -613,22 +422,6 @@ function NavbarCard5() {
                     <Box _hover={{ fontWeight: "bold" }}>
                       Designer Sunglasses
                     </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Brand
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Vincent Chase</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>John Jacobs</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>OJOS</Box>
                   </Flex>
                 </Flex>
               </Grid>
