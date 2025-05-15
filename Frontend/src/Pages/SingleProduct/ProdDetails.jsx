@@ -65,7 +65,7 @@ const ProdDetails = ({ type }) => {
           </Box>
         </AccordionPanel>
       </AccordionItem>
-      <AccordionItem>
+      {/* <AccordionItem>
         <h2>
           <AccordionButton>
             <Box as="span" flex="1" textAlign="left" fontWeight="500">
@@ -77,8 +77,8 @@ const ProdDetails = ({ type }) => {
         <AccordionPanel pb={4}>
           <Input placeholder="Enter Pin Code" />
         </AccordionPanel>
-      </AccordionItem>
-      <AccordionItem>
+      </AccordionItem> */}
+      {/* <AccordionItem>
         <h2>
           <AccordionButton>
             <Box as="span" flex="1" textAlign="left" fontWeight="500">
@@ -96,7 +96,7 @@ const ProdDetails = ({ type }) => {
             WRITE A REVIEW
           </Button>
         </AccordionPanel>
-      </AccordionItem>
+      </AccordionItem> */}
     </Accordion>
   );
 };

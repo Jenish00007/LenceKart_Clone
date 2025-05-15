@@ -102,23 +102,23 @@ const SingleProduct = () => {
       >
         <GridItem
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
           display={{ lg: "inherit", base: "none" }}
           _hover={{ transform: "scale(1.1)" }}
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
           w={{ lg: "100%", sm: "80%", base: "80%" }}
           m="auto"
         >
-          <Image _hover={{ transform: "scale(1.1)" }} src={data.imageTsrc} />
+          <Image _hover={{ transform: "scale(1.1)" }} src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           p={5}
@@ -134,7 +134,7 @@ const SingleProduct = () => {
           />
         </GridItem>
 
-        {ProdImage.map((ele, i) => (
+        {/* {ProdImage.map((ele, i) => (
           <GridItem
             _hover={{ transform: "scale(1.1)" }}
             display={{ lg: "inherit", base: "none" }}
@@ -146,27 +146,27 @@ const SingleProduct = () => {
           >
             <Image src={ele.src} />
           </GridItem>
-        ))}
+        ))} */}
 
         <GridItem
           _hover={{ transform: "scale(1.1)" }}
           display={{ lg: "inherit", base: "none" }}
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           _hover={{ transform: "scale(1.1)" }}
           display={{ lg: "inherit", base: "none" }}
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
       </Grid>
       <Footer />

@@ -120,14 +120,13 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
           ml="20"
         />
       </Button> */}
-      <br />
-      <br />
+    
 
       <ProdDetails type={type} />
 
-      {ProdImage1.map((ele, i) => (
+      {/* {ProdImage1.map((ele, i) => (
         <Image src={ele.src} key={i} />
-      ))}
+      ))} */}
     </Box>
   );
 };
