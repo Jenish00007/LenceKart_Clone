@@ -19,7 +19,7 @@ const slideIn = keyframes`
 `;
 
 const Wishlist = () => {
-  const wishlistItems = useSelector((store) => store.wishlistManager.wishlist);
+  const wishlistItems = useSelector((store) => store.wishlist.wishlist);
   const { cart } = useSelector((state) => state.CartReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
