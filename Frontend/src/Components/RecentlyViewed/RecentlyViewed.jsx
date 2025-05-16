@@ -98,7 +98,7 @@ const RecentlyViewed = () => {
 
   if (loading) {
     return (
-      <Box p={4} maxW="1200px" mx="auto">
+      <Box p={4}>
         <Skeleton height="40px" mb={4} />
         <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={4}>
           {[1, 2, 3, 4].map((item) => (
@@ -114,7 +114,7 @@ const RecentlyViewed = () => {
   }
 
   return (
-    <Box p={6} maxW="1200px" mx="auto">
+    <Box p={6}>
       <Fade in={true}>
         <VStack spacing={6} align="stretch">
           <Flex justify="space-between" align="center">

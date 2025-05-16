@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Image, Text, Heading, Button, Flex, Badge,} from "@chakra-ui/react";
+import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, Tooltip, Icon } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
+import { FiShoppingCart, FiHeart, FiEye } from "react-icons/fi";
 
 import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
@@ -73,7 +74,7 @@ const TrendingEyeglasses = () => {
         gap={6}
       >
         {trendingProducts?.map((product) => (
-          <Box
+          <Card
             key={product._id}
             borderWidth="1px"
             borderColor="gray.200"
@@ -81,55 +82,55 @@ const TrendingEyeglasses = () => {
             overflow="hidden"
             bg="white"
             boxShadow="md"
-            transition="all 0.3s ease"
+            transition="all 0.3s"
             _hover={{
-              transform: "scale(1.02)",
-              boxShadow: "lg",
+              transform: "translateY(-5px)",
+              shadow: "lg"
             }}
-            animation={`${float} 3s ease-in-out infinite`}
           >
-            <Box 
-              position="relative"
-              bg="#fbf9f7"
-              _hover={{
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent)',
-                  backgroundSize: '200% 200%',
-                  animation: `${shine} 2s linear infinite`
-                }
-              }}
-            >
-              <Image
-                src={product.imageTsrc}
-                alt={product.name}
-                height="200px"
-                width="100%"
-                objectFit="contain"
-                p={4}
-                transition="transform 0.3s ease"
-                _hover={{ transform: 'scale(1.1)' }}
-              />
-              <Badge
-                position="absolute"
-                bottom={2}
-                left={2}
-                bgGradient="linear(to-r, #00b9c5, #00a5b0, #008c96)"
-                color="white"
-                fontSize="xs"
-                px={2}
-                py={0.5}
-                borderRadius="sm"
+            <CardBody>
+              <Box 
+                position="relative"
+                bg="#fbf9f7"
+                _hover={{
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent)',
+                    backgroundSize: '200% 200%',
+                    animation: `${shine} 2s linear infinite`
+                  }
+                }}
               >
-                Trending
-              </Badge>
-            </Box>
-            <Box p={4}>
+                <Image
+                  src={product.imageTsrc}
+                  alt={product.name}
+                  height="200px"
+                  width="100%"
+                  objectFit="cover"
+                
+                  // p={4}
+                  transition="transform 0.3s ease"
+                  _hover={{ transform: 'scale(1.1)' }}
+                />
+                <Badge
+                  position="absolute"
+                  bottom={2}
+                  left={2}
+                  bgGradient="linear(to-r, #00b9c5, #00a5b0, #008c96)"
+                  color="white"
+                  fontSize="xs"
+                  px={2}
+                  py={0.5}
+                  borderRadius="sm"
+                >
+                  Trending
+                </Badge>
+              </Box>
               <Flex justifyContent="space-between" alignItems="center" mb={2}>
                 <Flex
                   borderRadius="20px"
@@ -180,21 +181,45 @@ const TrendingEyeglasses = () => {
               >
                 BUY1 GET1 +10% OFF
               </Box>
-
-              <Link to={`/products/${product._id}`}>
-                <Button
-                  colorScheme="blue"
-                  width="100%"
-                  _hover={{
-                    transform: "scale(1.05)",
-                  }}
-                  animation={`${pulse} 2s ease-in-out infinite`}
-                >
-                  View Details
-                </Button>
-              </Link>
-            </Box>
-          </Box>
+            </CardBody>
+            <Divider />
+            <CardFooter>
+              <HStack spacing={4} width="100%" justify="space-between">
+                <Tooltip label="Add to Cart">
+                  <Button
+                    size="sm"
+                    leftIcon={<Icon as={FiShoppingCart} />}
+                    colorScheme="blue"
+                    variant="ghost"
+                  >
+                    Cart
+                  </Button>
+                </Tooltip>
+                <Tooltip label="Add to Wishlist">
+                  <Button
+                    size="sm"
+                    leftIcon={<Icon as={FiHeart} />}
+                    colorScheme="pink"
+                    variant="ghost"
+                  >
+                    Wishlist
+                  </Button>
+                </Tooltip>
+                <Tooltip label="View Details">
+                  <Button
+                    size="sm"
+                    leftIcon={<Icon as={FiEye} />}
+                    colorScheme="teal"
+                    variant="ghost"
+                    as={Link}
+                    to={`/products/${product._id}`}
+                  >
+                    View
+                  </Button>
+                </Tooltip>
+              </HStack>
+            </CardFooter>
+          </Card>
         ))}
       </Grid>
     </Box>
