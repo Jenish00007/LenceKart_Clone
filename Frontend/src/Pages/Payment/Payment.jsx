@@ -18,6 +18,7 @@ import { API_URL } from '../../config';
 import { cartReset } from '../../redux/CartPage/action';
 import Navbar from '../../Components/Navbar/Navbar';
 import Footer from '../../Components/Footer/Footer';
+import { handleAuthRedirect } from '../../utils/auth';
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -262,8 +263,8 @@ const Payment = () => {
       } else if (error.message.includes('shipping')) {
         errorMessage = 'Invalid shipping details. Please update your shipping information.';
       } else if (error.message.includes('authentication') || error.message.includes('token')) {
-        errorMessage = 'Authentication failed. Please login again.';
-        navigate('/login');
+        handleAuthRedirect(navigate, 'Please sign in to complete your payment');
+        return;
       } else if (error.message.includes('Razorpay')) {
         errorMessage = 'Payment system is temporarily unavailable. Please try again later.';
       } else {

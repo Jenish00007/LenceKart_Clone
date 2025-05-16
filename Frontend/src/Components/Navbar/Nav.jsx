@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import Login from "../../Pages/Login/Login";
 import Signup from "../../Pages/Signup/Signup";
 import { AuthContext } from "../../ContextApi/AuthContext";
-import { Link, Navigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { HamburgerIcon, SearchIcon } from "@chakra-ui/icons";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import LogoutButton from "../LogoutButton";
@@ -29,19 +29,19 @@ import {
   AccordionPanel,
   AccordionIcon,
   Flex,
-  keyframes,
   Badge,
   VStack,
   Divider,
   Icon,
   useToast
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { keyframes } from '@emotion/react';
 import NavScroll from "./NavScroll";
 import { CiHeart } from "react-icons/ci";
 import { CgShoppingCart } from "react-icons/cg";
 import { FiPackage, FiLogOut } from "react-icons/fi";
 import { API_URL } from "../../config";
+import { handleAuthRedirect } from '../../utils/auth';
 
 const typingAnimation = keyframes`
   0% { width: 0; opacity: 0; }
@@ -67,6 +67,7 @@ function Nav() {
   const firstField = React.useRef();
   const { isAuth, authData, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(null);
@@ -89,10 +90,12 @@ function Nav() {
               'Authorization': `Bearer ${token}`
             }
           });
+          if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+          }
           const data = await response.json();
           
           if (Array.isArray(data)) {
-            // Find the current user by matching with token
             const currentUser = data.find(user => user._id === JSON.parse(atob(token.split('.')[1])).id);
             if (currentUser) {
               setUserData(currentUser);
@@ -111,8 +114,10 @@ function Nav() {
       }
     };
 
-    fetchUserData();
-  }, [isAuth]);
+    if (isAuth) {
+      fetchUserData();
+    }
+  }, [isAuth, toast]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -122,9 +127,30 @@ function Nav() {
   }, []);
 
   const handleSearch = (e) => {
-    if (e.key === 'Enter') {
-      navigate(`/products?search=${searchQuery}`);
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
     }
+  };
+
+  const handleProtectedAction = (action) => {
+    if (!isAuth) {
+      handleAuthRedirect(navigate, `Please sign in to ${action}`);
+      return false;
+    }
+    return true;
+  };
+
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate('/');
+    toast({
+      title: "Logged out successfully",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   return (
@@ -145,13 +171,25 @@ function Nav() {
           </Link>
         </Box>
         <HStack spacing={4}>
-          <Link to="/wishlist">
-            <Box _hover={{ color: "blue.500" }}>
+          <Link 
+            to={isAuth ? "/wishlist" : "#"} 
+            onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your wishlist'))}
+          >
+            <Box 
+              _hover={{ color: "blue.500" }}
+              transition="color 0.2s"
+            >
               <CiHeart size="24px" color="black" />
             </Box>
           </Link>
-          <Link to="/cart">
-            <Box _hover={{ color: "blue.500" }}>
+          <Link 
+            to={isAuth ? "/cart" : "#"} 
+            onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your cart'))}
+          >
+            <Box 
+              _hover={{ color: "blue.500" }}
+              transition="color 0.2s"
+            >
               <CgShoppingCart size="24px" color="black" />
             </Box>
           </Link>
@@ -163,11 +201,15 @@ function Nav() {
                 src={userData.avatar || "https://bit.ly/broken-link"}
                 bg="blue.500"
                 color="white"
+                cursor="pointer"
+                onClick={onOpen}
               />
               <Text 
                 fontSize="sm" 
                 fontWeight="medium"
                 display={{ base: "none", md: "block" }}
+                cursor="pointer"
+                onClick={onOpen}
               >
                 {userData.first_name}
               </Text>
@@ -179,6 +221,7 @@ function Nav() {
               _hover={{ bg: "gray.100" }}
               border="1px solid"
               borderColor="gray.200"
+              transition="all 0.2s"
             >
               <HamburgerIcon color="black" boxSize="20px" />
             </Button>
@@ -220,40 +263,14 @@ function Nav() {
                           fontSize="xl" 
                           fontWeight="bold" 
                           color="gray.800"
-                          _hover={{ color: "blue.500" }}
                         >
                           {userData.first_name} {userData.last_name}
                         </Text>
                         <Text color="gray.500" fontSize="sm">
                           {userData.email}
                         </Text>
-                        {/* <Badge 
-                          colorScheme="green" 
-                          variant="subtle" 
-                          mt={1}
-                          px={2}
-                          py={0.5}
-                          borderRadius="full"
-                        >
-                          Gold Member
-                        </Badge> */}
                       </Flex>
                     </Flex>
-                    {/* <Button
-                      w="100%"
-                      h="40px"
-                      mt="5%"
-                      colorScheme="blue"
-                      fontSize="15px"
-                      _hover={{ 
-                        bg: "blue.400",
-                        transform: "translateY(-2px)",
-                        boxShadow: "lg"
-                      }}
-                      transition="all 0.2s"
-                    >
-                      GET GOLD MEMBERSHIP
-                    </Button> */}
                   </Flex>
                 ) : (
                   <Box
@@ -276,6 +293,7 @@ function Nav() {
                         px={6}
                         py={2}
                         borderRadius="md"
+                        transition="all 0.2s"
                       >
                         <Login />
                       </Button>
@@ -288,6 +306,7 @@ function Nav() {
                         px={6}
                         py={2}
                         borderRadius="md"
+                        transition="all 0.2s"
                       >
                         <Signup />
                       </Button>
@@ -301,7 +320,10 @@ function Nav() {
                     MY ACCOUNT
                   </Heading>
                   <Box display="flex" flexDirection="column" fontSize="16px">
-                    <Link to="/orderhistory">
+                    <Link 
+                      to={isAuth ? "/orderhistory" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your orders'))}
+                    >
                       <Flex
                         align="center"
                         p={3}
@@ -317,7 +339,10 @@ function Nav() {
                         <Text>My Orders</Text>
                       </Flex>
                     </Link>
-                    <Link to="/cart">
+                    <Link 
+                      to={isAuth ? "/cart" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your cart'))}
+                    >
                       <Flex
                         align="center"
                         p={3}
@@ -333,7 +358,10 @@ function Nav() {
                         <Text>Cart</Text>
                       </Flex>
                     </Link>
-                    <Link to="/wishlist">
+                    <Link 
+                      to={isAuth ? "/wishlist" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your wishlist'))}
+                    >
                       <Flex
                         align="center"
                         p={3}
@@ -363,6 +391,7 @@ function Nav() {
                           <AccordionButton
                             _hover={{ bg: "gray.50" }}
                             p={3}
+                            transition="all 0.2s"
                           >
                             <Box
                               as="span"
@@ -436,8 +465,9 @@ function Nav() {
                     colorScheme="red"
                     variant="ghost"
                     leftIcon={<Icon as={FiLogOut} />}
-                    onClick={logout}
+                    onClick={handleLogout}
                     _hover={{ bg: "red.50" }}
+                    transition="all 0.2s"
                   >
                     Logout
                   </Button>
@@ -477,6 +507,7 @@ function Nav() {
             color="gray.500"
             boxSize="20px"
             _hover={{ color: "blue.400" }}
+            transition="color 0.2s"
           />
         </Flex>
       </Box>

@@ -11,7 +11,8 @@ import { FiPhoneCall } from "react-icons/fi";
 import { CiHeart } from "react-icons/ci";
 import { CgShoppingCart } from "react-icons/cg";
 import { TriangleDownIcon, SearchIcon } from "@chakra-ui/icons";
-import { keyframes } from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+
 import {
   Box,
   Text,

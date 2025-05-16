@@ -9,7 +9,8 @@ import SaleBox from "./SaleBox";
 import CartEmpty from "./CartEmpty";
 import CouponBox from "./CouponBox";
 import Footer from "../../Components/Footer/Footer";
-import { Flex, Text, Button, Box, keyframes } from "@chakra-ui/react";
+import { Flex, Text, Button, Box,} from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }

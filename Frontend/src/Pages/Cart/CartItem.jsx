@@ -13,8 +13,9 @@ import {
   Text,
   Box,
   Grid,
-  keyframes
 } from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Checkbox,
   useDisclosure,
@@ -21,7 +21,8 @@ import {
   Center,
   InputGroup,
   InputRightElement,
-  useToast
+  useToast,
+  Text
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 
@@ -35,6 +36,7 @@ const Login = () => {
   const { setisAuth, setAuthData, isAuth } = useContext(AuthContext);
   const [incorrect, setinCorrect] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
 
   // Check for existing token on component mount
@@ -62,6 +64,20 @@ const Login = () => {
         .catch(() => localStorage.removeItem("token"));
     }
   }, [setisAuth, setAuthData]);
+
+  // Show message from redirect if present
+  useEffect(() => {
+    if (location.state?.message) {
+      toast({
+        title: "Authentication Required",
+        description: location.state.message,
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  }, [location.state, toast]);
 
   const handlechange = (e) => {
     setinCorrect(false);
@@ -132,10 +148,14 @@ const Login = () => {
             position: "bottom"
           });
 
-          // Close modal and navigate based on user role
+          // Close modal and navigate based on user role or redirect path
           onClose();
+          const redirectPath = localStorage.getItem('redirectPath');
           if (data.user.role === "admin") {
             navigate("/productlist");
+          } else if (redirectPath) {
+            localStorage.removeItem('redirectPath');
+            navigate(redirectPath);
           } else {
             navigate("/");
           }
@@ -161,10 +181,14 @@ const Login = () => {
               position: "bottom"
             });
 
-            // Close modal and navigate based on user role
+            // Close modal and navigate based on user role or redirect path
             onClose();
+            const redirectPath = localStorage.getItem('redirectPath');
             if (userData.role === "admin") {
               navigate("/productlist");
+            } else if (redirectPath) {
+              localStorage.removeItem('redirectPath');
+              navigate(redirectPath);
             } else {
               navigate("/");
             }
@@ -248,103 +272,56 @@ const Login = () => {
                 Sign In
               </Heading>
 
-              {!pass ? (
-                <Input
-                  name="email"
-                  placeholder="Email"
-                  h={"50px"}
-                  fontSize="16px"
-                  focusBorderColor="rgb(206, 206, 223)"
-                  borderColor={"rgb(206, 206, 223)"}
-                  onChange={handlechange}
-                  rounded="2xl"
-                />
-              ) : (
-                <Box>
-                  <Box fontSize={"17px"} color="#66668e">
-                    Enter password for
-                  </Box>
-
-                  <Flex
-                    justifyContent={"space-between"}
-                    fontFamily={" sans-serif"}
-                    mb="22px"
-                    color={"#000042"}
-                  >
-                    <Box fontSize="18px">{loginData.email}</Box>
-                    <Box
-                      fontSize={"14px"}
-                      textDecoration="underline"
-                      onClick={handleClick}
-                      cursor="pointer"
-                    >
-                      Edit
-                    </Box>
-                  </Flex>
-
-                  <InputGroup>
-                    <Input
-                      type={show ? "text" : "password"}
-                      name="password"
-                      placeholder="Enter password"
-                      h={"50px"}
-                      fontSize="16px"
-                      focusBorderColor="rgb(206, 206, 223)"
-                      borderColor={"rgb(206, 206, 223)"}
-                      onChange={handlechange}
-                      rounded="2xl"
-                    />
-
-                    <InputRightElement width="6.5rem" size="lg">
-                      <Button
-                        size="md"
-                        borderRadius="3xl"
-                        mt="10%"
-                        onClick={() => setShow(!show)}
-                        bg="white"
-                      >
-                        {show ? <ViewOffIcon /> : <ViewIcon />}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-
-                  {incorrect && (
-                    <Box
-                      fontSize={"14px"}
-                      m="3px 0px 3px 0px"
-                      color={"#ff1f1f"}
-                      fontWeight="500"
-                      ml="2"
-                      letterSpacing={"-0.4px"}
-                    >
-                      Wrong email or password
-                    </Box>
-                  )}
-                </Box>
+              {location.state?.message && (
+                <Text color="blue.500" mb={4} fontSize="sm">
+                  {location.state.message}
+                </Text>
               )}
 
-              <Box
-                textDecoration={"underline"}
-                m="15px 0px 0px 0px"
-                color="#000042"
-                fontSize="15px"
-                cursor="pointer"
-              >
-                Forget Password
-              </Box>
-
+              <Input
+                name="email"
+                value={loginData.email}
+                onChange={handlechange}
+                placeholder="Email or Mobile Number"
+                size="lg"
+                borderRadius={"35px/35px"}
+                mb="15px"
+                h="50px"
+                fontSize="16px"
+                _focus={{
+                  borderColor: "#11daac",
+                  boxShadow: "0 0 0 1px #11daac"
+                }}
+              />
               {btn}
 
-              <HStack fontSize="16px">
-                <Checkbox mb={"20px"} mt="20px" size="sm">
-                  Get Update on whatsapp
-                </Checkbox>
-                <Image
-                  src="https://static.lenskart.com/media/desktop/img/25-July-19/whatsapp.png"
-                  w={"22px"}
-                  h="22px"
+              <InputGroup size="lg" mb="15px">
+                <Input
+                  name="password"
+                  value={loginData.password}
+                  onChange={handlechange}
+                  type={show ? "text" : "password"}
+                  placeholder="Password"
+                  borderRadius={"35px/35px"}
+                  h="50px"
+                  fontSize="16px"
+                  _focus={{
+                    borderColor: "#11daac",
+                    boxShadow: "0 0 0 1px #11daac"
+                  }}
                 />
-              </HStack>
+                <InputRightElement width="6.5rem" size="lg">
+                  <Button
+                    size="md"
+                    borderRadius="3xl"
+                    mt="20%"
+                    onClick={() => setShow(!show)}
+                    bg="white"
+                  >
+                    {show ? <ViewOffIcon /> : <ViewIcon />}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
 
               <Button
                 isLoading={loading}

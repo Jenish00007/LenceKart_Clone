@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import "../../App.css";
+import { handleAuthRedirect } from '../../utils/auth';
 
 function Shipping() {
   const navigate = useNavigate();
@@ -49,6 +50,13 @@ function Shipping() {
   const [statess, setStatess] = useState();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      handleAuthRedirect(navigate, 'Please sign in to continue with shipping');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // Load cart items from localStorage

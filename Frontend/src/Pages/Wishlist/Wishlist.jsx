@@ -1,5 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Text, Button, Heading, Grid, keyframes } from "@chakra-ui/react";
+import { Box, Text, Button, Heading, Grid,} from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+
 import { removeFromWishlist } from "../../redux/wishlist/wishlist.actions";
 import { addToCart } from "../../redux/CartPage/action";
 import Navbar from "../../Components/Navbar/Navbar";

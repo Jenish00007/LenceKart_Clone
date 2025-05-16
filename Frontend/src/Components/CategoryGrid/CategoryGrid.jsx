@@ -1,6 +1,8 @@
 import React from 'react';
-import { Box, Text, Image, Badge, Flex, keyframes } from '@chakra-ui/react';
+import { Box, Text, Image, Badge, Flex, } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
+import { keyframes } from '@emotion/react';
+
 
 // Define keyframe animations
 const titleFloat = keyframes`

@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Text, Image, Flex, Center, Grid, Icon, VStack, HStack, keyframes } from "@chakra-ui/react";
+import { Box, Text, Image, Flex, Center, Grid, Icon, VStack, HStack,} from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
 import { AiFillFacebook, AiOutlineInstagram } from "react-icons/ai";
 import { TfiTwitter } from "react-icons/tfi";
 import { Link } from "react-router-dom";

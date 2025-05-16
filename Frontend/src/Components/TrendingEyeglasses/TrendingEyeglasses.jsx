@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, keyframes } from "@chakra-ui/react";
+import { Box, Grid, Image, Text, Heading, Button, Flex, Badge,} from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+
 import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Container, Heading, Text, VStack, Image, Grid, GridItem, SimpleGrid, keyframes } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, Image, Grid, GridItem, SimpleGrid,} from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
+
 import Navbar from '../../Components/Navbar/Navbar';
 import Footer from '../../Components/Footer/Footer';
 

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Container, Heading, Text, VStack, List, ListItem, ListIcon, keyframes } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, VStack, List, ListItem, ListIcon,} from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
+
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import Navbar from '../../Components/Navbar/Navbar';
 import Footer from '../../Components/Footer/Footer';

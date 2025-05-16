@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Text, Flex, Image, Badge, Tabs, TabList, Tab, keyframes } from '@chakra-ui/react';
+import { Box, Text, Flex, Image, Badge, Tabs, TabList, Tab,} from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
+
 
 // Define keyframe animations
 const float = keyframes`
