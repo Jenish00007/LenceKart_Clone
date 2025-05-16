@@ -180,6 +180,7 @@ const Home = () => {
     <Box>
       <Navbar />
       <HomeCard1 type={banners} loading={loading} error={error}/>
+      <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
             
       {/* Top Ad Banner */}
       {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
@@ -220,11 +221,6 @@ const Home = () => {
       <RecentlyViewed />
       <br />
       <br />
-      <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
-       {/* Bottom Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
-      {/* <br />
       <HomeCard4
         text="As Seen on Shark Tank"
         src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"
@@ -232,7 +228,12 @@ const Home = () => {
       <br />
       <br />
       <br />
-      <br /> */}
+      <br />
+       {/* Bottom Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
+      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
+      <br />
+     
     
       
       
@@ -262,6 +263,12 @@ const Home = () => {
       <HomeCard6 type={HomeDetails11} heading="CONTACT LENSES" />
       <br />
       <br />
+      
+      <HomeCard6 type={HomeDetails12} heading="COLOR CONTACT LENSES" />
+      <br />
+      <br />
+      <br />
+      <br />
       {/* Bottom Section Banners */}
       {!sectionBannersLoading && !sectionBannersError && sectionBanners.bottom.map((banner, index) => (
         <SectionBanner
@@ -273,12 +280,6 @@ const Home = () => {
       ))}
       <br />
       <br />
-      <HomeCard6 type={HomeDetails12} heading="COLOR CONTACT LENSES" />
-      <br />
-      <br />
-      <br />
-      <br />
-      
      
       <SpecialProducts />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
