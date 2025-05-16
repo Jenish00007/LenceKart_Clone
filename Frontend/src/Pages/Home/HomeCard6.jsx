@@ -55,21 +55,24 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
             }
           }}
         >
-          {type?.map((i) => (
-            <Box key={i}>
-              <SwiperSlide>
-                <Link to={i.linked}>
-                  <Square m="auto">
-                    <Image
-                      src={`${i.imageTsrc}`}
-                      alt={i.caption}
-                      boxSize="160px"
-                      w="80%"
-                    />
-                  </Square>
-                </Link>
-              </SwiperSlide>
-            </Box>
+          {type?.map((item, index) => (
+            <SwiperSlide key={item._id || index}>
+              <Link to={item.linked}>
+                <Square m="auto">
+                  <Image
+                    src={item.imageTsrc}
+                    alt={item.caption || 'Product image'}
+                    boxSize="160px"
+                    w="80%"
+                    fallbackSrc="https://via.placeholder.com/160"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/160";
+                    }}
+                  />
+                </Square>
+              </Link>
+            </SwiperSlide>
           ))}
         </Swiper>
       </Box>

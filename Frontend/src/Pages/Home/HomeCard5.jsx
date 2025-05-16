@@ -2,6 +2,9 @@ import React from "react";
 import { Box, Text, Image, Grid } from "@chakra-ui/react";
 import ReactPlayer from "react-player";
 
+// Default placeholder image URL
+const DEFAULT_PLACEHOLDER = "https://placehold.co/160x160/e2e8f0/1a202c?text=No+Image";
+
 export const HomeCard5 = () => {
   return (
     <Box w="85%" m="auto">
@@ -22,11 +25,13 @@ export const HomeCard5 = () => {
             src="https://static1.lenskart.com/media/desktop/img/Aug21/Desktop/eye-square10.jpg"
             alt="img"
             p="2"
+            fallbackSrc={DEFAULT_PLACEHOLDER}
           />
           <Image
             src="https://static1.lenskart.com/media/desktop/img/Aug21/Desktop/power-sun-square.jpg"
             alt="img"
             p="2"
+            fallbackSrc={DEFAULT_PLACEHOLDER}
           />
         </Box>
         <Box>
@@ -34,16 +39,19 @@ export const HomeCard5 = () => {
             src="https://static1.lenskart.com/media/desktop/img/Aug21/Desktop/ce-square.jpg"
             alt="img"
             p="2"
+            fallbackSrc={DEFAULT_PLACEHOLDER}
           />
           <Image
             src="https://static1.lenskart.com/media/desktop/img/Aug21/Desktop/sun-square.jpg"
             alt="img"
             p="2"
+            fallbackSrc={DEFAULT_PLACEHOLDER}
           />
           <Image
             src="https://static1.lenskart.com/media/desktop/img/Nov20/25-Nov/Banner03_TileDesktop.jpg"
             alt="img"
             p="2"
+            fallbackSrc={DEFAULT_PLACEHOLDER}
           />
         </Box>
       </Grid>
@@ -67,9 +75,17 @@ export const HomeCard5a = ({ type, heading }) => {
         }}
         gap={6}
       >
-        {type.map((i) => (
-          <Box key={i}>
-            <Image src={`${i.img}`} alt={i.caption} />
+        {type.map((item, index) => (
+          <Box key={item._id || item.id || index}>
+            <Image 
+              src={item.img} 
+              alt={item.caption || 'Product image'} 
+              fallbackSrc={DEFAULT_PLACEHOLDER}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = DEFAULT_PLACEHOLDER;
+              }}
+            />
           </Box>
         ))}
       </Grid>
@@ -93,9 +109,17 @@ export const HomeCard5b = ({ type, heading }) => {
         }}
         gap={6}
       >
-        {type.map((i) => (
-          <Box key={i}>
-            <Image src={`${i.img}`} alt={i.caption} />
+        {type.map((item, index) => (
+          <Box key={item._id || item.id || index}>
+            <Image 
+              src={item.img} 
+              alt={item.caption || 'Product image'} 
+              fallbackSrc={DEFAULT_PLACEHOLDER}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = DEFAULT_PLACEHOLDER;
+              }}
+            />
           </Box>
         ))}
       </Grid>
@@ -132,9 +156,17 @@ export const HomeCard5c = ({ type, heading }) => {
           gap={6}
           w="100%"
         >
-          {type.map((i) => (
-            <Box key={i}>
-              <ReactPlayer url={i.img} width="100%" height="300px" />
+          {type.map((item, index) => (
+            <Box key={item._id || item.id || index}>
+              <ReactPlayer 
+                url={item.img} 
+                width="100%" 
+                height="300px"
+                controls={true}
+                playing={false}
+                light={true}
+                fallback={<Image src={DEFAULT_PLACEHOLDER} alt="Video thumbnail" />}
+              />
             </Box>
           ))}
         </Grid>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Flex, Box, Avatar, Text } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CategorySelector = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigate = useNavigate();
 
   const handleFrameSelect = (frameType) => {
     navigate(`/products?frameType=${frameType}`);
