@@ -15,6 +15,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { useNavigate } from "react-router-dom";
+import './slider-custom.css';
 
 const Slider = ({ type }) => {
   const navigate = useNavigate();
@@ -63,7 +64,8 @@ const Slider = ({ type }) => {
                 src={item.imageUrl}
                 alt={item.caption}
                 boxSize={{ base: "100px" }}
-                w="80%"
+                w="100%"
+                h="100%"
               />
             </Square>
             <VStack m="auto">
