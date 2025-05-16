@@ -17,6 +17,7 @@ import CategorySelector from "../CategorySelector/CategorySelector";
 import SelectCategory from "../CategorySelector/SelectCategory";
 import ComputerSelectCategory from "../CategorySelector/ComputerSelectCategory";
 import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCategory";
+import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
 
 function NavbarCard5() {
@@ -86,16 +87,7 @@ function NavbarCard5() {
                   >
                     Frame Type
                   </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Rectangle Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Wayfarer Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Round Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Aviator Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cat-Eye Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rimless Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Half Rim Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Geometric Frames </Box>
-                  </Flex>
+                  <FrameTypeSelector />
                 </Flex>
 
                {/*   <Flex direction="column" gap="6">

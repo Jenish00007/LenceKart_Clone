@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import Loading from "./Loading";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -31,21 +32,30 @@ const NewProduct = () => {
   const [colors, setColors] = useState("");
   const [searchParams] = useSearchParams();
   const [shapeParams] = useSearchParams();
+  const [frameTypeParams] = useSearchParams();
+  const selectedFrameType = useSelector((state) => state.category.selectedFrameType);
+  console.log("Frame Type Params:", frameTypeParams.get('frameType'));
   const fetchproduct = async () => {
     setIsLoaded(true);
     try {
       const searchQuery = searchParams.get('search') || '';
       const shape = shapeParams.get('shape') || '';
-      const url = `${API_URL}/product?sort=${sort}&frameType=${frametype}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
+      const frameType = frameTypeParams.get('frameType') || '';
+      const trending = frameTypeParams.get('trending') || '';
       
-      console.log("Fetching URL:", url);
-      
+      let url;
+      if (trending) {
+        url = `${API_URL}/product/trending`;
+      } else {
+        url = `${API_URL}/product?sort=${sort}&frameType=${frameType}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
+      }
+     
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const postData = await response.json();
-      console.log("Search query:", searchQuery);
+      console.log("Selected Frame Type:", selectedFrameType);
       console.log("Products received:", postData);
       setProducts(postData);
       setIsLoaded(false);

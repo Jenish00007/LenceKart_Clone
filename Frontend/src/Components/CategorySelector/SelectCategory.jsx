@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Flex, Box, Text } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedCategory, setSelectedFrameType } from '../../redux/slices/categorySlice';
 
 const SelectCategory = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selectedCategory = useSelector((state) => state.category.selectedCategory);
 
   const categories = [
     {
@@ -23,6 +27,12 @@ const SelectCategory = () => {
     }
   ];
 
+  const handleCategorySelect = (category) => {
+    dispatch(setSelectedCategory(category.id));
+    dispatch(setSelectedFrameType(category.title));
+    navigate(`/products?frameType=${category.id}`);
+  };
+
   return (
     <Flex direction="column" gap={6}>
       <Box
@@ -39,8 +49,8 @@ const SelectCategory = () => {
           fontSize="md"
           p={2}
           cursor="pointer"
-          onClick={() => setSelectedCategory(category.id)}
-          onMouseEnter={() => setSelectedCategory(category.id)}
+          onClick={() => handleCategorySelect(category)}
+          onMouseEnter={() => dispatch(setSelectedCategory(category.id))}
           transition="all 0.3s ease"
           transform={selectedCategory === category.id ? 'translateX(10px)' : 'none'}
           bg={selectedCategory === category.id ? 'blue.50' : 'transparent'}
