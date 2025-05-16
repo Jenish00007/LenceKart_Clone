@@ -80,7 +80,9 @@ const Slider = ({ type }) => {
               </Center>
               <Button 
                 p="20px 40px" 
-                colorScheme="teal" 
+                bg="#4fc3c6"
+                color="white"
+                _hover={{ bg: '#3bb3b6' }}
                 m="auto" 
                 fontSize="17px"
                 onClick={() => handleExplore(item.name)}

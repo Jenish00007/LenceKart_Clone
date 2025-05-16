@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Text,
@@ -28,37 +29,20 @@ import { FaHeart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
+import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
 
 const API_URL = 'http://localhost:8080/api';
 
 const ProductSection = ({ title, products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [wishlistItems, setWishlistItems] = useState([]);
   const itemsPerPage = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4 });
   const totalPages = Math.ceil((products?.length || 0) / itemsPerPage);
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuth } = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      if (!isAuth) return;
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/wishlist`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        setWishlistItems(response.data.map(item => item.productId));
-      } catch (error) {
-        console.error('Error fetching wishlist:', error);
-      }
-    };
-
-    fetchWishlist();
-  }, [isAuth]);
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
 
   const handleAuthAction = (action) => {
     if (!isAuth) {
@@ -70,37 +54,13 @@ const ProductSection = ({ title, products }) => {
 
   const handleWishlist = async (product) => {
     if (!isAuth) {
-      // Store wishlist items in localStorage for non-authenticated users
-      const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      const isInWishlist = localWishlist.some(item => item._id === product._id);
-
-      if (isInWishlist) {
-        const updatedWishlist = localWishlist.filter(item => item._id !== product._id);
-        localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-        setWishlistItems(prev => prev.filter(id => id !== product._id));
-        toast({
-          title: 'Removed from wishlist',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
-      } else {
-        localWishlist.push(product);
-        localStorage.setItem('wishlist', JSON.stringify(localWishlist));
-        setWishlistItems(prev => [...prev, product._id]);
-        toast({
-          title: 'Added to wishlist',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-      }
+      onOpen();
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
-      const isInWishlist = wishlistItems.includes(product._id);
+      const isInWishlist = wishlistItems.some(item => item._id === product._id);
 
       if (isInWishlist) {
         await axios.delete(`${API_URL}/wishlist/remove/${product._id}`, {
@@ -108,7 +68,7 @@ const ProductSection = ({ title, products }) => {
             'Authorization': `Bearer ${token}`
           }
         });
-        setWishlistItems(prev => prev.filter(id => id !== product._id));
+        dispatch(removeFromWishlist(product._id));
         toast({
           title: 'Removed from wishlist',
           status: 'success',
@@ -124,7 +84,7 @@ const ProductSection = ({ title, products }) => {
             }
           }
         );
-        setWishlistItems(prev => [...prev, product._id]);
+        dispatch(addToWishlist(product));
         toast({
           title: 'Added to wishlist',
           status: 'success',
@@ -145,6 +105,10 @@ const ProductSection = ({ title, products }) => {
   };
 
   const handleAddToCart = (product) => {
+    if (!isAuth) {
+      onOpen();
+      return;
+    }
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find(item => item._id === product._id);
 
@@ -164,6 +128,10 @@ const ProductSection = ({ title, products }) => {
   };
 
   const handleBuyNow = (product) => {
+    if (!isAuth) {
+      onOpen();
+      return;
+    }
     const cart = [{ ...product, quantity: 1 }];
     localStorage.setItem('cart', JSON.stringify(cart));
     navigate('/shipping');
@@ -317,11 +285,11 @@ const ProductSection = ({ title, products }) => {
                               width="100%"
                             />
                             <IconButton
-                              icon={wishlistItems.includes(product._id) ? <FaHeart /> : <CiHeart />}
+                              icon={wishlistItems.some(item => item._id === product._id) ? <FaHeart /> : <CiHeart />}
                               position="absolute"
                               top={2}
                               right={2}
-                              colorScheme={wishlistItems.includes(product._id) ? "red" : "gray"}
+                              colorScheme={wishlistItems.some(item => item._id === product._id) ? "red" : "gray"}
                               variant="solid"
                               size="sm"
                               onClick={() => handleWishlist(product)}
