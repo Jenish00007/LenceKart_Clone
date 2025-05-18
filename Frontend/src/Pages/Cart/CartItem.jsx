@@ -2,9 +2,8 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   removeFromCart,
-  decrement,
-  increment
-} from "../../redux/CartPage/action";
+  updateCartItem
+} from "../../redux/cart";
 import {
   Flex,
   Heading,
@@ -29,31 +28,26 @@ const slideIn = keyframes`
 
 const CartItem = () => {
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.CartReducer);
+  const { cart } = useSelector((state) => state.cart);
 
-  const handleDelete = (item) => {
-    dispatch(removeFromCart(item));
+  const handleDelete = (productId) => {
+    dispatch(removeFromCart(productId));
   };
 
-  const handleDecrementChange = (id, qty) => {
-    if (qty < 1) {
-      dispatch(removeFromCart(id));
+  const handleQuantityChange = (productId, newQuantity) => {
+    if (newQuantity < 1) {
+      dispatch(removeFromCart(productId));
     } else {
-      dispatch(decrement(id));
+      dispatch(updateCartItem(productId, newQuantity));
     }
-  };
-
-  const handleIncrementChange = (id) => {
-    dispatch(increment(id));
   };
 
   return (
     <Box>
       {cart &&
-        cart &&
         cart.map((item, index) => (
           <Grid
-            key={item.id}
+            key={item._id}
             templateColumns={{
               lg: "20% 80%",
               md: "20% 80%",
@@ -98,9 +92,10 @@ const CartItem = () => {
                   xl: "unset",
                   "2xl": "unset"
                 }}
-                src={item.imageTsrc}
+                src={item.image}
                 borderRadius="lg"
                 boxShadow="md"
+                alt={item.name}
               />
             </Box>
             <Flex
@@ -142,7 +137,7 @@ const CartItem = () => {
                   }}
                   transition="all 0.3s ease"
                 >
-                  {item.productRefLink}
+                  {item.name}
                 </Heading>
                 <Flex gap={"2"}>
                   <Text 
@@ -192,7 +187,7 @@ const CartItem = () => {
                     }}
                     transition="all 0.3s ease"
                   >
-                    ₹{item.mPrice}
+                    ₹{item.price}
                   </Text>
                 </Flex>
               </Flex>
@@ -238,7 +233,7 @@ const CartItem = () => {
                     size="md"
                     borderRadius="50%"
                     fontSize="20px"
-                    onClick={() => handleDecrementChange(item.id, item.quantity)}
+                    onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
                     _hover={{
                       bg: "gray.100",
                       transform: "scale(1.1)"
@@ -263,7 +258,7 @@ const CartItem = () => {
                     borderRadius="50%"
                     fontSize="20px"
                     size="md"
-                    onClick={() => handleIncrementChange(item.id)}
+                    onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
                     _hover={{
                       bg: "gray.100",
                       transform: "scale(1.1)"

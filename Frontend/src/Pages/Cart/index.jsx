@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getCart } from "../../redux/cart";
 import Navbar from "../../Components/Navbar/Navbar";
 import CartLength from "./CartLength";
 import CartItem from "./CartItem";
@@ -23,18 +24,15 @@ const slideIn = keyframes`
 `;
 
 const CartPage = () => {
-  const { cart } = useSelector((state) => state.CartReducer);
+  const dispatch = useDispatch();
+  const { cart, loading, error } = useSelector((state) => state.cart);
   const navigate = useNavigate();
 
-  const getTotalPrice = () => {
-    const totalPrice = cart.reduce(
-      (acc, item) => acc + item.mPrice * item.quantity,
-      0
-    );
-    return totalPrice;
-  };
+  useEffect(() => {
+    dispatch(getCart());
+  }, [dispatch]);
 
-  const getdiscountPrice = () => {
+  const getTotalPrice = () => {
     const totalPrice = cart.reduce(
       (acc, item) => acc + item.price * item.quantity,
       0
@@ -42,10 +40,42 @@ const CartPage = () => {
     return totalPrice;
   };
 
+  const getdiscountPrice = () => {
+    const totalPrice = cart.reduce(
+      (acc, item) => acc + item.mPrice * item.quantity,
+      0
+    );
+    return totalPrice; 
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <Flex justify="center" align="center" minH="60vh">
+          <Text>Loading cart...</Text>
+        </Flex>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <Flex justify="center" align="center" minH="60vh">
+          <Text color="red.500">{error}</Text>
+        </Flex>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
-      {cart.length > 0 ? (
+      {cart && cart.length > 0 ? (
         <Flex
           width={"90%"}
           margin="auto"

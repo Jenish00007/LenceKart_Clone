@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 // Routes
 app.get("/", (req, res) => {
   res.send("Welcome to Lenskart API");
-});
+}); 
 
 app.use("/user", userRouter);
 app.use("/product", productRouter);

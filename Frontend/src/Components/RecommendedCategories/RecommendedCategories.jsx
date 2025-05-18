@@ -31,6 +31,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { FiShoppingCart, FiHeart, FiEye, FiStar, FiTrendingUp } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import { addToCart } from '../../redux/cart';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
 
@@ -85,6 +86,47 @@ const RecommendedCategories = () => {
         duration: 2000,
         isClosable: true,
         position: "bottom"
+      });
+    }
+  };
+
+  const handleAddToCart = async (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your cart",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
+    try {
+      const cartItem = {
+        productId: product._id,
+        quantity: 1,
+        price: product.price,
+        name: product.name,
+        image: product.imageTsrc
+      };
+
+      await dispatch(addToCart(cartItem));
+      toast({
+        title: 'Added to cart',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to add item to cart',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
       });
     }
   };
@@ -224,6 +266,7 @@ const RecommendedCategories = () => {
                           leftIcon={<Icon as={FiShoppingCart} />}
                           colorScheme="blue"
                           variant="ghost"
+                          onClick={() => handleAddToCart(product)}
                         >
                           Cart
                         </Button>

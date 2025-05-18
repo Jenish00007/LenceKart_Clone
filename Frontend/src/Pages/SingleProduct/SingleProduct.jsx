@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../redux/CartPage/action";
+import { addToCart } from "../../redux/cart";
 import { addToWishlist } from "../../redux/wishlist/wishlist.actions";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -18,24 +18,42 @@ const SingleProduct = () => {
   const [data, setData] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.CartReducer);
+  const { cart } = useSelector((state) => state.cart);
   const { isAuth } = useContext(AuthContext);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleAddToCart = () => {
-    const existingItem = cart.findIndex((item) => item._id === data._id);
-    if (existingItem === -1) {
-      data.quantity = 1;
-      dispatch(addToCart(data));
-      setTimeout(() => {
-        navigate("/cart");
-      }, 1000);
-    } else {
+  const handleAddToCart = async () => {
+    try {
+      const existingItem = cart.findIndex((item) => item._id === data._id);
+      if (existingItem === -1) {
+        await dispatch(addToCart(data));
+        toast({
+          title: "Added to Cart",
+          description: "Product has been added to your cart",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setTimeout(() => {
+          navigate("/cart");
+        }, 1000);
+      } else {
+        toast({
+          title: "Product Already in Cart",
+          description: "This product is already in your cart",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Product Already in Cart",
-        description: "This product is already in your cart",
-        status: "warning",
+        title: "Error",
+        description: error.message || "Failed to add item to cart",
+        status: "error",
         duration: 3000,
         isClosable: true,
         position: "bottom"

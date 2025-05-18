@@ -78,6 +78,38 @@ const TrendingEyeglasses = () => {
     }
   };
 
+  const handleAddToCart = (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your cart",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+    
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = cart.find(item => item._id === product._id);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    toast({
+      title: 'Added to cart',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
@@ -239,6 +271,7 @@ const TrendingEyeglasses = () => {
                     leftIcon={<Icon as={FiShoppingCart} />}
                     colorScheme="blue"
                     variant="ghost"
+                    onClick={() => handleAddToCart(product)}
                   >
                     Cart
                   </Button>
