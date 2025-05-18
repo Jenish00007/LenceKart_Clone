@@ -2,18 +2,24 @@ import React from "react";
 import { Box, Image, Square, Link } from "@chakra-ui/react";
 import { Navigation, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
 
 const HomeCard6 = ({ type, heading, loading, error }) => {
+  const navigate = useNavigate();
   if (loading) {
     return <div>Loading...</div>;
   }
   if (error) {
     return <div>Error: {error}</div>;
-  } 
-  
+  }
+
+  const handleEyeGlasses = (glasses) => {
+    navigate(`/products?productType=${glasses}`);
+  };
+
   return (
     <Box
       justifyContent="left"
@@ -55,7 +61,8 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
             }
           }}
         >
-          {type?.map((item, index) => (
+          {
+          type?.map((item, index) => (
             <SwiperSlide key={item._id || index}>
               <Link to={item.linked}>
                 <Square m="auto">
@@ -64,6 +71,7 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
                     alt={item.caption || 'Product image'}
                     boxSize="160px"
                     w="80%"
+                    onClick={() => handleEyeGlasses(item.productType)}
                     fallbackSrc="https://via.placeholder.com/160"
                     onError={(e) => {
                       e.target.onerror = null;

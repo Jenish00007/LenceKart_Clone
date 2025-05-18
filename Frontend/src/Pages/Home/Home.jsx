@@ -2,8 +2,7 @@ import React from "react";
 import HomeCard from "./HomeCard";
 import HomeCard1 from "./HomeCard1";
 import HomeCard2 from "./HomeCard2";
-import axios from "axios";  
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { HomeCard4, HomeCard4a, HomeCard4b } from "./HomeCard4";
 import { HomeCard5, HomeCard5a, HomeCard5b, HomeCard5c } from "./HomeCard5";
@@ -44,11 +43,7 @@ const Home = () => {
   const [adBanners, setAdBanners] = useState([]);
   const [adBannersLoading, setAdBannersLoading] = useState(true);
   const [adBannersError, setAdBannersError] = useState(null);
-  const [sectionBanners, setSectionBanners] = useState({
-    top: [],
-    middle: [],
-    bottom: []
-  });
+  const [sectionBanners, setSectionBanners] = useState({ top: [], middle: [], bottom: [] });
   const [sectionBannersLoading, setSectionBannersLoading] = useState(true);
   const [sectionBannersError, setSectionBannersError] = useState(null);
   const [sunglasses, setSunglasses] = useState([]);
@@ -56,7 +51,10 @@ const Home = () => {
   const [sunglassesError, setSunglassesError] = useState(null);
   const [eyeglasses, setEyeglasses] = useState([]);
   const [eyeglassesLoading, setEyeglassesLoading] = useState(true);
-  const [eyeglassesError, setEyeglassesError] = useState(null); 
+  const [eyeglassesError, setEyeglassesError] = useState(null);
+  const [blueLensesWithPower, setBlueLensesWithPower] = useState([]);
+  const [blueLensesLoading, setBlueLensesLoading] = useState(true);
+  const [blueLensesError, setBlueLensesError] = useState(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -74,7 +72,6 @@ const Home = () => {
         setLoading(false);
       }
     };
-
     const fetchAdBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/adbanner/banners');
@@ -102,7 +99,6 @@ const Home = () => {
         setShapesLoading(false);
       }
     };
-
     const fetchSunglasses = async () => {
       try {
         const response = await axios.get('http://localhost:8080/product?productType=sunglasses', {
@@ -135,20 +131,18 @@ const Home = () => {
         setEyeglassesLoading(false);
       }
     };
-
-
     const fetchSectionBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/sectionbanner/banners');
         const banners = response.data;
-        
+
         // Organize banners by section
         const organizedBanners = {
           top: banners.filter(banner => banner.section === 'top'),
           middle: banners.filter(banner => banner.section === 'middle'),
           bottom: banners.filter(banner => banner.section === 'bottom')
         };
-        
+
         setSectionBanners(organizedBanners);
         setSectionBannersLoading(false);
       } catch (err) {
@@ -158,12 +152,32 @@ const Home = () => {
       }
     };
 
+    //function get the computer blue lenses with power 
+    const fetchComputerBlueLensePower = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=COMPUTER_BLU_LENSES', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const { products } = response?.data;
+        setBlueLensesWithPower(products);
+        setBlueLensesLoading(false);
+      } catch (error) {
+        console.error('Error fetching computer blue lense power:', error);
+        setBlueLensesError('Failed to fetch computer blue power lenses: ' + (error.message || 'Unknown error'))
+        setBlueLensesLoading(false);
+      }
+    };
+
     fetchBanners();
     fetchAdBanners();
     fetchSectionBanners();
     fetchShapes();
     fetchSunglasses();
     fetchEyeglasses();
+    fetchComputerBlueLensePower();
   }, []);
 
   const renderAdBanner = (banner) => (
@@ -181,17 +195,17 @@ const Home = () => {
       <Navbar />
       <HomeCard1 type={banners} loading={loading} error={error}/>
       <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
-            
+
       {/* Top Ad Banner */}
       {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
-           
-     
-      
+
+
+
       <CategoryGrid />
       <RecommendedCategories />
 
-       {/* Top Section Banners */}
-       {!sectionBannersLoading && !sectionBannersError && sectionBanners.top.map((banner, index) => (
+      {/* Top Section Banners */}
+      {!sectionBannersLoading && !sectionBannersError && sectionBanners.top.map((banner, index) => (
         <SectionBanner
           key={banner._id}
           title={banner.title}
@@ -201,9 +215,9 @@ const Home = () => {
       ))}
 
       {/* <LenskartSwaps /> */}
-         {/* Middle Ad Banner */}
-         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
-      
+      {/* Middle Ad Banner */}
+      {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+
       {/* Middle Section Banners */}
       {!sectionBannersLoading && !sectionBannersError && sectionBanners.middle.map((banner, index) => (
         <SectionBanner
@@ -213,14 +227,19 @@ const Home = () => {
           rightImage={banner.rightImage}
         />
       ))}
-      
+
       <TrendingEyeglasses />
-      
+
       <br />
       <br />
       <RecentlyViewed />
       <br />
       <br />
+      <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
+      {/* Bottom Ad Banner */}
+      {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
+      <HomeCard6 type={blueLensesWithPower} loading={blueLensesLoading} error={blueLensesError} heading="WITH POWER COMPUTER BLU LENSES" />
+      {/* <br />
       <HomeCard4
         text="As Seen on Shark Tank"
         src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"
@@ -246,16 +265,16 @@ const Home = () => {
       <HomeCard6 type={sunglasses} loading={sunglassesLoading} error={sunglassesError} heading="SUNGLASSES" />
       <br />
       <br />
-            
+
       <br />
       
       <br />
       <br />
       <br />
-      <HomeCard6
-        type={HomeDetails9}
-        heading="WITH ZERO POWER COMPUTER BLU LENSES"
-      />
+        <HomeCard6
+          type={HomeDetails9}
+          heading="WITH ZERO POWER COMPUTER BLU LENSES"
+        />
       <br />
       <br />
       <br />
@@ -280,7 +299,7 @@ const Home = () => {
       ))}
       <br />
       <br />
-     
+
       <SpecialProducts />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
