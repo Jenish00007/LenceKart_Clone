@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
 import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import { addToCart } from '../../redux/cart/cart.actions';
 
 const API_URL = 'http://localhost:8080/api';
 
@@ -167,6 +168,7 @@ const ProductSection = ({ title, products }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.wishlist);
+  const cartItems = useSelector((state) => state.cart.cart);
 
   const handleAuthAction = (action) => {
     if (!isAuth) {
@@ -215,25 +217,60 @@ const ProductSection = ({ title, products }) => {
     }
   };
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = async (product) => {
     if (!handleAuthAction()) return;
     
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existingItem = cart.find(item => item._id === product._id);
+    try {
+      // Check if item already exists in cart
+      const existingItem = cartItems.find(item => item.productId === product._id);
+      
+      // Format the product data with all required fields
+      const cartItem = {
+        productId: product._id,
+        quantity: existingItem ? existingItem.quantity + 1 : 1,
+        price: product.price,
+        name: product.name,
+        image: product.imageTsrc,
+        productType: product.productType,
+        shape: product.shape || "Rectangle",
+        gender: product.gender || "Unisex",
+        style: product.style || "Classic"
+      };
 
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
+      // Update Redux store
+      await dispatch(addToCart(cartItem));
+
+      // Update local storage
+      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const updatedCart = existingItem
+        ? currentCart.map(item => 
+            item.productId === product._id 
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        : [...currentCart, cartItem];
+      
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+      toast({
+        title: 'Added to cart',
+        description: `${product.name} has been added to your cart`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to add item to cart',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    toast({
-      title: 'Added to cart',
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    });
   };
 
   const handleViewDetails = (product) => {

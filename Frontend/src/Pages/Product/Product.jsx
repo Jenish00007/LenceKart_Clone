@@ -33,9 +33,8 @@ const NewProduct = () => {
   const [searchParams] = useSearchParams();
   const [shapeParams] = useSearchParams();
   const [frameTypeParams] = useSearchParams();
-  const [productTypeParams] = useSearchParams();
   const selectedFrameType = useSelector((state) => state.category.selectedFrameType);
-
+  console.log("Frame Type Params:", frameTypeParams.get('frameType'));
   const fetchproduct = async () => {
     setIsLoaded(true);
     try {
@@ -43,8 +42,7 @@ const NewProduct = () => {
       const shape = shapeParams.get('shape') || '';
       const frameType = frameTypeParams.get('frameType') || '';
       const trending = frameTypeParams.get('trending') || '';
-      const types = productTypeParams.get('productType') || '';
-
+      
       let url;
       if (trending) {
         url = `${API_URL}/product/trending`;
@@ -57,6 +55,8 @@ const NewProduct = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const postData = await response.json();
+      console.log("Selected Frame Type:", selectedFrameType);
+      console.log("Products received:", postData);
       setProducts(postData);
       setIsLoaded(false);
     } catch (error) {
@@ -66,6 +66,7 @@ const NewProduct = () => {
   };
 
   useEffect(() => {
+    console.log("Search params changed:", searchParams.toString());
     fetchproduct();
   }, [page, sort, gender, types, frametype, shape, style, colors, searchParams]);
 
