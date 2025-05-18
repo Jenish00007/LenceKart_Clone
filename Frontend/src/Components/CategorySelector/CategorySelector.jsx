@@ -10,7 +10,7 @@ const CategorySelector = () => {
     navigate(`/products?frameType=${frameType}`);
   };
 
-  const categories = [
+  const categories  = [
     {
       id: 'men',
       title: 'Men',

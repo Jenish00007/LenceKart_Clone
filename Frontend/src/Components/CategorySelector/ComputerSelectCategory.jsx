@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const ComputerSelectCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const categories = [
+  const categories  = [
     {
       id: 'blu',
       title: 'Blu 0 Computer Glasses',

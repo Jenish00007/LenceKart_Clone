@@ -12,6 +12,7 @@ import { CiHeart } from "react-icons/ci";
 import { CgShoppingCart } from "react-icons/cg";
 import { TriangleDownIcon, SearchIcon } from "@chakra-ui/icons";
 import { keyframes } from '@emotion/react';
+import { useSelector } from "react-redux";
 
 import {
   Box,
@@ -79,6 +80,12 @@ export const NavbarCard2 = () => {
     "Search for computer glasses...",
     "Search for blue light glasses..."
   ];
+
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist || []);
+  const wishlistCount = wishlistItems.length;
+
+  const cart = useSelector((state) => state.cart.cart || []);
+  const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -207,8 +214,33 @@ export const NavbarCard2 = () => {
               _hover={{ bg: "gray.100" }}
               border="1px solid"
               borderColor="gray.200"
+              position="relative"
             >
               Wishlist
+              {wishlistCount > 0 && (
+                <Box
+                  position="absolute"
+                  top="-8px"
+                  right="-1px"
+                  bg="teal.500"
+                  color="white"
+                  borderRadius="full"
+                  minW="18px"
+                  h="18px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="bold"
+                  fontSize="xs"
+                  zIndex={1}
+                  boxShadow="md"
+                  border="2px solid white"
+                  transition="all 0.2s"
+                  p={0}
+                >
+                  {wishlistCount}
+                </Box>
+              )}
             </Button>
             <Link to="/cart">
               <Button
@@ -220,8 +252,33 @@ export const NavbarCard2 = () => {
                 _hover={{ bg: "gray.100" }}
                 border="1px solid"
                 borderColor="gray.200"
+                position="relative"
               >
                 Cart
+                {cartCount > 0 && (
+                  <Box
+                    position="absolute"
+                    top="-8px"
+                    right="-2px"
+                    bg="teal.500"
+                    color="white"
+                    borderRadius="full"
+                    minW="18px"
+                    h="18px"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    fontWeight="bold"
+                    fontSize="xs"
+                    zIndex={1}
+                    boxShadow="md"
+                    border="2px solid white"
+                    transition="all 0.2s"
+                    p={0}
+                  >
+                    {cartCount}
+                  </Box>
+                )}
               </Button>
             </Link>
           </HStack>

@@ -7,7 +7,7 @@ import {
   setSelectedFrameType
 } from '../../redux/slices/categorySlice';
 
-const FrameTypeSelector = () => {
+const FrameTypeSelector  = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selectedCategory = useSelector((state) => state.category.selectedCategory);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Flex, Box, Text } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
-const SunglassesSelectCategory = () => {
+const SunglassesSelectCategory  = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const categories = [

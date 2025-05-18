@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedCategory, setSelectedFrameType } from '../../redux/slices/categorySlice';
 
-const SelectCategory = () => {
+const SelectCategory  = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selectedCategory = useSelector((state) => state.category.selectedCategory);

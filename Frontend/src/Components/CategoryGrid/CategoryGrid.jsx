@@ -10,7 +10,7 @@ const titleFloat = keyframes`
   50% { transform: translateY(-3px); }
 `;
 
-const titleGradient = keyframes`
+const titleGradient  = keyframes`
   0% { 
     background-position: 0% 50%;
   }

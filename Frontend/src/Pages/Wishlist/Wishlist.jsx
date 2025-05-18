@@ -20,7 +20,8 @@ const slideIn = keyframes`
 
 const Wishlist = () => {
   const wishlistItems = useSelector((store) => store.wishlist.wishlist);
-  const { cart } = useSelector((state) => state.CartReducer);
+  const cartState = useSelector((state) => state.cart || {});
+  const cart = cartState.cart || [];
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();

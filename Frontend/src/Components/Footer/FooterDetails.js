@@ -9,7 +9,7 @@ export const services = [
   },
 ];
 
-export const about = [
+export const about  = [
   {
     labels: "About Us",
     path: "/about-us"

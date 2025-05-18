@@ -166,7 +166,7 @@ const Home = () => {
     fetchEyeglasses();
   }, []);
 
-  const renderAdBanner = (banner) => (
+  const renderAdBanner  = (banner) => (
     <Box key={banner._id} mt="10">
       <Image
         src={banner.imageUrl}

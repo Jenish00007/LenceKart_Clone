@@ -3,7 +3,7 @@ import { Box, Grid, Container } from "@chakra-ui/react";
 import { FooterCard1, FooterCard2, FooterCard } from "./FooterCard";
 import { services, about, helps } from "./FooterDetails";
 
-const Footer = () => {
+const Footer  = () => {
   return (
     <Box
       bgColor="#000042"

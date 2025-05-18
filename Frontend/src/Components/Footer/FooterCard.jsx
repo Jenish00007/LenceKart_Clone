@@ -6,7 +6,7 @@ import { TfiTwitter } from "react-icons/tfi";
 import { Link } from "react-router-dom";
 
 // Define keyframe animations
-const pulse = keyframes`
+const pulse  = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
