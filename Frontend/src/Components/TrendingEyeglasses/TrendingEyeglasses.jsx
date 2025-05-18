@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, Tooltip, Icon } from "@chakra-ui/react";
+import React, { useState, useEffect, useContext } from "react";
+import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, Tooltip, Icon, useToast, useDisclosure } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 import { FiShoppingCart, FiHeart, FiEye } from "react-icons/fi";
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import { AuthContext } from '../../ContextApi/AuthContext';
+import Login from '../../Pages/Login/Login';
 
 import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +33,50 @@ const TrendingEyeglasses = () => {
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isAuth } = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
+
+  const handleWishlistToggle = (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
+    const isFavorite = wishlistItems.some(item => item._id === product._id);
+    
+    if (isFavorite) {
+      dispatch(removeFromWishlist(product._id));
+      toast({
+        title: "Removed from Wishlist",
+        description: "Product has been removed from your wishlist",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } else {
+      dispatch(addToWishlist(product));
+      toast({
+        title: "Added to Wishlist",
+        description: "Product has been added to your wishlist",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchTrendingProducts = async () => {
@@ -195,12 +243,13 @@ const TrendingEyeglasses = () => {
                     Cart
                   </Button>
                 </Tooltip>
-                <Tooltip label="Add to Wishlist">
+                <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
                   <Button
                     size="sm"
                     leftIcon={<Icon as={FiHeart} />}
-                    colorScheme="pink"
+                    colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
                     variant="ghost"
+                    onClick={() => handleWishlistToggle(product)}
                   >
                     Wishlist
                   </Button>
@@ -222,6 +271,7 @@ const TrendingEyeglasses = () => {
           </Card>
         ))}
       </Grid>
+      <Login isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };

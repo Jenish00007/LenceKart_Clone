@@ -25,24 +25,70 @@ import {
   TagLeftIcon,
   TagRightIcon,
   Fade,
-  ScaleFade
+  ScaleFade,
+  useDisclosure
 } from '@chakra-ui/react';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import { API_URL } from '../../config';
 import { Link } from 'react-router-dom';
 import { FiEye, FiClock, FiShoppingCart, FiHeart } from 'react-icons/fi';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import Login from '../../Pages/Login/Login';
 
 const RecentlyViewed = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isAuth } = useContext(AuthContext);
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
 
   // Color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const cardBg = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const textColor = useColorModeValue("gray.600", "gray.400");
+
+  const handleWishlistToggle = (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
+    const isFavorite = wishlistItems.some(item => item._id === product._id);
+    
+    if (isFavorite) {
+      dispatch(removeFromWishlist(product._id));
+      toast({
+        title: "Removed from Wishlist",
+        description: "Product has been removed from your wishlist",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } else {
+      dispatch(addToWishlist(product));
+      toast({
+        title: "Added to Wishlist",
+        description: "Product has been added to your wishlist",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchRecentlyViewed = async () => {
@@ -200,12 +246,13 @@ const RecentlyViewed = () => {
                           Cart
                         </Button>
                       </Tooltip>
-                      <Tooltip label="Add to Wishlist">
+                      <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
                         <Button
                           size="sm"
                           leftIcon={<Icon as={FiHeart} />}
-                          colorScheme="pink"
+                          colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
                           variant="ghost"
+                          onClick={() => handleWishlistToggle(product)}
                         >
                           Wishlist
                         </Button>
@@ -230,6 +277,7 @@ const RecentlyViewed = () => {
           </SimpleGrid>
         </VStack>
       </Fade>
+      <Login isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };
