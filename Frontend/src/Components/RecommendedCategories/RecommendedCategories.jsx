@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Grid,
@@ -23,23 +23,71 @@ import {
   TagLeftIcon,
   Fade,
   ScaleFade,
-  useToast
+  useToast,
+  useDisclosure
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FiShoppingCart, FiHeart, FiEye, FiStar, FiTrendingUp } from "react-icons/fi";
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import { AuthContext } from '../../ContextApi/AuthContext';
+import Login from '../../Pages/Login/Login';
 
 const RecommendedCategories = () => {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isAuth } = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
 
   // Color mode values
   const bgColor = useColorModeValue("white", "gray.800");
   const cardBg = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const textColor = useColorModeValue("gray.600", "gray.400");
+
+  const handleWishlistToggle = (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
+    const isFavorite = wishlistItems.some(item => item._id === product._id);
+    
+    if (isFavorite) {
+      dispatch(removeFromWishlist(product._id));
+      toast({
+        title: "Removed from Wishlist",
+        description: "Product has been removed from your wishlist",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } else {
+      dispatch(addToWishlist(product));
+      toast({
+        title: "Added to Wishlist",
+        description: "Product has been added to your wishlist",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchRecommendedProducts = async () => {
@@ -112,8 +160,8 @@ const RecommendedCategories = () => {
             }}
             gap={6}
           >
-            {recommendedProducts.map((product, index) => (
-              <ScaleFade key={product._id} initialScale={0.9} in={true} delay={index * 0.1}>
+            {recommendedProducts?.map((product) => (
+              <ScaleFade key={product._id} initialScale={0.9} in={true}>
                 <Card
                   bg={bgColor}
                   borderWidth="1px"
@@ -126,64 +174,41 @@ const RecommendedCategories = () => {
                     shadow: 'lg'
                   }}
                 >
-                  <Box position="relative">
-                    <Image
-                      src={product.imageTsrc}
-                      alt={product.name}
-                      height="200px"
-                      width="100%"
-                      objectFit="cover"
-                      fallbackSrc="https://via.placeholder.com/200"
-                    />
-                    <Badge
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      colorScheme="purple"
-                      borderRadius="full"
-                      px={2}
-                    >
-                      Recommended
-                    </Badge>
-                    {product.offer && (
+                  <CardBody>
+                    <Box position="relative">
+                      <Image
+                        src={product.imageTsrc}
+                        alt={product.name}
+                        height="200px"
+                        width="100%"
+                        objectFit="cover"
+                        fallbackSrc="https://via.placeholder.com/200"
+                      />
                       <Badge
                         position="absolute"
                         top={2}
-                        left={2}
-                        colorScheme="green"
+                        right={2}
+                        colorScheme="purple"
                         borderRadius="full"
                         px={2}
                       >
-                        {product.offer}
+                        Recommended
                       </Badge>
-                    )}
-                  </Box>
+                    </Box>
 
-                  <CardBody>
-                    <VStack align="start" spacing={3}>
-                      <Heading size="sm" noOfLines={2} _hover={{ color: "blue.500" }}>
+                    <VStack align="start" spacing={2} mt={4}>
+                      <Heading size="sm" noOfLines={2}>
                         {product.name}
                       </Heading>
-                      <Text fontSize="sm" color={textColor} noOfLines={2}>
-                        {product.description}
+                      <Text color="teal.500" fontWeight="bold" fontSize="lg">
+                        ₹{product.price}
                       </Text>
-                      <HStack spacing={2} width="100%">
-                        <Text color="blue.600" fontSize="xl" fontWeight="bold">
-                          ₹{product.price}
-                        </Text>
-                        {product.originalPrice && (
-                          <Text as="s" color="gray.500" fontSize="sm">
-                            ₹{product.originalPrice}
-                          </Text>
-                        )}
-                      </HStack>
                       <HStack spacing={2}>
-                        <Badge colorScheme="blue" variant="subtle">
-                          <Icon as={FiStar} mr={1} />
-                          Best Seller
-                        </Badge>
                         <Badge colorScheme="green" variant="subtle">
                           In Stock
+                        </Badge>
+                        <Badge colorScheme="purple" variant="subtle">
+                          {product.category}
                         </Badge>
                       </HStack>
                     </VStack>
@@ -203,12 +228,13 @@ const RecommendedCategories = () => {
                           Cart
                         </Button>
                       </Tooltip>
-                      <Tooltip label="Add to Wishlist">
+                      <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
                         <Button
                           size="sm"
                           leftIcon={<Icon as={FiHeart} />}
-                          colorScheme="pink"
+                          colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
                           variant="ghost"
+                          onClick={() => handleWishlistToggle(product)}
                         >
                           Wishlist
                         </Button>
@@ -219,7 +245,8 @@ const RecommendedCategories = () => {
                           leftIcon={<Icon as={FiEye} />}
                           colorScheme="teal"
                           variant="ghost"
-                          onClick={() => navigate(`/products/${product._id}`)}
+                          as={Link}
+                          to={`/products/${product._id}`}
                         >
                           View
                         </Button>
@@ -232,6 +259,7 @@ const RecommendedCategories = () => {
           </Grid>
         </VStack>
       </Fade>
+      <Login isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };
