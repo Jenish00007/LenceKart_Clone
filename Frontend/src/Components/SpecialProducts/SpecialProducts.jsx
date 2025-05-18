@@ -51,7 +51,7 @@ const ProductCard = ({ product, onWishlist, onAddToCart, onViewDetails, isInWish
             src={product.imageTsrc}
             alt={product.name}
             borderRadius="lg"
-            objectFit="contain"
+            objectFit="cover"
             height="200px"
             width="100%"
           />
@@ -304,57 +304,59 @@ const ProductSection = ({ title, products }) => {
           bg="gray.50"
           p={4}
         >
-          <IconButton
-            icon={<ChevronLeftIcon boxSize={6} color="blue.600" />}
-            onClick={handlePrev}
-            aria-label="Previous"
-            left={-4}
-            isDisabled={currentIndex === 0}
-            opacity={currentIndex === 0 ? 0.4 : 1}
-            {...arrowButtonStyles}
-          />
+          <Box position="relative" px={1}>
+            <IconButton
+              icon={<ChevronLeftIcon boxSize={6} color="blue.600" />}
+              onClick={handlePrev}
+              aria-label="Previous"
+              left={-3}
+              isDisabled={currentIndex === 0}
+              opacity={currentIndex === 0 ? 0.4 : 1}
+              {...arrowButtonStyles}
+            />
 
-          <IconButton
-            icon={<ChevronRightIcon boxSize={6} color="blue.600" />}
-            onClick={handleNext}
-            aria-label="Next"
-            right={-4}
-            isDisabled={currentIndex === totalPages - 1}
-            opacity={currentIndex === totalPages - 1 ? 0.4 : 1}
-            {...arrowButtonStyles}
-          />
+            <IconButton
+              icon={<ChevronRightIcon boxSize={6} color="blue.600" />}
+              onClick={handleNext}
+              aria-label="Next"
+              right={-3}
+              isDisabled={currentIndex === totalPages - 1}
+              opacity={currentIndex === totalPages - 1 ? 0.4 : 1}
+              {...arrowButtonStyles}
+            />
 
-          <Box
-            display="flex"
-            transition="transform 0.5s ease"
-            transform={`translateX(-${currentIndex * (100 / totalPages)}%)`}
-            width={`${totalPages * 100}%`}
-          >
-            {Array.from({ length: totalPages }).map((_, pageIndex) => (
-              <Box
-                key={pageIndex}
-                width={`${100 / totalPages}%`}
-                px={2}
-              >
-                <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
-                  {products
-                    ?.slice(
-                      pageIndex * itemsPerPage,
-                      (pageIndex + 1) * itemsPerPage
-                    )
-                    .map((product) => (
-                      <ProductCard
-                        key={product._id}
-                        product={product}
-                        onWishlist={handleWishlist}
-                        onAddToCart={handleAddToCart}
-                        onViewDetails={handleViewDetails}
-                        isInWishlist={wishlistItems.some(item => item._id === product._id)}
-                      />
-                    ))}
-                </SimpleGrid>
-              </Box>
-            ))}
+            <Box
+              display="flex"
+              transition="transform 0.5s ease"
+              transform={`translateX(-${currentIndex * (100 / totalPages)}%)`}
+              width={`${totalPages * 100}%`}
+            >
+              {Array.from({ length: totalPages }).map((_, pageIndex) => (
+                <Box
+                  key={pageIndex}
+                  width={`${100 / totalPages}%`}
+                  px={2}
+                >
+                  <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
+                    {products
+                      ?.slice(
+                        pageIndex * itemsPerPage,
+                        (pageIndex + 1) * itemsPerPage
+                      )
+                      .map((product) => (
+                        <ProductCard
+                          key={product._id}
+                          product={product}
+                          onWishlist={handleWishlist}
+                          onAddToCart={handleAddToCart}
+                          onViewDetails={handleViewDetails}
+                          isInWishlist={wishlistItems.some(item => item._id === product._id)}
+                        />
+                      ))}
+                  </SimpleGrid>
+                </Box>
+              ))}
+            </Box>
           </Box>
         </Box>
 
