@@ -1,22 +1,27 @@
-import React from 'react';
-import { Box, Image, Text, Icon, Button, Badge, Flex, IconButton, keyframes } from '@chakra-ui/react';
+import React, { useContext } from 'react';
+import { Box, Image, Text, Icon, Button, Badge, Flex, IconButton, keyframes, useToast, useDisclosure } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
+import { AuthContext } from '../../ContextApi/AuthContext';
+import Login from '../../Pages/Login/Login';
 
 // Define keyframe animations
 const float = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 `;
 
 const pulse = keyframes`
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 `;
 
 const shine = keyframes`
-  0% { background-position: -100% 0; }
+  0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 `;
 
@@ -27,29 +32,58 @@ const borderSync = keyframes`
 `;
 
 const badgeSync = keyframes`
-  0% { 
-    background: linear-gradient(45deg, #00b9c5, #00a5b0, #008c96);
-    transform: scale(1);
-  }
-  25% { 
-    background: linear-gradient(45deg, #00a5b0, #008c96, #00b9c5);
-    transform: scale(1.02);
-  }
-  50% { 
-    background: linear-gradient(45deg, #008c96, #00b9c5, #00a5b0);
-    transform: scale(1.05);
-  }
-  75% { 
-    background: linear-gradient(45deg, #00b9c5, #00a5b0, #008c96);
-    transform: scale(1.02);
-  }
-  100% { 
-    background: linear-gradient(45deg, #00a5b0, #008c96, #00b9c5);
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 `;
 
-const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
+const ProductCard = ({ product }) => {
+  const dispatch = useDispatch();
+  const { isAuth } = useContext(AuthContext);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
+  const isFavorite = wishlistItems.some(item => item._id === product._id);
+
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
+    if (isFavorite) {
+      dispatch(removeFromWishlist(product._id));
+      toast({
+        title: "Removed from Wishlist",
+        description: "Product has been removed from your wishlist",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } else {
+      dispatch(addToWishlist(product));
+      toast({
+        title: "Added to Wishlist",
+        description: "Product has been added to your wishlist",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  };
+
   return (
     <Box 
       w={{ base: "180px", md: "220px", lg: "240px" }}
@@ -105,10 +139,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
             color: isFavorite ? 'red.500' : 'gray.500'
           }}
           size="sm"
-          onClick={(e) => {
-            e.preventDefault();
-            onToggleFavorite(product.id);
-          }}
+          onClick={handleWishlistToggle}
           animation={`${pulse} 2s ease-in-out infinite`}
         />
         <Badge
@@ -177,6 +208,7 @@ const ProductCard = ({ product, isFavorite, onToggleFavorite }) => {
           </Button>
         </Link>
       </Box>
+      <Login isOpen={isOpen} onClose={onClose} />
     </Box>
   );
 };

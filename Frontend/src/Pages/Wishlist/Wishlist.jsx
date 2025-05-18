@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Text, Button, Heading, Grid,} from "@chakra-ui/react";
+import { Box, Text, Button, Heading, Grid, useToast } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 
 import { removeFromWishlist } from "../../redux/wishlist/wishlist.actions";
@@ -23,9 +23,18 @@ const Wishlist = () => {
   const { cart } = useSelector((state) => state.CartReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleDelete = (item) => {
     dispatch(removeFromWishlist(item));
+    toast({
+      title: "Removed from Wishlist",
+      description: "Product has been removed from your wishlist",
+      status: "info",
+      duration: 2000,
+      isClosable: true,
+      position: "bottom"
+    });
   };
 
   const handleAddToCart = (data) => {
@@ -34,11 +43,26 @@ const Wishlist = () => {
       data.quantity = 1;
       dispatch(addToCart(data));
       dispatch(removeFromWishlist(data._id));
+      toast({
+        title: "Added to Cart",
+        description: "Product has been added to your cart",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
       setTimeout(() => {
         navigate("/cart");
       }, 1000);
     } else {
-      alert("Product Already Add in Cart");
+      toast({
+        title: "Product Already in Cart",
+        description: "This product is already in your cart",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
   };
 

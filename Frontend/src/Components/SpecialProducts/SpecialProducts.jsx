@@ -32,7 +32,7 @@ import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist
 
 const API_URL = 'http://localhost:8080/api';
 
-const ProductCard = ({ product, onAddToCart, onViewDetails,  }) => {
+const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, isInWishlist }) => {
   const discount = product.mPrice > product.price 
     ? Math.round(((product.mPrice - product.price) / product.mPrice) * 100) 
     : 0;
@@ -127,12 +127,13 @@ const ProductCard = ({ product, onAddToCart, onViewDetails,  }) => {
                   Cart
                 </Button>
               </Tooltip>
-              <Tooltip >
+              <Tooltip label="Add to Wishlist">
                 <Button
                   size="sm"
-                  leftIcon={<Box as={FiHeart}/>}
+                  leftIcon={<Box as={FiHeart} color={isInWishlist ? "red.500" : "gray.500"} />}
                   colorScheme="pink"
                   variant="ghost"
+                  onClick={() => onWishlistToggle(product)}
                 >
                   Wishlist
                 </Button>
@@ -165,7 +166,7 @@ const ProductSection = ({ title, products }) => {
   const { isAuth } = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
- 
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
 
   const handleAuthAction = (action) => {
     if (!isAuth) {
@@ -175,7 +176,44 @@ const ProductSection = ({ title, products }) => {
     return true;
   };
 
+  const handleWishlistToggle = (product) => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
 
+    const isFavorite = wishlistItems.some(item => item._id === product._id);
+    
+    if (isFavorite) {
+      dispatch(removeFromWishlist(product._id));
+      toast({
+        title: "Removed from Wishlist",
+        description: "Product has been removed from your wishlist",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } else {
+      dispatch(addToWishlist(product));
+      toast({
+        title: "Added to Wishlist",
+        description: "Product has been added to your wishlist",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
+  };
 
   const handleAddToCart = (product) => {
     if (!handleAuthAction()) return;
@@ -305,10 +343,10 @@ const ProductSection = ({ title, products }) => {
                         <ProductCard
                           key={product._id}
                           product={product}
-                          
                           onAddToCart={handleAddToCart}
                           onViewDetails={handleViewDetails}
-                         
+                          onWishlistToggle={handleWishlistToggle}
+                          isInWishlist={wishlistItems.some(item => item._id === product._id)}
                         />
                       ))}
                   </SimpleGrid>
@@ -342,7 +380,7 @@ const ProductSection = ({ title, products }) => {
         </Flex>
       </Container>
 
-      {isOpen && <Login onClose={onClose} />}
+      {isOpen && <Login isOpen={isOpen} onClose={onClose} />}
     </Box>
   );
 };

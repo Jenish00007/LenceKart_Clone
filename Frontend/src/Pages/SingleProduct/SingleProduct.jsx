@@ -8,9 +8,10 @@ import Footer from "../../Components/Footer/Footer";
 import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
-import { Grid, GridItem, Image } from "@chakra-ui/react";
+import { Grid, GridItem, Image, useToast, Box, useDisclosure } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../ContextApi/AuthContext";
+import Login from "../../Pages/Login/Login";
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -19,6 +20,8 @@ const SingleProduct = () => {
   const dispatch = useDispatch();
   const { cart } = useSelector((state) => state.CartReducer);
   const { isAuth } = useContext(AuthContext);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleAddToCart = () => {
     const existingItem = cart.findIndex((item) => item._id === data._id);
@@ -29,15 +32,40 @@ const SingleProduct = () => {
         navigate("/cart");
       }, 1000);
     } else {
-      alert("Product Already Add in Cart");
+      toast({
+        title: "Product Already in Cart",
+        description: "This product is already in your cart",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
   };
 
   const handleAddToWishlist = () => {
+    if (!isAuth) {
+      onOpen();
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist",
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      return;
+    }
+
     dispatch(addToWishlist(data));
-    setTimeout(() => {
-      navigate("/wishlist");
-    }, 1000);
+    toast({
+      title: "Added to Wishlist",
+      description: "Product has been added to your wishlist",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+      position: "bottom"
+    });
   };
 
   const trackProductVisit = async () => {
@@ -83,8 +111,9 @@ const SingleProduct = () => {
   }, [id]);
 
   return (
-    <>
+    <Box>
       <Navbar />
+      <Login isOpen={isOpen} onClose={onClose} />
       <br />
       <br />
 
@@ -170,7 +199,7 @@ const SingleProduct = () => {
         </GridItem>
       </Grid>
       <Footer />
-    </>
+    </Box>
   );
 };
 
