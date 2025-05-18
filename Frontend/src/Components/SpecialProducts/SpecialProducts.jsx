@@ -24,14 +24,138 @@ import {
   useBreakpointValue
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { CiHeart } from 'react-icons/ci';
-import { FaHeart } from 'react-icons/fa';
+import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
 import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
 
 const API_URL = 'http://localhost:8080/api';
+
+const ProductCard = ({ product, onWishlist, onAddToCart, onViewDetails, isInWishlist }) => {
+  const discount = product.mPrice > product.price 
+    ? Math.round(((product.mPrice - product.price) / product.mPrice) * 100) 
+    : 0;
+
+  return (
+    <Card
+      transition="all 0.3s"
+      _hover={{
+        transform: 'translateY(-5px)',
+        boxShadow: 'xl',
+      }}
+    >
+      <CardBody>
+        <Box position="relative">
+          <Image
+            src={product.imageTsrc}
+            alt={product.name}
+            borderRadius="lg"
+            objectFit="contain"
+            height="200px"
+            width="100%"
+          />
+        </Box>
+        <Stack mt="6" spacing="3">
+          <VStack align="start" spacing={1}>
+            <Heading size="md" noOfLines={1}>
+              {product.name}
+            </Heading>
+            <HStack spacing={2}>
+              <Tag size="sm" colorScheme="blue">{product.productType}</Tag>
+              {product.trending && <Tag size="sm" colorScheme="green">Trending</Tag>}
+            </HStack>
+          </VStack>
+          
+          <Flex align="center">
+            <Box display="flex" alignItems="center">
+              {Array(5)
+                .fill('')
+                .map((_, i) => (
+                  <Box
+                    key={i}
+                    color={i < Math.floor(product.rating) ? 'yellow.400' : 'gray.300'}
+                  >
+                    ★
+                  </Box>
+                ))}
+              <Text ml={2} color="gray.600" fontSize="sm">
+                ({product.rating} • {product.userRated} reviews)
+              </Text>
+            </Box>
+          </Flex>
+
+          <HStack spacing={2}>
+            <Tag size="sm" colorScheme="purple">{product.gender}</Tag>
+            <Tag size="sm" colorScheme="orange">{product.shape}</Tag>
+          </HStack>
+
+          <Flex justify="space-between" align="center">
+            <VStack align="start" spacing={0}>
+              <Text color="blue.600" fontSize="xl" fontWeight="bold">
+                ₹{product.price}
+              </Text>
+              {product.mPrice > product.price && (
+                <Text color="gray.500" fontSize="sm" textDecoration="line-through">
+                  ₹{product.mPrice}
+                </Text>
+              )}
+            </VStack>
+            {discount > 0 && (
+              <Badge colorScheme="green" fontSize="sm">
+                {discount}% OFF
+              </Badge>
+            )}
+          </Flex>
+
+          {product.quantity < 50 && (
+            <Text color="red.500" fontSize="sm">
+              Only {product.quantity} left!
+            </Text>
+          )}
+
+          <Flex gap={2}>
+            <HStack spacing={4} width="100%" justify="space-between">
+              <Tooltip label="Add to Cart">
+                <Button
+                  size="sm"
+                  leftIcon={<Box as={FiShoppingCart} />}
+                  colorScheme="blue"
+                  variant="ghost"
+                  onClick={() => onAddToCart(product)}
+                >
+                  Cart
+                </Button>
+              </Tooltip>
+              <Tooltip label={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
+                <Button
+                  size="sm"
+                  leftIcon={<Box as={FiHeart} />}
+                  colorScheme="pink"
+                  variant="ghost"
+                  onClick={() => onWishlist(product)}
+                >
+                  Wishlist
+                </Button>
+              </Tooltip>
+              <Tooltip label="View Details">
+                <Button
+                  size="sm"
+                  leftIcon={<Box as={FiEye} />}
+                  colorScheme="teal"
+                  variant="ghost"
+                  onClick={() => onViewDetails(product)}
+                >
+                  View
+                </Button>
+              </Tooltip>
+            </HStack>
+          </Flex>
+        </Stack>
+      </CardBody>
+    </Card>
+  );
+};
 
 const ProductSection = ({ title, products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -53,10 +177,7 @@ const ProductSection = ({ title, products }) => {
   };
 
   const handleWishlist = async (product) => {
-    if (!isAuth) {
-      onOpen();
-      return;
-    }
+    if (!handleAuthAction()) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -64,9 +185,7 @@ const ProductSection = ({ title, products }) => {
 
       if (isInWishlist) {
         await axios.delete(`${API_URL}/wishlist/remove/${product._id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         dispatch(removeFromWishlist(product._id));
         toast({
@@ -78,11 +197,7 @@ const ProductSection = ({ title, products }) => {
       } else {
         await axios.post(`${API_URL}/wishlist/add`, 
           { productId: product._id },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
+          { headers: { 'Authorization': `Bearer ${token}` } }
         );
         dispatch(addToWishlist(product));
         toast({
@@ -105,10 +220,8 @@ const ProductSection = ({ title, products }) => {
   };
 
   const handleAddToCart = (product) => {
-    if (!isAuth) {
-      onOpen();
-      return;
-    }
+    if (!handleAuthAction()) return;
+    
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cart.find(item => item._id === product._id);
 
@@ -127,14 +240,8 @@ const ProductSection = ({ title, products }) => {
     });
   };
 
-  const handleBuyNow = (product) => {
-    if (!isAuth) {
-      onOpen();
-      return;
-    }
-    const cart = [{ ...product, quantity: 1 }];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    navigate('/shipping');
+  const handleViewDetails = (product) => {
+    navigate(`/products/${product._id}`);
   };
 
   const handlePrev = () => {
@@ -143,6 +250,42 @@ const ProductSection = ({ title, products }) => {
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
+  };
+
+  const arrowButtonStyles = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 2,
+    colorScheme: "blue",
+    size: "md",
+    borderRadius: "full",
+    boxShadow: "md",
+    bg: "white",
+    border: "2px solid",
+    borderColor: "blue.200",
+    _hover: {
+      bg: "blue.50",
+      transform: "translateY(-50%) scale(1.1)",
+      boxShadow: "lg",
+      borderColor: "blue.400"
+    },
+    _active: {
+      bg: "blue.100",
+      borderColor: "blue.500"
+    },
+    transition: "all 0.2s",
+    _disabled: {
+      opacity: 0.4,
+      cursor: "not-allowed",
+      borderColor: "gray.200",
+      _hover: {
+        bg: "white",
+        transform: "translateY(-50%)",
+        boxShadow: "md",
+        borderColor: "gray.200"
+      }
+    }
   };
 
   return (
@@ -161,96 +304,30 @@ const ProductSection = ({ title, products }) => {
           bg="gray.50"
           p={4}
         >
-          {/* Left Arrow */}
           <IconButton
             icon={<ChevronLeftIcon boxSize={6} color="blue.600" />}
             onClick={handlePrev}
             aria-label="Previous"
-            position="absolute"
             left={-4}
-            top="50%"
-            transform="translateY(-50%)"
-            zIndex={2}
-            colorScheme="blue"
-            size="md"
-            borderRadius="full"
-            boxShadow="md"
-            bg="white"
-            border="2px solid"
-            borderColor="blue.200"
-            _hover={{
-              bg: "blue.50",
-              transform: "translateY(-50%) scale(1.1)",
-              boxShadow: "lg",
-              borderColor: "blue.400"
-            }}
-            _active={{
-              bg: "blue.100",
-              borderColor: "blue.500"
-            }}
             isDisabled={currentIndex === 0}
             opacity={currentIndex === 0 ? 0.4 : 1}
-            transition="all 0.2s"
-            _disabled={{
-              opacity: 0.4,
-              cursor: "not-allowed",
-              borderColor: "gray.200",
-              _hover: {
-                bg: "white",
-                transform: "translateY(-50%)",
-                boxShadow: "md",
-                borderColor: "gray.200"
-              }
-            }}
+            {...arrowButtonStyles}
           />
 
-          {/* Right Arrow */}
           <IconButton
             icon={<ChevronRightIcon boxSize={6} color="blue.600" />}
             onClick={handleNext}
             aria-label="Next"
-            position="absolute"
             right={-4}
-            top="50%"
-            transform="translateY(-50%)"
-            zIndex={2}
-            colorScheme="blue"
-            size="md"
-            borderRadius="full"
-            boxShadow="md"
-            bg="white"
-            border="2px solid"
-            borderColor="blue.200"
-            _hover={{
-              bg: "blue.50",
-              transform: "translateY(-50%) scale(1.1)",
-              boxShadow: "lg",
-              borderColor: "blue.400"
-            }}
-            _active={{
-              bg: "blue.100",
-              borderColor: "blue.500"
-            }}
             isDisabled={currentIndex === totalPages - 1}
             opacity={currentIndex === totalPages - 1 ? 0.4 : 1}
-            transition="all 0.2s"
-            _disabled={{
-              opacity: 0.4,
-              cursor: "not-allowed",
-              borderColor: "gray.200",
-              _hover: {
-                bg: "white",
-                transform: "translateY(-50%)",
-                boxShadow: "md",
-                borderColor: "gray.200"
-              }
-            }}
+            {...arrowButtonStyles}
           />
 
           <Box
             display="flex"
             transition="transform 0.5s ease"
-            transform={`translateX(-${currentIndex * 100}%)`}
+            transform={`translateX(-${currentIndex * (100 / totalPages)}%)`}
             width={`${totalPages * 100}%`}
           >
             {Array.from({ length: totalPages }).map((_, pageIndex) => (
@@ -266,115 +343,14 @@ const ProductSection = ({ title, products }) => {
                       (pageIndex + 1) * itemsPerPage
                     )
                     .map((product) => (
-                      <Card
+                      <ProductCard
                         key={product._id}
-                        transition="all 0.3s"
-                        _hover={{
-                          transform: 'translateY(-5px)',
-                          boxShadow: 'xl',
-                        }}
-                      >
-                        <CardBody>
-                          <Box position="relative">
-                            <Image
-                              src={product.imageTsrc}
-                              alt={product.name}
-                              borderRadius="lg"
-                              objectFit="contain"
-                              height="200px"
-                              width="100%"
-                            />
-                            <IconButton
-                              icon={wishlistItems.some(item => item._id === product._id) ? <FaHeart /> : <CiHeart />}
-                              position="absolute"
-                              top={2}
-                              right={2}
-                              colorScheme={wishlistItems.some(item => item._id === product._id) ? "red" : "gray"}
-                              variant="solid"
-                              size="sm"
-                              onClick={() => handleWishlist(product)}
-                              aria-label="Add to wishlist"
-                            />
-                          </Box>
-                          <Stack mt="6" spacing="3">
-                            <VStack align="start" spacing={1}>
-                              <Heading size="md" noOfLines={1}>
-                                {product.name}
-                              </Heading>
-                              <HStack spacing={2}>
-                                <Tag size="sm" colorScheme="blue">{product.productType}</Tag>
-                                {product.trending && <Tag size="sm" colorScheme="green">Trending</Tag>}
-                              </HStack>
-                            </VStack>
-                            
-                            <Flex align="center">
-                              <Box display="flex" alignItems="center">
-                                {Array(5)
-                                  .fill('')
-                                  .map((_, i) => (
-                                    <Box
-                                      key={i}
-                                      color={i < Math.floor(product.rating) ? 'yellow.400' : 'gray.300'}
-                                    >
-                                      ★
-                                    </Box>
-                                  ))}
-                                <Text ml={2} color="gray.600" fontSize="sm">
-                                  ({product.rating} • {product.userRated} reviews)
-                                </Text>
-                              </Box>
-                            </Flex>
-
-                            <HStack spacing={2}>
-                              <Tag size="sm" colorScheme="purple">{product.gender}</Tag>
-                              <Tag size="sm" colorScheme="orange">{product.shape}</Tag>
-                            </HStack>
-
-                            <Flex justify="space-between" align="center">
-                              <VStack align="start" spacing={0}>
-                                <Text color="blue.600" fontSize="xl" fontWeight="bold">
-                                  ₹{product.price}
-                                </Text>
-                                {product.mPrice > product.price && (
-                                  <Text color="gray.500" fontSize="sm" textDecoration="line-through">
-                                    ₹{product.mPrice}
-                                  </Text>
-                                )}
-                              </VStack>
-                              {product.mPrice > product.price && (
-                                <Badge colorScheme="green" fontSize="sm">
-                                  {Math.round(((product.mPrice - product.price) / product.mPrice) * 100)}% OFF
-                                </Badge>
-                              )}
-                            </Flex>
-
-                            {product.quantity < 50 && (
-                              <Text color="red.500" fontSize="sm">
-                                Only {product.quantity} left!
-                              </Text>
-                            )}
-
-                            <Flex gap={2}>
-                              <Button
-                                flex={1}
-                                colorScheme="blue"
-                                size="sm"
-                                onClick={() => handleAddToCart(product)}
-                              >
-                                Add to Cart
-                              </Button>
-                              <Button
-                                flex={1}
-                                colorScheme="green"
-                                size="sm"
-                                onClick={() => handleBuyNow(product)}
-                              >
-                                Buy Now
-                              </Button>
-                            </Flex>
-                          </Stack>
-                        </CardBody>
-                      </Card>
+                        product={product}
+                        onWishlist={handleWishlist}
+                        onAddToCart={handleAddToCart}
+                        onViewDetails={handleViewDetails}
+                        isInWishlist={wishlistItems.some(item => item._id === product._id)}
+                      />
                     ))}
                 </SimpleGrid>
               </Box>
@@ -382,7 +358,6 @@ const ProductSection = ({ title, products }) => {
           </Box>
         </Box>
 
-        {/* Enhanced Dots Navigation */}
         <Flex justify="center" mt={4} gap={3}>
           {Array.from({ length: totalPages }).map((_, index) => (
             <Box
@@ -398,7 +373,6 @@ const ProductSection = ({ title, products }) => {
                 bg: currentIndex === index ? "blue.600" : "gray.400",
                 transform: "scale(1.2)"
               }}
-              position="relative"
             >
               <Tooltip label={`Slide ${index + 1}`} placement="top">
                 <Box position="absolute" w="100%" h="100%" />
