@@ -32,7 +32,7 @@ import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist
 
 const API_URL = 'http://localhost:8080/api';
 
-const ProductCard = ({ product, onWishlist, onAddToCart, onViewDetails, isInWishlist }) => {
+const ProductCard = ({ product, onAddToCart, onViewDetails,  }) => {
   const discount = product.mPrice > product.price 
     ? Math.round(((product.mPrice - product.price) / product.mPrice) * 100) 
     : 0;
@@ -127,13 +127,12 @@ const ProductCard = ({ product, onWishlist, onAddToCart, onViewDetails, isInWish
                   Cart
                 </Button>
               </Tooltip>
-              <Tooltip label={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
+              <Tooltip >
                 <Button
                   size="sm"
-                  leftIcon={<Box as={FiHeart} />}
+                  leftIcon={<Box as={FiHeart}/>}
                   colorScheme="pink"
                   variant="ghost"
-                  onClick={() => onWishlist(product)}
                 >
                   Wishlist
                 </Button>
@@ -166,7 +165,7 @@ const ProductSection = ({ title, products }) => {
   const { isAuth } = useContext(AuthContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
-  const wishlistItems = useSelector((state) => state.wishlist.wishlist);
+ 
 
   const handleAuthAction = (action) => {
     if (!isAuth) {
@@ -176,48 +175,7 @@ const ProductSection = ({ title, products }) => {
     return true;
   };
 
-  const handleWishlist = async (product) => {
-    if (!handleAuthAction()) return;
 
-    try {
-      const token = localStorage.getItem('token');
-      const isInWishlist = wishlistItems.some(item => item._id === product._id);
-
-      if (isInWishlist) {
-        await axios.delete(`${API_URL}/wishlist/remove/${product._id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        dispatch(removeFromWishlist(product._id));
-        toast({
-          title: 'Removed from wishlist',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-      } else {
-        await axios.post(`${API_URL}/wishlist/add`, 
-          { productId: product._id },
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-        dispatch(addToWishlist(product));
-        toast({
-          title: 'Added to wishlist',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-      toast({
-        title: 'Error updating wishlist',
-        description: error.response?.data?.message || 'Something went wrong',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
 
   const handleAddToCart = (product) => {
     if (!handleAuthAction()) return;
@@ -347,10 +305,10 @@ const ProductSection = ({ title, products }) => {
                         <ProductCard
                           key={product._id}
                           product={product}
-                          onWishlist={handleWishlist}
+                          
                           onAddToCart={handleAddToCart}
                           onViewDetails={handleViewDetails}
-                          isInWishlist={wishlistItems.some(item => item._id === product._id)}
+                         
                         />
                       ))}
                   </SimpleGrid>

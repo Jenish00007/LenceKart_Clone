@@ -22,6 +22,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
+import Login from "../Login/Login";
 
 const Signup = () => {
   const init = {
@@ -44,6 +45,7 @@ const Signup = () => {
   const [exist, setExist] = useState(false);
   const [success, setSuccess] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [showLogin, setShowLogin] = useState(false);
   const toast = useToast();
   var flag = false;
 
@@ -152,9 +154,10 @@ const Signup = () => {
               duration: 5000,
               isClosable: true
             });
-            // Close the modal after a brief delay to show success
+            // Close the signup modal and show login modal after a brief delay
             setTimeout(() => {
               onClose();
+              setShowLogin(true);
             }, 1500);
           } catch (error) {
             // Handle case where response is not JSON (like plain text "Registered")
@@ -169,9 +172,10 @@ const Signup = () => {
               duration: 5000,
               isClosable: true
             });
-            // Close the modal after a brief delay to show success
+            // Close the signup modal and show login modal after a brief delay
             setTimeout(() => {
               onClose();
+              setShowLogin(true);
             }, 1500);
           }
         } else {
@@ -227,9 +231,14 @@ const Signup = () => {
     onClose();
   };
 
+  const handleSignInClick = () => {
+    onClose(); // Close the signup modal
+    setShowLogin(true); // Show the login modal
+  };
+
   return (
     <div>
-      <Center onClick={handleOpen} fontWeight={"400"} fontSize="15px" w="60px">
+      <Center onClick={handleOpen} fontWeight={"400"} fontSize="15px" w="60px" data-signup-button>
         Sign Up
       </Center>
 
@@ -360,7 +369,7 @@ const Signup = () => {
               </InputGroup>
               {userData.password.length >= 6 ? "" : pass}
 
-              <HStack>
+              {/* <HStack>
                 <Box
                   textDecoration={"underline"}
                   fontFamily={" sans-serif"}
@@ -389,7 +398,7 @@ const Signup = () => {
                   w={"22px"}
                   h="22px"
                 />
-              </HStack>
+              </HStack> */}
               {exist === true ? (
                 <Required info="Email Id already exists" />
               ) : (
@@ -458,14 +467,28 @@ const Signup = () => {
 
               <Center mt={"14px"} fontSize="15px" gap="2">
                 Have an account?{" "}
-                <Center fontWeight={"500"} textDecoration="underline">
+                <Box 
+                  onClick={handleSignInClick}
+                  fontWeight={"400"} 
+                  fontSize="15px" 
+                  w="80px" 
+                  textDecoration={"underline"} 
+                  cursor={"pointer"}
+                >
                   Sign In
-                </Center>
+                </Box>
               </Center>
             </Box>
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      {/* Login Modal */}
+      <Login 
+        isOpen={showLogin} 
+        onClose={() => setShowLogin(false)}
+        hideButton={true}
+      />
     </div>
   );
 };

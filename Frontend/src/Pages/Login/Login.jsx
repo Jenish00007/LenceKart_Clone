@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 
-const Login = () => {
+const Login = ({ isOpen: propIsOpen, onClose: propOnClose, hideButton = false }) => {
   const [loading, setLoading] = useState(false);
   const [btn, setbtn] = useState();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -38,6 +38,10 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
+
+  // Use prop values if provided, otherwise use local state
+  const modalIsOpen = propIsOpen !== undefined ? propIsOpen : isOpen;
+  const handleClose = propOnClose || onClose;
 
   // Check for existing token on component mount
   useEffect(() => {
@@ -237,13 +241,15 @@ const Login = () => {
 
   return (
     <div>
-      <Center onClick={onOpen} fontWeight={"400"} fontSize="15px" w="80px">
-        Sign In
-      </Center>
+      {!hideButton && !propIsOpen && (
+        <Center onClick={onOpen} fontWeight={"400"} fontSize="15px" w="80px">
+          Sign In 
+        </Center>
+      )}
 
       <Modal
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={modalIsOpen}
+        onClose={handleClose}
         isCentered
         size={{ xl: "md", lg: "md", md: "md", sm: "md", base: "sm" }}
       >
@@ -334,7 +340,7 @@ const Login = () => {
                 _hover={{ backgroundColor: loginData.email.includes("@") && loginData.email.includes(".com") ? "#11daac" : "#cccccc" }}
                 disabled={!loginData.email.includes("@") || !loginData.email.includes(".com")}
               >
-                Sign In
+                Sign In 
               </Button>
 
               <HStack spacing={"0px"} mt="19px" gap="2">
@@ -345,7 +351,11 @@ const Login = () => {
                   textDecoration={"underline"}
                   onClick={() => {
                     onClose();
-                    navigate("/signup");
+                    // Instead of navigating, we'll trigger the signup modal
+                    const signupButton = document.querySelector('[data-signup-button]');
+                    if (signupButton) {
+                      signupButton.click();
+                    }
                   }}
                 >
                   Create an Account
