@@ -89,6 +89,8 @@ const TrendingEyeglasses = () => {
             <Box 
               position="relative"
               bg="#fbf9f7"
+              height="200px"
+              overflow="hidden"
               _hover={{
                 '&::after': {
                   content: '""',
@@ -106,10 +108,9 @@ const TrendingEyeglasses = () => {
               <Image
                 src={product.imageTsrc}
                 alt={product.name}
-                height="200px"
+                height="100%"
                 width="100%"
-                objectFit="contain"
-                p={4}
+                objectFit="cover"
                 transition="transform 0.3s ease"
                 _hover={{ transform: 'scale(1.1)' }}
               />
