@@ -4,6 +4,7 @@ const initialState = {
   selectedCategory: '', // men, women, kids
   productType: '', // eyeglasses, computerglasses, kidsglasses, contactlenses, sunglasses
   selectedType: '', // eyeglasses, computerglasses, kidsglasses, contactlenses, sunglasses
+  selectedCategoryType: '', // classic-eyeglasses, premium-eyeglasses, computer-eyeglasses
   selectedSubCategory: '', // from Our Top Picks
   frameType: '', // from Frame Type section
   filters: {
@@ -31,9 +32,17 @@ const filterSlice = createSlice({
       state.selectedCategory = action.payload || '';
       console.log(state.selectedCategory, "selectedCategory");
     },
+    setProductType: (state, action) => {
+      state.productType = action.payload || '';
+      console.log(state.productType, "productType");
+    },
     setSelectedType: (state, action) => {
       state.selectedType = action.payload || '';
       console.log(state.selectedType, "selectedType");
+    },
+    setSelectedCategoryType: (state, action) => {
+      state.selectedCategoryType = action.payload || '';
+      console.log(state.selectedCategoryType, "selectedCategoryType");
     },
     setSelectedSubCategory: (state, action) => {
       state.selectedSubCategory = action.payload || '';
@@ -101,7 +110,9 @@ const filterSlice = createSlice({
 
 export const {
   setSelectedCategory,
+  setProductType,
   setSelectedType,
+  setSelectedCategoryType,
   setSelectedSubCategory,
   setFrameType,
   setFilter,

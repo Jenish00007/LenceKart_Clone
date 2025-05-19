@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFrameType } from '../../redux/slices/filterSlice';
 
-const FrameTypeSelector = ({ items, type, handleSubCategorySelect }) => {
+const FrameTypeSelector = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const selectedCategory = useSelector((state) => state.filter?.selectedCategory);
   const selectedType = useSelector((state) => state.filter?.selectedType || '');
   const selectedFrameType = useSelector((state) => state.filter?.frameType || '');
+  const productType = useSelector((state) => state.filter?.productType || '');
+
   const frameTypes = [
     {
       id: 'rectangle',
@@ -28,7 +29,7 @@ const FrameTypeSelector = ({ items, type, handleSubCategorySelect }) => {
       type: 'frame'
     },
     {
-      id: 'Aviator',
+      id: 'aviator',
       title: 'Aviator Frames',
       type: 'frame'
     },
@@ -54,50 +55,48 @@ const FrameTypeSelector = ({ items, type, handleSubCategorySelect }) => {
     }
   ];
 
-  const handleFrameSelect = async (frame, type = '') => {
+  const handleFrameSelect = (frame) => {
     if (!frame?.id) return;
     dispatch(setFrameType(frame.id));
-    await handleSubCategorySelect(frame.id);
+    
+    const queryParams = new URLSearchParams();
+    if (selectedCategory) {
+      queryParams.append('category', selectedCategory);
+    }
+    if (selectedType) {
+      queryParams.append('type', selectedType);
+    }
+    if (productType) {
+      queryParams.append('productType', productType);
+    }
+    queryParams.append('frameType', frame.id);
+    
+    navigate(`/products?${queryParams.toString()}`);
   };
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap={6}>
       <Box
         fontSize="md"
         fontWeight="bold"
         borderBottom="1px solid black"
         p={1}
-        mb={2}
       >
         FRAME TYPES
       </Box>
-      {frameTypes.map((frame) => (
-        <Box
-          key={frame.id}
-          fontSize="md"
-          p={1}
-          cursor="pointer"
-          onClick={() => handleFrameSelect(frame)}
-          onMouseEnter={() => frame?.id && dispatch(setFrameType(frame.id))}
-          _hover={{ color: 'blue.500' }}
-        >
-          <Text
-            color={selectedFrameType === frame.id ? 'blue.500' : 'inherit'}
-            fontWeight={selectedFrameType === frame.id ? 'medium' : 'normal'}
+      <Flex direction="column" fontSize="md" gap="2">
+        {frameTypes.map((frame) => (
+          <Box
+            key={frame.id}
+            _hover={{ fontWeight: "bold" }}
+            cursor="pointer"
+            fontWeight={selectedFrameType === frame.id ? "bold" : "normal"}
+            onClick={() => handleFrameSelect(frame)}
           >
             {frame.title}
-          </Text>
-          {frame.price && (
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              mt={0.5}
-            >
-              {frame.price}
-            </Text>
-          )}
-        </Box>
-      ))}
+          </Box>
+        ))}
+      </Flex>
     </Flex>
   );
 };

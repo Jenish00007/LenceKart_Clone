@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Flex, Box, Text } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedType, setSelectedCategoryType } from '../../redux/slices/filterSlice';
 
-const SunglassesSelectCategory  = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+const SunglassesSelectCategory = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selectedType = useSelector((state) => state.filter.selectedType);
+  const selectedCategoryType = useSelector((state) => state.filter.selectedCategoryType);
 
   const categories = [
     {
-      id: 'classic',
+      id: 'classic-sunglasses',
       title: 'CLASSIC SUNGLASSES',
       price: '1299'
     },
     {
-      id: 'premium',
+      id: 'premium-sunglasses',
       title: 'PREMIUM SUNGLASSES',
       price: '2500'
     }
   ];
+
+  const handleCategorySelect = (category) => {
+    dispatch(setSelectedType(category.id));
+    dispatch(setSelectedCategoryType(category.id));
+    navigate(`/products?type=${category.id}`);
+  };
 
   return (
     <Flex direction="column" gap={6}>
@@ -34,23 +45,23 @@ const SunglassesSelectCategory  = () => {
           fontSize="md"
           p={2}
           cursor="pointer"
-          onClick={() => setSelectedCategory(category.id)}
-          onMouseEnter={() => setSelectedCategory(category.id)}
+          onClick={() => handleCategorySelect(category)}
+          onMouseEnter={() => dispatch(setSelectedCategoryType(category.id))}
           transition="all 0.3s ease"
-          transform={selectedCategory === category.id ? 'translateX(10px)' : 'none'}
-          bg={selectedCategory === category.id ? 'blue.50' : 'transparent'}
+          transform={selectedCategoryType === category.id ? 'translateX(10px)' : 'none'}
+          bg={selectedCategoryType === category.id ? 'blue.50' : 'transparent'}
           borderRadius="md"
-          _hover={{ bg: selectedCategory === category.id ? 'blue.50' : 'blackAlpha.200' }}
+          _hover={{ bg: selectedCategoryType === category.id ? 'blue.50' : 'blackAlpha.200' }}
         >
           <Text
-            color={selectedCategory === category.id ? 'blue.500' : 'inherit'}
-            fontWeight={selectedCategory === category.id ? 'bold' : 'normal'}
+            color={selectedCategoryType === category.id ? 'blue.500' : 'inherit'}
+            fontWeight={selectedCategoryType === category.id ? 'bold' : 'normal'}
           >
             {category.title}
           </Text>
           <Text
             fontSize="sm"
-            color={selectedCategory === category.id ? 'blue.400' : 'gray.600'}
+            color={selectedCategoryType === category.id ? 'blue.400' : 'gray.600'}
           >
             Starting From ₹ <span>{category.price}</span>
           </Text>
