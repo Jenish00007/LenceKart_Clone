@@ -57,7 +57,7 @@ const BannerModal = ({ banner, isEditMode, onClose, onSave }) => {
       });
 
       const data = await response.json();
-      console.log('API Response:', data);
+      //console.log('API Response:', data);
 
       if (data.success || data) {
         onSave();

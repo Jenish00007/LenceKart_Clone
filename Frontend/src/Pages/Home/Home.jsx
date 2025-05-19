@@ -62,7 +62,7 @@ const Home = () => {
     const fetchBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/banner/banners');
-        console.log('Banner API Response:', response.data);
+        //console.log('Banner API Response:', response.data);
         if (!response.data || response.data.length === 0) {
           console.warn('No banner data received from API');
         }
@@ -93,7 +93,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        console.log('Shapes API Response:', response.data);
+        //console.log('Shapes API Response:', response.data);
         setShapes(response.data);
         setShapesLoading(false);
       } catch (err) {
@@ -110,7 +110,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        console.log('Sunglasses API Response:', response.data);
+        //console.log('Sunglasses API Response:', response.data);
         setSunglasses(response.data.products);
         setSunglassesLoading(false);
       } catch (err) {
@@ -126,7 +126,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        console.log('Sunglasses API Response:', response.data);
+        //console.log('Sunglasses API Response:', response.data);
         setEyeglasses(response.data.products);
         setEyeglassesLoading(false);
       } catch (err) {

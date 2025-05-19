@@ -15,7 +15,7 @@ const Banners = () => {
     try {
       const response = await fetch(`${API_URL}/api/banner/banners`);
       const data = await response.json();
-      console.log('Banner API Response:', data); // Debug log
+      //console.log('Banner API Response:', data); // Debug log
       
       if (data) {
         // Handle both array and object response formats

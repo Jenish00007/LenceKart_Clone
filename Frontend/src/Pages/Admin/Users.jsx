@@ -77,7 +77,7 @@ const Users = () => {
             setLoading(true);
             const response = await fetch(`${API_URL}/user/`);
             const data = await response.json();
-            console.log('API Response:', data);
+            //console.log('API Response:', data);
 
             if (Array.isArray(data)) {
                 setUsers(data);

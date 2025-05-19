@@ -17,7 +17,7 @@ const SectionBanners = () => {
       setLoading(true);
       const response = await fetch(`${API_URL}/api/sectionbanner/banners`);
       const data = await response.json();
-      console.log('API Response:', data);
+      //console.log('API Response:', data);
       
       if (Array.isArray(data)) {
         setBanners(data);

@@ -33,8 +33,10 @@ const NewProduct = () => {
   const [searchParams] = useSearchParams();
   const [shapeParams] = useSearchParams();
   const [frameTypeParams] = useSearchParams();
+
   const selectedFrameType = useSelector((state) => state.category.selectedFrameType);
-  console.log("Frame Type Params:", frameTypeParams.get('frameType'));
+  const selectedCategory = useSelector((state) => state.category.selectedCategory);
+  // console.log("Frame  Type Params:", frameTypeParams.get('frameType'));
   const fetchproduct = async () => {
     setIsLoaded(true);
     try {
@@ -42,21 +44,22 @@ const NewProduct = () => {
       const shape = shapeParams.get('shape') || '';
       const frameType = frameTypeParams.get('frameType') || '';
       const trending = frameTypeParams.get('trending') || '';
-      
+     
+      console.log(selectedFrameType,selectedCategory , "selectedFrameType")
       let url;
       if (trending) {
         url = `${API_URL}/product/trending`;
       } else {
         url = `${API_URL}/product?sort=${sort}&frameType=${frameType}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
       }
-     
+
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const postData = await response.json();
-      console.log("Selected Frame Type:", selectedFrameType);
-      console.log("Products received:", postData);
+      // console.log("Selected Frame Type:", selectedFrameType);
+      // console.log("Products received:", postData);
       setProducts(postData);
       setIsLoaded(false);
     } catch (error) {

@@ -2,16 +2,15 @@ import React from 'react';
 import { Flex, Box, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  setSelectedCategory, 
-  setSelectedFrameType
-} from '../../redux/slices/categorySlice';
+import { setFrameType } from '../../redux/slices/filterSlice';
 
 const FrameTypeSelector  = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.category.selectedCategory);
 
+  const selectedCategory = useSelector((state) => state.filter?.selectedCategory);
+  const selectedType = useSelector((state) => state.filter?.selectedType || '');
+  const selectedFrameType = useSelector((state) => state.filter?.frameType || '');
   const frameTypes = [
     {
       id: 'rectangle',
@@ -56,14 +55,25 @@ const FrameTypeSelector  = () => {
   ];
 
   const handleFrameSelect = (frame) => {
-    dispatch(setSelectedCategory(frame.id));
-    dispatch(setSelectedFrameType(frame.id));
+    if (!frame?.id) return;
+    dispatch(setFrameType(frame.id));
+    console.log('Selected subcategory:', selectedType);
+    console.log('Selected catgory:', selectedCategory);
+    console.log('Selected frame:', selectedFrameType);
     navigate(`/products?frameType=${frame.id}`);
-    console.log(frame.id);
   };
 
   return (
     <Flex direction="column">
+      <Box
+        fontSize="md"
+        fontWeight="bold"
+        borderBottom="1px solid black"
+        p={1}
+        mb={2}
+      >
+        FRAME TYPES
+      </Box>
       {frameTypes.map((frame) => (
         <Box
           key={frame.id}
@@ -71,11 +81,12 @@ const FrameTypeSelector  = () => {
           p={1}
           cursor="pointer"
           onClick={() => handleFrameSelect(frame)}
+          onMouseEnter={() => frame?.id && dispatch(setFrameType(frame.id))}
           _hover={{ color: 'blue.500' }}
         >
           <Text
-            color={selectedCategory === frame.id ? 'blue.500' : 'inherit'}
-            fontWeight={selectedCategory === frame.id ? 'medium' : 'normal'}
+            color={selectedFrameType === frame.id ? 'blue.500' : 'inherit'}
+            fontWeight={selectedFrameType === frame.id ? 'medium' : 'normal'}
           >
             {frame.title}
           </Text>
@@ -94,4 +105,4 @@ const FrameTypeSelector  = () => {
   );
 };
 
-export default FrameTypeSelector; 
+export default FrameTypeSelector;

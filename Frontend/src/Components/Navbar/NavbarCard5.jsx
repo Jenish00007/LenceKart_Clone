@@ -19,8 +19,79 @@ import ComputerSelectCategory from "../CategorySelector/ComputerSelectCategory";
 import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCategory";
 import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedSubCategory } from '../../redux/slices/filterSlice';
+import { useNavigate } from 'react-router-dom';
+import KidsGlassesSelector from "../CategorySelector/KidsGlassesSelector";
+import DisposabilityFilter from '../Filters/DisposabilityFilter';
+import PowerFilter from '../Filters/PowerFilter';
+import ColorFilter from '../Filters/ColorFilter';
+import SolutionFilter from '../Filters/SolutionFilter';
+import CollectionFilter from '../Filters/CollectionFilter';
 
 function NavbarCard5() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const selectedSubCategory = useSelector((state) => state.filter.selectedSubCategory);
+
+  const handleSubCategorySelect = (subCategory, type = '') => {
+    dispatch(setSelectedSubCategory(subCategory));
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory.toLowerCase().replace(/ /g, '-'));
+    if (type) {
+      queryParams.append('type', type);
+    }
+    navigate(`/products?${queryParams.toString()}`);
+  };
+
+  // Common component for Top Picks section
+  const TopPicksSection = ({ items, type }) => (
+    <Flex direction="column" gap="6" pl={6}>
+      <Box
+        fontSize="md"
+        fontWeight="bold"
+        borderBottom="1px solid black"
+        p="1"
+      >
+        Our Top Picks
+      </Box>
+      <Flex direction="column" fontSize="md" gap="2">
+        {items.map((item, index) => (
+          <Box
+            key={index}
+            _hover={{ fontWeight: "bold" }}
+            cursor="pointer"
+            onClick={() => handleSubCategorySelect(item, type)}
+          >
+            {item}
+          </Box>
+        ))}
+      </Flex>
+    </Flex>
+  );
+
+  const eyeglassTopPicks = [
+    'New Arrivals',
+    'Lenskart BLU lenses',
+    'Trending',
+    'Tinted Eyeglasses',
+    'Computer Eyeglasses',
+    'Progressive Eyeglasses'
+  ];
+
+  const computerGlassTopPicks = [
+    'New Arrivals',
+    'Lenskart BLU lenses',
+    'Trending'
+  ];
+
+  const sunglassTopPicks = [
+    'New Arrivals',
+    'Pilot Style',
+    'Power Sunglasses',
+    'Polarized Sunglasses'
+  ];
+
   return (
     <Flex bg="#fbf9f7" cursor="pointer" gap="6">
       <Menu>
@@ -42,7 +113,7 @@ function NavbarCard5() {
           w="100%"
           p="5"
         >
-          <Link to="/products">
+          <Link to="/">
             <Box>
               <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
                 <Box mt="20">
@@ -53,44 +124,14 @@ function NavbarCard5() {
                   <SelectCategory />
                 </Box>
 
-                <Flex direction="column" gap="6" pl={6}>
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Our Top Picks
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Lenskart BLU lenses
-                    </Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Trending</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Tinted Eyeglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Computer Eyeglasses
-                    </Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Progressive Eyeglasses
-                    </Box>
-                  </Flex>
-                </Flex>
+                <TopPicksSection items={eyeglassTopPicks} type="eyeglasses" />
 
                 <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Frame Type
-                  </Box>
+
                   <FrameTypeSelector />
                 </Flex>
 
-               {/*   <Flex direction="column" gap="6">
+                {/*   <Flex direction="column" gap="6">
                  <Box
                     fontSize="md"
                     fontWeight="bold"
@@ -145,23 +186,7 @@ function NavbarCard5() {
                   <ComputerSelectCategory />
                 </Box>
 
-                <Flex direction="column" gap="6" pl={6}>
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Our Top Picks
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Lenskart BLU lenses
-                    </Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Trending</Box>
-                  </Flex>
-                </Flex>
+                <TopPicksSection items={computerGlassTopPicks} type="computer-glasses" />
               </Grid>
             </Box>
           </Link>
@@ -189,42 +214,7 @@ function NavbarCard5() {
         >
           <Link to="/products">
             <Box>
-              <Grid
-                gridTemplateColumns="repeat(3, 1fr)"
-                justifyContent="center"
-                p="5"
-              >
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg1"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg"
-                    alt="kidsIcon_1"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Eye Glasses
-                  </Box>
-                </Box>
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg2"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/computer-glasses.jpg"
-                    alt="kidsIcon_2"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Zero Power Computer Glasses
-                  </Box>
-                </Box>
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg2"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg"
-                    alt="kidsIcon_3"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Sun Glasses
-                  </Box>
-                </Box>
-              </Grid>
+              <KidsGlassesSelector />
             </Box>
           </Link>
         </MenuList>
@@ -249,79 +239,13 @@ function NavbarCard5() {
           p="5"
           w="100%"
         >
-          <Link to="/newproduct">
+          <Link >
             <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" p="1" w="100%">
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Disposability
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}> Monthly</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Day & Night</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Daily</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Yearly</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Bi-weekly</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Power
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Spherical - CYL</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Spherical + CYL</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cylindrical Power</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Toric Power</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Colors
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Green</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Blue</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Brown</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Turquoise</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>View all colors</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Solution
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Small</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Large</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      View all solutions
-                    </Box>
-                  </Flex>
-                </Flex>
+              <Grid gridTemplateColumns="repeat(4, 1fr)" p="1" w="100%">
+                <DisposabilityFilter />
+                <PowerFilter />
+                <ColorFilter />
+                <SolutionFilter />
               </Grid>
             </Box>
           </Link>
@@ -358,64 +282,13 @@ function NavbarCard5() {
                   <SunglassesSelectCategory />
                 </Box>
 
-                <Flex direction="column" gap="6" pl={6}>
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Our Top Picks
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Pilot Style</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Power Sunglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Polarized Sunglasses
-                    </Box>
-                  </Flex>
-                </Flex>
+                <TopPicksSection items={sunglassTopPicks} type="sunglasses" />
 
                 <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Shape
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Aviator</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rounders</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Wayfarer</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rectangle</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Hexagon</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cat-Eye</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Clubmaster</Box>
-                  </Flex>
+                  <FrameTypeSelector />
                 </Flex>
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Collections
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Glam Slam</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Havana</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Polarized</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Power Sunglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Designer Sunglasses
-                    </Box>
-                  </Flex>
-                </Flex>
+                <CollectionFilter />
               </Grid>
             </Box>
           </Link>
@@ -424,4 +297,5 @@ function NavbarCard5() {
     </Flex>
   );
 }
+
 export default NavbarCard5;
