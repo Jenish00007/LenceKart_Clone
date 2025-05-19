@@ -56,13 +56,21 @@ const Home = () => {
   const [sunglassesError, setSunglassesError] = useState(null);
   const [eyeglasses, setEyeglasses] = useState([]);
   const [eyeglassesLoading, setEyeglassesLoading] = useState(true);
-  const [eyeglassesError, setEyeglassesError] = useState(null); 
+  const [eyeglassesError, setEyeglassesError] = useState(null);
+  const [computerBlueLenses, setComputerBlueLenses] = useState([]);
+  const [computerBlueLensesLoading, setComputerBlueLensesLoading] = useState(true);
+  const [computerBlueLensesError, setComputerBlueLensesError] = useState(null);
+  const [contactLenses, setContactLenses] = useState([]);
+  const [contactLensesLoading, setContactLensesLoading] = useState(true);
+  const [contactLensesError, setContactLensesError] = useState(null);
+  const [colorContactLenses, setColorContactLenses] = useState([]);
+  const [colorContactLensesLoading, setColorContactLensesLoading] = useState(true);
+  const [colorContactLensesError, setColorContactLensesError] = useState(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/banner/banners');
-        //console.log('Banner API Response:', response.data);
         if (!response.data || response.data.length === 0) {
           console.warn('No banner data received from API');
         }
@@ -86,6 +94,7 @@ const Home = () => {
         setAdBannersLoading(false);
       }
     };
+
     const fetchShapes = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/shape', {
@@ -93,7 +102,6 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        //console.log('Shapes API Response:', response.data);
         setShapes(response.data);
         setShapesLoading(false);
       } catch (err) {
@@ -110,7 +118,6 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        //console.log('Sunglasses API Response:', response.data);
         setSunglasses(response.data.products);
         setSunglassesLoading(false);
       } catch (err) {
@@ -119,6 +126,7 @@ const Home = () => {
         setSunglassesLoading(false);
       }
     };
+
     const fetchEyeglasses = async () => {
       try {
         const response = await axios.get('http://localhost:8080/product?productType=eyeglasses', {
@@ -126,7 +134,6 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        //console.log('Sunglasses API Response:', response.data);
         setEyeglasses(response.data.products);
         setEyeglassesLoading(false);
       } catch (err) {
@@ -136,13 +143,59 @@ const Home = () => {
       }
     };
 
+    const fetchComputerBlueLenses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=COMPUTER_BLU_LENSES', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        setComputerBlueLenses(response.data.products);
+        setComputerBlueLensesLoading(false);
+      } catch (err) {
+        console.error('Error fetching computer blue lenses:', err);
+        setComputerBlueLensesError('Failed to fetch computer blue lenses: ' + (err.message || 'Unknown error'));
+        setComputerBlueLensesLoading(false);
+      }
+    };
+
+    const fetchContactLenses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=CONTACT_LENSES', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        setContactLenses(response.data.products);
+        setContactLensesLoading(false);
+      } catch (err) {
+        console.error('Error fetching contact lenses:', err);
+        setContactLensesError('Failed to fetch contact lenses: ' + (err.message || 'Unknown error'));
+        setContactLensesLoading(false);
+      }
+    };
+
+    const fetchColorContactLenses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/product?productType=COLOR_CONTACT_LENSES', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        setColorContactLenses(response.data.products);
+        setColorContactLensesLoading(false);
+      } catch (err) {
+        console.error('Error fetching color contact lenses:', err);
+        setColorContactLensesError('Failed to fetch color contact lenses: ' + (err.message || 'Unknown error'));
+        setColorContactLensesLoading(false);
+      }
+    };
 
     const fetchSectionBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/sectionbanner/banners');
         const banners = response.data;
         
-        // Organize banners by section
         const organizedBanners = {
           top: banners.filter(banner => banner.section === 'top'),
           middle: banners.filter(banner => banner.section === 'middle'),
@@ -164,6 +217,9 @@ const Home = () => {
     fetchShapes();
     fetchSunglasses();
     fetchEyeglasses();
+    fetchComputerBlueLenses();
+    fetchContactLenses();
+    fetchColorContactLenses();
   }, []);
 
   const renderAdBanner  = (banner) => (
@@ -180,15 +236,16 @@ const Home = () => {
     <Box>
       <Navbar />
       <HomeCard1 type={banners} loading={loading} error={error}/>
+      {/* <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" /> */}
       <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
-            
+         
       {/* Top Ad Banner */}
       {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
            
-     
+      <RecommendedCategories />  
       
       <CategoryGrid />
-      <RecommendedCategories />
+      
 
        {/* Top Section Banners */}
        {!sectionBannersLoading && !sectionBannersError && sectionBanners.top.map((banner, index) => (
@@ -200,9 +257,7 @@ const Home = () => {
         />
       ))}
 
-      {/* <LenskartSwaps /> */}
-         {/* Middle Ad Banner */}
-         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+
       
       {/* Middle Section Banners */}
       {!sectionBannersLoading && !sectionBannersError && sectionBanners.middle.map((banner, index) => (
@@ -227,48 +282,54 @@ const Home = () => {
       />
       <br />
       <br />
-      <br />
-      <br />
-       {/* Bottom Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLUE LENSES" />
-      <br />
      
-    
-      
-      
-      
-      <HomeCard6 type={eyeglasses} loading={eyeglassesLoading} error={eyeglassesError} heading="EYEGLASSES" />
-      <br />
-      <br />
-      <br />
-      <br />
-      <HomeCard6 type={sunglasses} loading={sunglassesLoading} error={sunglassesError} heading="SUNGLASSES" />
-      <br />
-      <br />
-            
-      <br />
-      
-      <br />
-      <br />
-      <br />
+      <HomeCard6 
+        type={eyeglasses} 
+        loading={eyeglassesLoading} 
+        error={eyeglassesError} 
+        heading="EYEGLASSES" 
+      />
+      <HomeCard6 
+        type={sunglasses} 
+        loading={sunglassesLoading} 
+        error={sunglassesError} 
+        heading="SUNGLASSES" 
+      />
+
+      {/* <LenskartSwaps /> */}
+         {/* Middle Ad Banner */}
+         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+         <br />
+      <HomeCard6 
+        type={computerBlueLenses} 
+        loading={computerBlueLensesLoading} 
+        error={computerBlueLensesError} 
+        heading="WITH POWER COMPUTER BLU LENSES" 
+      />
+     
       <HomeCard6
         type={HomeDetails9}
         heading="WITH ZERO POWER COMPUTER BLU LENSES"
       />
+
+
+     
+       {/* Bottom Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
+       <br />
       <br />
-      <br />
-      <br />
-      <br />
-      <HomeCard6 type={HomeDetails11} heading="CONTACT LENSES" />
-      <br />
-      <br />
-      
-      <HomeCard6 type={HomeDetails12} heading="COLOR CONTACT LENSES" />
-      <br />
-      <br />
-      <br />
-      <br />
+      <HomeCard6 
+        type={contactLenses} 
+        loading={contactLensesLoading} 
+        error={contactLensesError} 
+        heading="CONTACT LENSES" 
+      />
+      <HomeCard6 
+        type={colorContactLenses} 
+        loading={colorContactLensesLoading} 
+        error={colorContactLensesError} 
+        heading="COLOR CONTACT LENSES" 
+      />  
       {/* Bottom Section Banners */}
       {!sectionBannersLoading && !sectionBannersError && sectionBanners.bottom.map((banner, index) => (
         <SectionBanner
@@ -280,6 +341,7 @@ const Home = () => {
       ))}
       <br />
       <br />
+    
      
       <SpecialProducts />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
