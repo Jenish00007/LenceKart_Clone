@@ -278,10 +278,11 @@ const Home = () => {
       <br />
       <br />
       <br />
+      <SpecialProducts />
       <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
       <HomeCard7 />
      
-      <SpecialProducts />
+      
       <Footer />
     </Box>
   );
