@@ -188,7 +188,7 @@ const NewProduct = () => {
                 color="gray"
                 mt="5"
               >
-                No Products Found
+                No Products Found 
               </Text>
             )}
           </Box>

@@ -20,7 +20,7 @@ import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCatego
 import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedSubCategory } from '../../redux/slices/filterSlice';
+import { setSelectedSubCategory, setSelectedType,} from '../../redux/slices/filterSlice';
 import { useNavigate } from 'react-router-dom';
 import KidsGlassesSelector from "../CategorySelector/KidsGlassesSelector";
 import DisposabilityFilter from '../Filters/DisposabilityFilter';
@@ -33,14 +33,31 @@ function NavbarCard5() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const selectedSubCategory = useSelector((state) => state.filter.selectedSubCategory);
-
+  const selectedType = useSelector((state) => state.filter.selectedType);
+  const selectedCategory = useSelector((state) => state.filter.selectedCategory);
+  const productType = useSelector((state) => state.filter.productType);
+  const selectedFrameType = useSelector((state) => state.filter.frameType);
   const handleSubCategorySelect = (subCategory, type = '') => {
     dispatch(setSelectedSubCategory(subCategory));
-    const queryParams = new URLSearchParams();
-    queryParams.append('subCategory', subCategory.toLowerCase().replace(/ /g, '-'));
     if (type) {
-      queryParams.append('type', type);
+      dispatch(setSelectedType(type));
     }
+    
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', selectedSubCategory.toLowerCase().replace(/ /g, '-'));
+    if (selectedType) {
+      queryParams.append('selectedType',selectedType);
+    }
+    if (selectedCategory) {
+      queryParams.append('selectedCategory', selectedCategory);
+    }
+    if (productType) {
+      queryParams.append('productType', productType);
+    }
+    if (selectedFrameType) {
+      queryParams.append('selectedFrameType', selectedFrameType);
+    }
+  
     navigate(`/products?${queryParams.toString()}`);
   };
 
@@ -113,46 +130,23 @@ function NavbarCard5() {
           w="100%"
           p="5"
         >
-          <Link to="/">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Box mt="20">
-                  <CategorySelector />
-                </Box>
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
 
-                <Box>
-                  <SelectCategory />
-                </Box>
+              <Box>
+                <SelectCategory />
+              </Box>
 
-                <TopPicksSection items={eyeglassTopPicks} type="eyeglasses" />
+              <TopPicksSection items={eyeglassTopPicks} type="eyeglasses" />
 
-                <Flex direction="column" gap="6">
-
-                  <FrameTypeSelector />
-                </Flex>
-
-                {/*   <Flex direction="column" gap="6">
-                 <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Brands
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Vincent Chase</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Lenskart Air</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>f Jacobs</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>OJOS</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>New Balance</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Carrera</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Fossil</Box>
-                  </Flex>
-                </Flex> */}
-              </Grid>
-            </Box>
-          </Link>
+              <Flex direction="column" gap="6">
+                <FrameTypeSelector items={eyeglassTopPicks} type="eyeglasses" handleSubCategorySelect={handleSubCategorySelect} />
+              </Flex>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -175,21 +169,54 @@ function NavbarCard5() {
           w="100%"
           p="5"
         >
-          <Link to="/products">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Box mt="20">
-                  <CategorySelector />
-                </Box>
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
 
-                <Box>
-                  <ComputerSelectCategory />
-                </Box>
+              <Box>
+                <ComputerSelectCategory />
+              </Box>
 
-                <TopPicksSection items={computerGlassTopPicks} type="computer-glasses" />
-              </Grid>
-            </Box>
-          </Link>
+              <TopPicksSection items={computerGlassTopPicks} type="computer-glasses" />
+            </Grid>
+          </Box>
+        </MenuList>
+      </Menu>
+
+      <Menu>
+        <MenuButton
+          bg="#fbf9f7"
+          fontSize="15px"
+          fontWeight="600"
+          _hover={{
+            borderBottom: "4px solid teal"
+          }}
+        >
+          SUNGLASSES
+        </MenuButton>
+
+        <MenuList
+          color="blackAlpha.900"
+          h="400px"
+          bg="whiteAlpha.800"
+          w="100%"
+          p="5"
+        >
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
+
+              <Box>
+                <SunglassesSelectCategory />
+              </Box>
+
+              <TopPicksSection items={sunglassTopPicks} type="sunglasses" />
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -207,16 +234,22 @@ function NavbarCard5() {
 
         <MenuList
           color="blackAlpha.900"
-          h="100%"
+          h="400px"
           bg="whiteAlpha.800"
           w="100%"
-          p="2"
+          p="5"
         >
-          <Link to="/products">
-            <Box>
-              <KidsGlassesSelector />
-            </Box>
-          </Link>
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
+
+              <Box>
+                <KidsGlassesSelector />
+              </Box>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -236,62 +269,36 @@ function NavbarCard5() {
           color="blackAlpha.900"
           h="400px"
           bg="whiteAlpha.800"
-          p="5"
           w="100%"
+          p="5"
         >
-          <Link >
-            <Box>
-              <Grid gridTemplateColumns="repeat(4, 1fr)" p="1" w="100%">
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
+
+              <Box>
                 <DisposabilityFilter />
+              </Box>
+
+              <Box>
                 <PowerFilter />
+              </Box>
+
+              <Box>
                 <ColorFilter />
+              </Box>
+
+              <Box>
                 <SolutionFilter />
-              </Grid>
-            </Box>
-          </Link>
-        </MenuList>
-      </Menu>
+              </Box>
 
-      <Menu>
-        <MenuButton
-          bg="#fbf9f7"
-          fontSize="15px"
-          fontWeight="600"
-          _hover={{
-            borderBottom: "4px solid teal"
-          }}
-        >
-          SUN GLASSES
-        </MenuButton>
-
-        <MenuList
-          color="blackAlpha.900"
-          h="400px"
-          bg="whiteAlpha.800"
-          w="100%"
-          p="5"
-        >
-          <Link to="/products">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)">
-                <Box mt="20">
-                  <CategorySelector />
-                </Box>
-
-                <Box>
-                  <SunglassesSelectCategory />
-                </Box>
-
-                <TopPicksSection items={sunglassTopPicks} type="sunglasses" />
-
-                <Flex direction="column" gap="6">
-                  <FrameTypeSelector />
-                </Flex>
-
+              <Box>
                 <CollectionFilter />
-              </Grid>
-            </Box>
-          </Link>
+              </Box>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
     </Flex>

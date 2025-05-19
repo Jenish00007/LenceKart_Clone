@@ -231,7 +231,7 @@ const Home = () => {
       <br />
        {/* Bottom Ad Banner */}
        {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLU LENSES" />
+      <HomeCard6 type={HomeDetails8} heading="WITH POWER COMPUTER BLUE LENSES" />
       <br />
      
     

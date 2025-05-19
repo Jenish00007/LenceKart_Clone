@@ -5,14 +5,21 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
+import { useNavigate } from "react-router-dom";
 
 const HomeCard6 = ({ type, heading, loading, error }) => {
+  const navigate = useNavigate();
+
   if (loading) {
     return <div>Loading...</div>;
   }
   if (error) {
     return <div>Error: {error}</div>;
   } 
+  
+  const handleImageClick = (item) => {
+    navigate(`/products?productType=${item.productType }`);
+  };
   
   return (
     <Box
@@ -50,20 +57,21 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
               spaceBetween: 15
             },
             1280: {
-              slidesPerView: 3,
-              spaceBetween: 30
+              slidesPerView: 4,
+              spaceBetween: 20
             }
           }}
         >
           {type?.map((item, index) => (
             <SwiperSlide key={item._id || index}>
-              <Link to={item.linked}>
+              <Box onClick={() => handleImageClick(item)}>
                 <Square m="auto">
                   <Image
                     src={item.imageTsrc}
                     alt={item.caption || 'Product image'}
-                    boxSize="160px"
-                    w="80%"
+                    maxW="160px"
+                    maxH="160px"
+                    objectFit="contain"
                     fallbackSrc="https://via.placeholder.com/160"
                     onError={(e) => {
                       e.target.onerror = null;
@@ -71,7 +79,7 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
                     }}
                   />
                 </Square>
-              </Link>
+              </Box>
             </SwiperSlide>
           ))}
         </Swiper>

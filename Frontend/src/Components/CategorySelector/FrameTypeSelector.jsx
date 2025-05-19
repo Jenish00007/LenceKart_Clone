@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFrameType } from '../../redux/slices/filterSlice';
 
-const FrameTypeSelector  = () => {
+const FrameTypeSelector = ({ items, type, handleSubCategorySelect }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -54,13 +54,10 @@ const FrameTypeSelector  = () => {
     }
   ];
 
-  const handleFrameSelect = (frame) => {
+  const handleFrameSelect = async (frame, type = '') => {
     if (!frame?.id) return;
     dispatch(setFrameType(frame.id));
-    console.log('Selected subcategory:', selectedType);
-    console.log('Selected catgory:', selectedCategory);
-    console.log('Selected frame:', selectedFrameType);
-    navigate(`/products?frameType=${frame.id}`);
+    await handleSubCategorySelect(frame.id);
   };
 
   return (

@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   selectedCategory: '', // men, women, kids
+  productType: '', // eyeglasses, computerglasses, kidsglasses, contactlenses, sunglasses
   selectedType: '', // eyeglasses, computerglasses, kidsglasses, contactlenses, sunglasses
   selectedSubCategory: '', // from Our Top Picks
   frameType: '', // from Frame Type section
@@ -12,7 +13,7 @@ const initialState = {
     solution: '', // Small, Large
     shape: '',
     collection: '',
-  },
+  }, 
   priceRange: {
     min: 0,
     max: 10000,

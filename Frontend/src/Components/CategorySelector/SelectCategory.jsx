@@ -11,7 +11,7 @@ const SelectCategory  = () => {
 
   const categories = [
     {
-      id: 'eyeglasses',
+      id: 'classic-eyeglasses',
       title: 'CLASSIC EYE-GLASSES',
       price: '1199'
     },
@@ -21,7 +21,7 @@ const SelectCategory  = () => {
       price: '3000'
     },
     {
-      id: 'computer-glasses',
+      id: 'computer-eyeglasses',
       title: 'COMPUTER EYE-GLASSES',
       price: '1299'
     }
