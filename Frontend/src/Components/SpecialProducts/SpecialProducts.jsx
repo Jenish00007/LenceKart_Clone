@@ -181,14 +181,7 @@ const ProductSection = ({ title, products }) => {
   const handleWishlistToggle = (product) => {
     if (!isAuth) {
       onOpen();
-      toast({
-        title: "Authentication Required",
-        description: "Please login to add items to your wishlist",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom"
-      });
+      
       return;
     }
 

@@ -50,14 +50,7 @@ const ProductCard = ({ product }) => {
     
     if (!isAuth) {
       onOpen();
-      toast({
-        title: "Authentication Required",
-        description: "Please login to add items to your wishlist",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom"
-      });
+     
       return;
     }
 
@@ -208,7 +201,9 @@ const ProductCard = ({ product }) => {
           </Button>
         </Link>
       </Box>
-      <Login isOpen={isOpen} onClose={onClose} />
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   );
 };

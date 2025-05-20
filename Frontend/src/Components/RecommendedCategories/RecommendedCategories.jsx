@@ -54,14 +54,7 @@ const RecommendedCategories = () => {
   const handleWishlistToggle = (product) => {
     if (!isAuth) {
       onOpen();
-      toast({
-        title: "Authentication Required",
-        description: "Please login to add items to your wishlist",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom"
-      });
+     
       return;
     }
 
@@ -93,14 +86,7 @@ const RecommendedCategories = () => {
   const handleAddToCart = async (product) => {
     if (!isAuth) {
       onOpen();
-      toast({
-        title: "Authentication Required",
-        description: "Please login to add items to your cart",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom"
-      });
+     
       return;
     }
 
@@ -302,7 +288,9 @@ const RecommendedCategories = () => {
           </Grid>
         </VStack>
       </Fade>
-      <Login isOpen={isOpen} onClose={onClose} />
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   );
 };

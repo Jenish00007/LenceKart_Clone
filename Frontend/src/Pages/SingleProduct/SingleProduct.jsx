@@ -64,14 +64,7 @@ const SingleProduct = () => {
   const handleAddToWishlist = () => {
     if (!isAuth) {
       onOpen();
-      toast({
-        title: "Authentication Required",
-        description: "Please login to add items to your wishlist",
-        status: "info",
-        duration: 3000,
-        isClosable: true,
-        position: "bottom"
-      });
+     
       return;
     }
 
@@ -131,7 +124,9 @@ const SingleProduct = () => {
   return (
     <Box>
       <Navbar />
-      <Login isOpen={isOpen} onClose={onClose} />
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
       <br />
       <br />
 
