@@ -1,7 +1,9 @@
 import React from 'react';
-import { Box, Text, Image, Badge, Flex, } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Box, Text, Image, Badge, Flex } from '@chakra-ui/react';
+import { Link, useNavigate } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
+import { useDispatch } from 'react-redux';
+import { setSelectedCategory, setProductType } from '../../redux/slices/filterSlice';
 
 
 // Define keyframe animations
@@ -44,19 +46,59 @@ const categories = [
   {
     title: 'Eyeglasses',
     sections: [
-      { name: 'Men', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
-      { name: 'Women', image: 'https://static.lenskart.com/media/desktop/img/women_pic.png' },
-      { name: 'Kids', image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png' },
-      { name: 'Essentials', image: 'https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg' }
+      { 
+        name: 'Men', 
+        image: 'https://static.lenskart.com/media/desktop/img/men_pic.png',
+        category: 'men',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Women', 
+        image: 'https://static.lenskart.com/media/desktop/img/women_pic.png',
+        category: 'women',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Kids', 
+        image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png',
+        category: 'kids',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Essentials', 
+        image: 'https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg',
+        category: 'essentials',
+        productType: 'eyeglasses'
+      }
     ]
   },
   {
     title: 'Sunglasses',
     sections: [
-      { name: 'Men', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
-      { name: 'Women', image: 'https://static.lenskart.com/media/desktop/img/women_pic.png' },
-      { name: 'Kids', image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png' },
-      { name: 'Essentials', image: 'https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg' }
+      { 
+        name: 'Men', 
+        image: 'https://static.lenskart.com/media/desktop/img/men_pic.png',
+        category: 'men',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Women', 
+        image: 'https://static.lenskart.com/media/desktop/img/women_pic.png',
+        category: 'women',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Kids', 
+        image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png',
+        category: 'kids',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Essentials', 
+        image: 'https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg',
+        category: 'essentials',
+        productType: 'sunglasses'
+      }
     ]
   },
   {
@@ -82,6 +124,22 @@ const categories = [
 ];
 
 const CategoryGrid = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSectionClick = (section) => {
+    // Dispatch actions to update Redux state
+    dispatch(setSelectedCategory(section.category));
+    dispatch(setProductType(section.productType));
+
+    // Navigate to products page with query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('productType', section.productType);
+    queryParams.append('category', section.category);
+    
+    navigate(`/products?${queryParams.toString()}`);
+  };
+
   return (
     <Box w="100%" bg="gray.50" py={4}>
       {categories.map((category, idx) => (
@@ -152,7 +210,12 @@ const CategoryGrid = () => {
                 justify={{ lg: 'space-between' }}
               >
                 {category.sections.map((section, sectionIdx) => (
-                  <Link to="/products" key={sectionIdx} style={{ flex: '1' }}>
+                  <Box 
+                    key={sectionIdx} 
+                    style={{ flex: '1' }}
+                    onClick={() => handleSectionClick(section)}
+                    cursor="pointer"
+                  >
                     <Box 
                       w={{ base: "100px", md: "180px", lg: "100%" }}
                       position="relative"
@@ -203,7 +266,7 @@ const CategoryGrid = () => {
                         {section.name}
                       </Text>
                     </Box>
-                  </Link>
+                  </Box>
                 ))}
               </Flex>
             </Box>
