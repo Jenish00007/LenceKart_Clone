@@ -13,6 +13,8 @@ import { CgShoppingCart } from "react-icons/cg";
 import { TriangleDownIcon, SearchIcon } from "@chakra-ui/icons";
 import { keyframes } from '@emotion/react';
 import { useSelector } from "react-redux";
+import { useDisclosure } from "@chakra-ui/react";
+import LogoutButton from "../LogoutButton";
 
 import {
   Box,
@@ -30,7 +32,6 @@ import {
   InputGroup,
   InputLeftElement
 } from "@chakra-ui/react";
-import LogoutButton from "../LogoutButton";
 
 const typingAnimation = keyframes`
   0% { width: 0; opacity: 0; }
@@ -87,6 +88,8 @@ export const NavbarCard2 = () => {
   const cart = useSelector((state) => state.cart.cart || []);
   const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
@@ -97,6 +100,15 @@ export const NavbarCard2 = () => {
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
       navigate(`/products?search=${searchQuery}`);
+    }
+  };
+
+  const handleProtectedAction = (e) => {
+    e.preventDefault();
+    if (!isAuth) {
+      onOpen();
+    } else {
+      navigate(e.currentTarget.getAttribute('data-path'));
     }
   };
 
@@ -152,7 +164,8 @@ export const NavbarCard2 = () => {
               bg="whiteAlpha.900"
               fontSize="14px"
               fontWeight="400"
-              onClick={() => navigate("/orderhistory")}
+              onClick={handleProtectedAction}
+              data-path="/orderhistory"
             >
               Track Order
             </Button>
@@ -200,7 +213,7 @@ export const NavbarCard2 = () => {
               </Popover>
             ) : (
               <Box display={"flex"}>
-                <Login />
+                <Login isOpen={isOpen} onClose={onClose} />
                 <Signup />
               </Box>
             )}
@@ -210,7 +223,8 @@ export const NavbarCard2 = () => {
               bg="white"
               fontSize="14px"
               fontWeight="400"
-              onClick={() => navigate("/wishlist")}
+              onClick={handleProtectedAction}
+              data-path="/wishlist"
               _hover={{ bg: "gray.100" }}
               border="1px solid"
               borderColor="gray.200"
@@ -226,12 +240,12 @@ export const NavbarCard2 = () => {
                   color="white"
                   borderRadius="full"
                   minW="20px"
-                    h="20px"
+                  h="20px"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
                   fontWeight="bold"
-                fontSize="10px"
+                  fontSize="10px"
                   zIndex={1}
                   boxShadow="md"
                   border="2px solid white"
@@ -242,48 +256,51 @@ export const NavbarCard2 = () => {
                 </Box>
               )}
             </Button>
-            <Link to="/cart">
-              <Button
-                leftIcon={<CgShoppingCart color="black" size="20px" />}
-                size="lg"
-                bg="white"
-                fontSize="14px"
-                fontWeight="400"
-                _hover={{ bg: "gray.100" }}
-                border="1px solid"
-                borderColor="gray.200"
-                position="relative"
-              >
-                Cart
-                {cartCount > 0 && (
-                  <Box
-                    position="absolute"
-                    top="-8px"
-                    right="-2px"
-                    bg="teal.500"
-                    color="white"
-                    borderRadius="full"
-                    minW="20px"
-                    h="20px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    fontWeight="bold"
-                    fontSize="10px"
-                    zIndex={1}
-                    boxShadow="md"
-                    border="2px solid white"
-                    transition="all 0.2s"
-                    p={0}
-                  >
-                    {cartCount}
-                  </Box>
-                )}
-              </Button>
-            </Link>
+            <Button
+              leftIcon={<CgShoppingCart color="black" size="20px" />}
+              size="lg"
+              bg="white"
+              fontSize="14px"
+              fontWeight="400"
+              onClick={handleProtectedAction}
+              data-path="/cart"
+              _hover={{ bg: "gray.100" }}
+              border="1px solid"
+              borderColor="gray.200"
+              position="relative"
+            >
+              Cart
+              {cartCount > 0 && (
+                <Box
+                  position="absolute"
+                  top="-8px"
+                  right="-2px"
+                  bg="teal.500"
+                  color="white"
+                  borderRadius="full"
+                  minW="20px"
+                  h="20px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="bold"
+                  fontSize="10px"
+                  zIndex={1}
+                  boxShadow="md"
+                  border="2px solid white"
+                  transition="all 0.2s"
+                  p={0}
+                >
+                  {cartCount}
+                </Box>
+              )}
+            </Button>
           </HStack>
         </HStack>
       </HStack>
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   );
 };

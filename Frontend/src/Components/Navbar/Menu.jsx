@@ -12,14 +12,25 @@ import {
   Input,
   Spacer,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useContext } from 'react';
 import { NavbarDetail2 } from "./NavbarDetail";
 import Login from "../../Pages/Login/Login";
 import Signup from "../../Pages/Signup/Signup";
+import { AuthContext } from "../../ContextApi/AuthContext";
 //import { Link } from "react-scroll";
 
 function Menus() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isAuth } = useContext(AuthContext);
+  const { isOpen: isLoginOpen, onOpen: onLoginOpen, onClose: onLoginClose } = useDisclosure();
+
+  const handleProtectedAction = (e) => {
+    e.preventDefault();
+    if (!isAuth) {
+      onLoginOpen();
+    }
+  };
+
   return (
     <Box
       display={{ lg: "inherit", xl: "none" }}
@@ -68,7 +79,7 @@ function Menus() {
             <Box textAlign={"left"} lineHeight="2">
               <Login />
               <Signup />
-              <Link>
+              <Link onClick={handleProtectedAction}>
                 <Text
                   fontSize="16px"
                   fontWeight="500"
@@ -77,7 +88,7 @@ function Menus() {
                   Track Order
                 </Text>
               </Link>
-              <Link>
+              <Link onClick={handleProtectedAction}>
                 <Text
                   fontSize="16px"
                   fontWeight="500"
@@ -86,7 +97,7 @@ function Menus() {
                   Wishlist
                 </Text>
               </Link>
-              <Link to="./cart">
+              <Link onClick={handleProtectedAction}>
                 <Text
                   fontSize="16px"
                   fontWeight="500"
@@ -113,6 +124,9 @@ function Menus() {
           </MenuList>
         </Menu>
       </HStack>
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isLoginOpen} onClose={onLoginClose} />
+      </Box>
     </Box>
   );
 }
