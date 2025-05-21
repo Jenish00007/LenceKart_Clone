@@ -207,6 +207,33 @@ productRouter.get("/", async (req, res) => {
 });
 
 // Special product category routes - Move these BEFORE the /:id route
+productRouter.get('/categories', async (req, res) => {
+  try {
+    // Get all distinct product types
+    const categories = await ProductModel.distinct('productType');
+    
+    // Normalize and deduplicate categories
+    const normalizedCategories = [...new Set(categories.map(category => {
+      // Convert to uppercase and replace hyphens with underscores
+      return category.toUpperCase().replace(/-/g, '_');
+    }))];
+
+    // Sort categories alphabetically
+    normalizedCategories.sort();
+
+    res.status(200).json({
+      success: true,
+      categories: normalizedCategories
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching categories', 
+      error: error.message 
+    });
+  }
+});
+
 productRouter.get('/categories/top-rated', async (req, res) => {
   try {
     const products = await ProductModel.find({ rating: { $gte: 4 } })

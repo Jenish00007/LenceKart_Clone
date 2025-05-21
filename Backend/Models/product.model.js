@@ -220,6 +220,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isExclusive: {
+    type: Boolean,
+    default: false
+  },
 
   // Additional Images
   additionalImages: [{
