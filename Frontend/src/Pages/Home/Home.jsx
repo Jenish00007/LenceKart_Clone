@@ -238,7 +238,7 @@ const Home = () => {
   return (
     <Box w="100%" overflowX="hidden" position="relative">
       <Navbar />
-      <Box w="100%" maxW="100vw" mx="auto">
+      <Box w="100%" maxW="100vw" mx="auto" pt={{ base: "60px", md: "80px", lg: "120px" }}>
         <HomeCard1 type={banners} loading={loading} error={error}/>
         <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
         
@@ -261,62 +261,6 @@ const Home = () => {
         {/* <HomeCard7 /> */}
         {/* <HomeCard8 type={HomeDetails8} /> */}
         <RecentlyViewed />
-        <HomeCard4
-        text="As Seen on Shark Tank"
-        src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"
-      />
-      <br />
-      <br />
-     
-      <HomeCard6 
-        type={eyeglasses} 
-        loading={eyeglassesLoading} 
-        error={eyeglassesError} 
-        heading="EYEGLASSES" 
-      />
-      <HomeCard6 
-        type={sunglasses} 
-        loading={sunglassesLoading} 
-        error={sunglassesError} 
-        heading="SUNGLASSES" 
-      />
-
-      {/* <LenskartSwaps /> */}
-         {/* Middle Ad Banner */}
-         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
-         <br />
-      <HomeCard6 
-        type={zeroPowerComputerBlueLenses} 
-        loading={zeroPowerComputerBlueLensesLoading} 
-        error={zeroPowerComputerBlueLensesError} 
-         heading="WITH ZERO POWER COMPUTER BLU LENSES"
-        
-      />
-     
-      <HomeCard6
-       type={sunglasses}
-        heading="WITH POWER COMPUTER BLU LENSES" 
-      />
-
-
-     
-       {/* Bottom Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-       <br />
-      <br />
-      <HomeCard6 
-        type={contactLenses} 
-        loading={contactLensesLoading} 
-        error={contactLensesError} 
-        heading="CONTACT LENSES" 
-      />
-      
-      <HomeCard6 
-        type={colorContactLenses} 
-        loading={colorContactLensesLoading} 
-        error={colorContactLensesError} 
-        heading="COLOR CONTACT LENSES" 
-      />  
         <SpecialProducts />
         <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
         <HomeCard7 />
