@@ -133,11 +133,11 @@ function NavbarCard5() {
           h="400px"
           bg="whiteAlpha.800"
           w="100%"
-          p="5"
+          pb="5"
         >
           <Box>
-            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-              <Box mt="20">
+            <Grid gridTemplateColumns="repeat(4, 1fr)" w="100%" gap={5}>
+              <Box mt="10">
                 <CategorySelector />
               </Box>
 
