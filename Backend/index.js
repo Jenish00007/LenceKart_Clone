@@ -10,6 +10,9 @@ const adBannerRouter = require("./routes/adBannerRoutes");
 const sectionBannerRoutes = require('./routes/sectionBannerRoutes');
 const orderRouter = require('./routes/order.routes');
 const shapeRoutes = require('./routes/shapeRoutes');
+
+//Routes from component 
+const glassProductRoutes = require('./component/glassFilter/routes');
 require("dotenv").config();
 const cors = require("cors");
 
@@ -45,6 +48,7 @@ app.use('/api/adbanner', adBannerRouter);
 app.use('/api/sectionbanner', sectionBannerRoutes);
 app.use('/api/orders', orderRouter);
 app.use('/api/shape', shapeRoutes);
+app.use('/api', glassProductRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
