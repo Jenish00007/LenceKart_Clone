@@ -213,7 +213,7 @@ export const NavbarCard2 = () => {
               </Popover>
             ) : (
               <Box display={"flex"}>
-                <Login isOpen={isOpen} onClose={onClose} />
+                <Login />
                 <Signup />
               </Box>
             )}

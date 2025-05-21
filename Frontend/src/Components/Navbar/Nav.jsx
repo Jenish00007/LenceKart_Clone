@@ -294,6 +294,7 @@ function Nav() {
                         py={2}
                         borderRadius="md"
                         transition="all 0.2s"
+                        onClick={onClose}
                       >
                         <Login />
                       </Button>
@@ -307,6 +308,7 @@ function Nav() {
                         py={2}
                         borderRadius="md"
                         transition="all 0.2s"
+                        onClick={onClose}
                       >
                         <Signup />
                       </Button>
