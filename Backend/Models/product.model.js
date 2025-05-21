@@ -224,6 +224,12 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  discount: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
 
   // Additional Images
   additionalImages: [{
