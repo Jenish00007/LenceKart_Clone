@@ -48,25 +48,25 @@ const categories = [
     sections: [
       { 
         name: 'Men', 
-        image: 'https://static.lenskart.com/media/desktop/img/men_pic.png',
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass01.png',
         category: 'men',
         productType: 'eyeglasses'
       },
       { 
         name: 'Women', 
-        image: 'https://static.lenskart.com/media/desktop/img/women_pic.png',
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass02.png',
         category: 'women',
         productType: 'eyeglasses'
       },
       { 
         name: 'Kids', 
-        image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png',
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass03.png',
         category: 'kids',
         productType: 'eyeglasses'
       },
       { 
         name: 'Essentials', 
-        image: 'https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg',
+        image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Eyeglass04.png',
         category: 'essentials',
         productType: 'eyeglasses'
       }
@@ -95,7 +95,7 @@ const categories = [
       },
       { 
         name: 'Essentials', 
-        image: 'https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg',
+        image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Sunglass%2004.png',
         category: 'essentials',
         productType: 'sunglasses'
       }
@@ -105,20 +105,20 @@ const categories = [
     title: 'Special Powers',
     badge: 'Exclusive',
     sections: [
-      { name: 'Zero Power', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
-      { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/May22/progressive.jpg' },
-      { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/May22/reading.jpg' },
-      { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/May22/power-sun.jpg' }
+      { name: 'Zero Power', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power01.png' },
+      { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power02.png' },
+      { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power03.png' },
+      { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/a/Sunglass%2003.png' }
     ]
   },
   {
     title: 'Contact Lenses & Accessories',
     badge: 'Try for free',
     sections: [
-      { name: 'Clear', image: 'https://static1.lenskart.com/media/desktop/img/May22/clear-contact.jpg' },
-      { name: 'Color', image: 'https://static1.lenskart.com/media/desktop/img/May22/color-contact.jpg' },
-      { name: 'Trial Pack', image: 'https://static1.lenskart.com/media/desktop/img/May22/trial-pack.jpg' },
-      { name: 'Cases & Cleaner', image: 'https://static1.lenskart.com/media/desktop/img/May22/cases-cleaner.jpg' }
+      { name: 'Clear', image: 'https://static5.lenskart.com/media/uploads/Clear-lens-060225.png' },
+      { name: 'Color', image: 'https://static5.lenskart.com/media/uploads/color-lens-060225.png' },
+      { name: 'Trial Pack', image: 'https://static5.lenskart.com/media/uploads/Trial-Pack-x1.png' },
+      { name: 'Cases & Cleaner', image: 'https://static5.lenskart.com/media/uploads/Cases-Chains-140225.png' }
     ]
   }
 ];

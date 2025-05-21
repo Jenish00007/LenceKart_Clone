@@ -60,6 +60,9 @@ const Home = () => {
   const [computerBlueLenses, setComputerBlueLenses] = useState([]);
   const [computerBlueLensesLoading, setComputerBlueLensesLoading] = useState(true);
   const [computerBlueLensesError, setComputerBlueLensesError] = useState(null);
+  const [zeroPowerComputerBlueLenses, setZeroPowerComputerBlueLenses] = useState([]);
+  const [zeroPowerComputerBlueLensesLoading, setZeroPowerComputerBlueLensesLoading] = useState(true);
+  const [zeroPowerComputerBlueLensesError, setZeroPowerComputerBlueLensesError] = useState(null);
   const [contactLenses, setContactLenses] = useState([]);
   const [contactLensesLoading, setContactLensesLoading] = useState(true);
   const [contactLensesError, setContactLensesError] = useState(null);
@@ -145,13 +148,13 @@ const Home = () => {
 
     const fetchComputerBlueLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=COMPUTER_BLU_LENSES', {
+        const response = await axios.get('http://localhost:8080/product?productType=COMPUTER_BLU_LENSES&powerType=ZERO_POWER', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        setComputerBlueLenses(response.data.products);
-        setComputerBlueLensesLoading(false);
+        setZeroPowerComputerBlueLenses(response.data.products);
+        setZeroPowerComputerBlueLensesLoading(false);
       } catch (err) {
         console.error('Error fetching computer blue lenses:', err);
         setComputerBlueLensesError('Failed to fetch computer blue lenses: ' + (err.message || 'Unknown error'));
@@ -301,15 +304,16 @@ const Home = () => {
          {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
          <br />
       <HomeCard6 
-        type={computerBlueLenses} 
-        loading={computerBlueLensesLoading} 
-        error={computerBlueLensesError} 
-        heading="WITH POWER COMPUTER BLU LENSES" 
+        type={zeroPowerComputerBlueLenses} 
+        loading={zeroPowerComputerBlueLensesLoading} 
+        error={zeroPowerComputerBlueLensesError} 
+         heading="WITH ZERO POWER COMPUTER BLU LENSES"
+        
       />
      
       <HomeCard6
-        type={HomeDetails9}
-        heading="WITH ZERO POWER COMPUTER BLU LENSES"
+       type={sunglasses}
+        heading="WITH POWER COMPUTER BLU LENSES" 
       />
 
 
@@ -324,6 +328,7 @@ const Home = () => {
         error={contactLensesError} 
         heading="CONTACT LENSES" 
       />
+      
       <HomeCard6 
         type={colorContactLenses} 
         loading={colorContactLensesLoading} 
