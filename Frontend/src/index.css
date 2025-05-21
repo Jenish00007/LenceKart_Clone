@@ -1,0 +1,75 @@
+/* Global styles to prevent horizontal scrolling */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ensure all containers respect viewport width */
+.container, 
+.container-fluid,
+[class*="container-"] {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Fix for Chakra UI components */
+.chakra-container {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix for Swiper components */
+.swiper-container {
+  overflow: visible !important;
+}
+
+.swiper-wrapper {
+  overflow: visible !important;
+}
+
+/* Fix for flex containers */
+.flex-container {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+/* Fix for grid containers */
+.grid-container {
+  min-width: 0;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+/* Fix for images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix for text overflow */
+.text-container {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Fix for mobile viewport */
+@media screen and (max-width: 768px) {
+  html, body {
+    width: 100vw;
+    overflow-x: hidden;
+  }
+  
+  #root {
+    width: 100vw;
+    overflow-x: hidden;
+  }
+} 

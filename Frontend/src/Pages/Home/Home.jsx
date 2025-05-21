@@ -236,122 +236,36 @@ const Home = () => {
   );
 
   return (
-    <Box>
+    <Box w="100%" overflowX="hidden" position="relative">
       <Navbar />
-      <HomeCard1 type={banners} loading={loading} error={error}/>
-      {/* <HomeCard2 type={HomeDetails2} src="https://i.imgur.com/Gry0Q5D.png" /> */}
-      <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
-         
-      {/* Top Ad Banner */}
-      {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
-           
-      <RecommendedCategories />  
-      
-      <CategoryGrid />
-      
-
-       {/* Top Section Banners */}
-       {!sectionBannersLoading && !sectionBannersError && sectionBanners.top.map((banner, index) => (
-        <SectionBanner
-          key={banner._id}
-          title={banner.title}
-          leftImage={banner.leftImage}
-          rightImage={banner.rightImage}
-        />
-      ))}
-
-
-      
-      {/* Middle Section Banners */}
-      {!sectionBannersLoading && !sectionBannersError && sectionBanners.middle.map((banner, index) => (
-        <SectionBanner
-          key={banner._id}
-          title={banner.title}
-          leftImage={banner.leftImage}
-          rightImage={banner.rightImage}
-        />
-      ))}
-      
-      <TrendingEyeglasses />
-      
-      <br />
-      <br />
-      <RecentlyViewed />
-      <br />
-      <br />
-      <HomeCard4
-        text="As Seen on Shark Tank"
-        src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"
-      />
-      <br />
-      <br />
-     
-      <HomeCard6 
-        type={eyeglasses} 
-        loading={eyeglassesLoading} 
-        error={eyeglassesError} 
-        heading="EYEGLASSES" 
-      />
-      <HomeCard6 
-        type={sunglasses} 
-        loading={sunglassesLoading} 
-        error={sunglassesError} 
-        heading="SUNGLASSES" 
-      />
-
-      {/* <LenskartSwaps /> */}
-         {/* Middle Ad Banner */}
-         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
-         <br />
-      <HomeCard6 
-        type={zeroPowerComputerBlueLenses} 
-        loading={zeroPowerComputerBlueLensesLoading} 
-        error={zeroPowerComputerBlueLensesError} 
-         heading="WITH ZERO POWER COMPUTER BLU LENSES"
+      <Box w="100%" maxW="100vw" mx="auto">
+        <HomeCard1 type={banners} loading={loading} error={error}/>
+        <HomeCard2 type={shapes} loading={shapesLoading} error={shapesError} />
         
-      />
-     
-      <HomeCard6
-       type={sunglasses}
-        heading="WITH POWER COMPUTER BLU LENSES" 
-      />
-
-
-     
-       {/* Bottom Ad Banner */}
-       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
-       <br />
-      <br />
-      <HomeCard6 
-        type={contactLenses} 
-        loading={contactLensesLoading} 
-        error={contactLensesError} 
-        heading="CONTACT LENSES" 
-      />
-      
-      <HomeCard6 
-        type={colorContactLenses} 
-        loading={colorContactLensesLoading} 
-        error={colorContactLensesError} 
-        heading="COLOR CONTACT LENSES" 
-      />  
-      {/* Bottom Section Banners */}
-      {!sectionBannersLoading && !sectionBannersError && sectionBanners.bottom.map((banner, index) => (
-        <SectionBanner
-          key={banner._id}
-          title={banner.title}
-          leftImage={banner.leftImage}
-          rightImage={banner.rightImage}
-        />
-      ))}
-      <br />
-      <br />
-    
-     
-      <SpecialProducts />
-      <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
-      <HomeCard7 />
-      <Footer />
+        {/* Top Ad Banner */}
+        {!adBannersLoading && !adBannersError && adBanners[0] && renderAdBanner(adBanners[0])}
+        
+        <RecommendedCategories />  
+        <CategoryGrid />
+        {/* <LenskartSwaps /> */}
+        <TrendingEyeglasses />
+        {/* <SectionBanner banners={sectionBanners.top} loading={sectionBannersLoading} error={sectionBannersError} />
+        <HomeCard4 type={HomeDetails4} />
+        <HomeCard4a type={HomeDetails4} />
+        <HomeCard4b type={HomeDetails4} />
+        <HomeCard5 type={HomeDetails5} />
+        <HomeCard5a type={HomeDetails5} /> */}
+        <HomeCard5b type={HomeDetails5} />
+        {/* <HomeCard5c type={HomeDetails5} /> */}
+        {/* <HomeCard6 /> */}
+        {/* <HomeCard7 /> */}
+        {/* <HomeCard8 type={HomeDetails8} /> */}
+        <RecentlyViewed />
+        <SpecialProducts />
+        <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
+        <HomeCard7 />
+        <Footer />
+      </Box>
     </Box>
   );
 };
