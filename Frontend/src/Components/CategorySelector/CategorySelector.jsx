@@ -14,7 +14,7 @@ const CategorySelector = () => {
     navigate(`/products?category=${categoryId}`);
   };
 
-  const categories  = [
+  const categories = [
     {
       id: 'men',
       title: 'Men',
@@ -33,7 +33,7 @@ const CategorySelector = () => {
   ];
 
   return (
-    <Flex direction="column" gap={4} mt={4}>
+    <Flex direction="column" gap={4}>
       {categories.map((category) => (
         <Box
           key={category.id}
