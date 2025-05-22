@@ -8,6 +8,7 @@ import {
   Button,
   Center,
   VStack,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { Navigation, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -20,82 +21,128 @@ import './slider-custom.css';
 const Slider = ({ type }) => {
   const navigate = useNavigate();
 
+  // Responsive values
+  const imageSize = useBreakpointValue({
+    base: "80px",     // Mobile
+    sm: "100px",      // Small tablets
+    md: "120px",      // Tablets
+    lg: "140px",      // Small desktops
+    xl: "160px",      // Large desktops
+  });
+
+  const buttonSize = useBreakpointValue({
+    base: "12px",
+    sm: "13px",
+    md: "14px",
+  });
+
+  const textSize = useBreakpointValue({
+    base: "12px",
+    sm: "13px",
+    md: "14px",
+  });
+
   const handleExplore = (shape) => {
     navigate(`/products?shape=${shape}`);
   };
 
   return (
-    <Swiper
-      modules={[Navigation, Autoplay]}
-      navigation
-      autoplay={{ delay: 4000 }}
-      breakpoints={{
-        0: {
-          slidesPerView: 1,
-          spaceBetween: 10,
-        },
-        200: {
-          slidesPerView: 1,
-          spaceBetween: 10,
-        },
-        480: {
-          slidesPerView: 1,
-          spaceBetween: 10,
-        },
-        660: {
-          slidesPerView: 2,
-          spaceBetween: 10,
-        },
-        749: {
-          slidesPerView: 3,
-          spaceBetween: 10,
-        },
-        1240: {
-          slidesPerView: 4,
-          spaceBetween: 10,
-        },
-      }}
+    <Box 
+      w="100%" 
+      maxW="1200px"
+      mx="auto"
+      position="relative"
+      className="custom-swiper-container"
     >
-      {type?.map((item) => (
-        <SwiperSlide key={item._id}>
-          <Box>
-            <Square m="auto">
-              <Image
-                src={item.imageUrl}
-                alt={item.caption}
-                boxSize={{ base: "100px" }}
-                w="100%"
-                h="100%"
-              />
-            </Square>
-            <VStack m="auto">
-              <Center>
+      <Swiper
+        modules={[Navigation, Autoplay]}
+        navigation
+        autoplay={{ delay: 4000 }}
+        breakpoints={{
+          0: {
+            slidesPerView: 1,
+            spaceBetween: 12,
+          },
+          480: {
+            slidesPerView: 2,
+            spaceBetween: 12,
+          },
+          768: {
+            slidesPerView: 3,
+            spaceBetween: 12,
+          },
+          1024: {
+            slidesPerView: 4,
+            spaceBetween: 12,
+          },
+        }}
+        className="custom-swiper"
+      >
+        {type?.map((item) => (
+          <SwiperSlide key={item._id}>
+            <Box 
+              p={{ base: 1.5, sm: 2, md: 3 }} 
+              bg="white" 
+              borderRadius="lg" 
+              boxShadow="sm"
+              transition="all 0.3s ease"
+              _hover={{
+                transform: "translateY(-5px)",
+                boxShadow: "md",
+              }}
+            >
+              <Square 
+                size={imageSize}
+                m="auto"
+                overflow="hidden"
+                borderRadius="md"
+                className="image-container"
+              >
+                <Image
+                  src={item.imageUrl}
+                  alt={item.caption}
+                  w="100%"
+                  h="100%"
+                  objectFit="contain"
+                  transition="transform 0.3s ease"
+                  _hover={{
+                    transform: "scale(1.1)",
+                  }}
+                />
+              </Square>
+              <VStack spacing={{ base: 1.5, md: 3 }} mt={{ base: 1.5, md: 3 }}>
                 <Text
-                  pt={5}
-                  pb={5}
                   fontWeight="bold"
-                  fontSize="18px"
+                  fontSize={textSize}
                   fontFamily="Futura-Medium"
+                  textAlign="center"
+                  noOfLines={2}
+                  px={1.5}
                 >
                   {item.caption}
                 </Text>
-              </Center>
-              <Button 
-                p="20px 40px" 
-                bg="#4fc3c6"
-                color="white"
-                _hover={{ bg: '#3bb3b6' }}
-                m="auto" 
-                fontSize="17px"
-                onClick={() => handleExplore(item.name)}
-              >
-                Explore
-              </Button>
-            </VStack>
-          </Box>
-        </SwiperSlide>
-      ))}
-    </Swiper>
+                <Button 
+                  size="sm"
+                  bg="#4fc3c6"
+                  color="white"
+                  _hover={{ 
+                    bg: '#3bb3b6',
+                    transform: "scale(1.05)",
+                  }}
+                  transition="all 0.3s ease"
+                  fontSize={buttonSize}
+                  px={{ base: 3, md: 4 }}
+                  py={{ base: 2, md: 3 }}
+                  onClick={() => handleExplore(item.name)}
+                >
+                  Explore
+                </Button>
+              </VStack>
+            </Box>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </Box>
   );
 };
 
