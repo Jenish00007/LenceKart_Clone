@@ -164,11 +164,11 @@ const OrderDetails = () => {
             <HStack justify="space-between">
               <Button
                 leftIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/orders')}
+                onClick={() => navigate('/orderhistory')}
                 variant="ghost"
                 colorScheme="teal"
               >
-                Back to Orders
+                Back to Order History
               </Button>
               <Badge
                 colorScheme={getStatusColor(order.status)}
