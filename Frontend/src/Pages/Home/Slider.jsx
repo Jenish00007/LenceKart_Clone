@@ -81,7 +81,7 @@ const Slider = ({ type }) => {
         {type?.map((item) => (
           <SwiperSlide key={item._id}>
             <Box 
-              p={{ base: 1.5, sm: 2, md: 3 }} 
+              p={{ base: 1.5, sm: 2, md: 3}} 
               bg="white" 
               borderRadius="lg" 
               boxShadow="sm"
