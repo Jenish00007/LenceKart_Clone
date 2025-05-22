@@ -23,7 +23,8 @@ import { handleAuthRedirect } from '../../utils/auth';
 const Payment = () => {
   const navigate = useNavigate();
   const toast = useToast();
-  const { cart, coupon } = useSelector((state) => state.CartReducer);
+  const cart = useSelector((state) => state.cart?.cart || []);
+  const coupon = useSelector((state) => state.cart?.coupon || 0);
   const [loading, setLoading] = useState(false);
   const { Authdata } = useContext(AuthContext);
   const dispatch = useDispatch();
