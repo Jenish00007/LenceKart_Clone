@@ -52,20 +52,24 @@ const SelectCategory = () => {
       </Box>
       <Flex direction="column" fontSize="md" gap="2">
         {categories.map((category) => (
-          <Box
-            key={category.id}
-            cursor="pointer"
-            onClick={() => handleCategorySelect(category)}
-            onMouseEnter={() => dispatch(setSelectedCategoryType(category.id))}
-            transition="all 0.3s ease"
-            transform={selectedCategoryType === category.id ? 'translateX(10px)' : 'none'}
-            bg={selectedCategoryType === category.id ? 'blue.50' : 'transparent'}
-            borderRadius="md"
-            _hover={{ 
-              fontWeight: "bold",
-              bg: selectedCategoryType === category.id ? 'blue.50' : 'blackAlpha.200'
-            }}
-          >
+         <Box
+         key={category.id}
+         cursor="pointer"
+         onClick={() => handleCategorySelect(category)}
+         onMouseEnter={() => dispatch(setSelectedCategoryType(category.id))}
+         transition="all 0.3s ease"
+         transform={selectedCategoryType === category.id ? 'translateX(10px)' : 'none'}
+         bg={selectedCategoryType === category.id ? 'blue.50' : 'transparent'}
+         borderRadius="md"
+         p="2"
+         maxW="250px"
+         _hover={{ 
+           bg: "gray.100",
+           color: "teal.500",
+           transform: "translateX(5px)",
+           transition: "all 0.2s ease-in-out"
+         }}
+       >
             <Text
               color={selectedCategoryType === category.id ? 'blue.500' : 'inherit'}
               fontWeight={selectedCategoryType === category.id ? 'bold' : 'normal'}

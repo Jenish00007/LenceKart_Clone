@@ -1,7 +1,23 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Text, Button, Heading, Grid, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  Button,
+  Heading,
+  Grid,
+  useToast,
+  Container,
+  Image,
+  VStack,
+  HStack,
+  Spinner,
+  Card,
+  CardBody,
+  Badge,
+  Flex
+} from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
-
+import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
 import { removeFromWishlist } from "../../redux/wishlist/wishlist.actions";
 import { addToCart } from "../../redux/CartPage/action";
 import Navbar from "../../Components/Navbar/Navbar";
@@ -11,11 +27,6 @@ import { useNavigate } from "react-router-dom";
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
-`;
-
-const slideIn = keyframes`
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
 `;
 
 const Wishlist = () => {
@@ -41,8 +52,11 @@ const Wishlist = () => {
   const handleAddToCart = (data) => {
     const existingItem = cart.findIndex((item) => item._id === data._id);
     if (existingItem === -1) {
-      data.quantity = 1;
-      dispatch(addToCart(data));
+      const cartItem = {
+        ...data,
+        quantity: 1
+      };
+      dispatch(addToCart(cartItem));
       dispatch(removeFromWishlist(data._id));
       toast({
         title: "Added to Cart",
@@ -67,240 +81,170 @@ const Wishlist = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
   return (
-    <Box>
+    <Box minH="100vh" bg="gray.50">
       <Navbar />
-      <br />
-      <br />
-      <Box
-        minHeight="635"
-        w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
-        m="auto"
+      <Box 
+        as="main" 
+        pt="140px"
+        minH="calc(100vh - 140px)"
       >
-        <Heading
-          fontSize="25px"
-          textAlign="left"
-          p="4"
-          bgGradient="linear(to-r, teal.400, blue.500)"
-          color="whiteAlpha.900"
-          w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
-          m="auto"
-          borderRadius="lg"
-          boxShadow="lg"
-          _hover={{
-            transform: "translateY(-2px)",
-            boxShadow: "xl"
-          }}
-          transition="all 0.3s ease"
-          animation={`${fadeIn} 0.8s ease-out`}
-        >
-          Wishlist
-        </Heading>
-        {wishlistItems.length === 0 ? (
-          <Text
-            textAlign="center"
-            fontSize="28px"
-            color="gray"
-            mt="5%"
-            fontWeight="bolder"
-            animation={`${fadeIn} 0.8s ease-out`}
-          >
-            Your wishlist is empty.
-          </Text>
-        ) : (
-          <Box>
-            <Grid templateColumns="repeat(1,1fr)" gap={18} w={"100%"}>
-              {wishlistItems &&
-                wishlistItems &&
-                wishlistItems.map((item, index) => (
-                  <Box
-                    key={item.id}
-                    borderWidth="1px"
-                    boxShadow="2xl"
-                    p="6"
-                    my="4"
-                    w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
-                    m="auto"
-                    borderRadius="lg"
-                    bg="white"
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            <Heading
+              size="lg"
+              textAlign="center"
+              bgGradient="linear(to-r, teal.400, blue.500)"
+              bgClip="text"
+              animation={`${fadeIn} 0.8s ease-out`}
+            >
+              My Wishlist
+            </Heading>
+
+            {wishlistItems.length === 0 ? (
+              <Card>
+                <CardBody>
+                  <VStack spacing={6} py={8}>
+                    <Text
+                      fontSize="xl"
+                      color="gray.500"
+                      fontWeight="medium"
+                    >
+                      Your wishlist is empty
+                    </Text>
+                    <Button
+                      colorScheme="teal"
+                      size="lg"
+                      onClick={() => navigate('/products')}
+                      leftIcon={<AddIcon />}
+                    >
+                      Start Shopping
+                    </Button>
+                  </VStack>
+                </CardBody>
+              </Card>
+            ) : (
+              <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                {wishlistItems.map((item, index) => (
+                  <Card
+                    key={item._id}
+                    animation={`${fadeIn} 0.8s ease-out ${index * 0.1}s`}
                     _hover={{
-                      transform: "translateY(-5px)",
+                      transform: "translateY(-4px)",
                       boxShadow: "xl"
                     }}
-                    transition="all 0.3s ease"
-                    animation={`${fadeIn} 0.8s ease-out ${index * 0.1}s`}
+                    transition="all 0.3s"
                   >
-                    <Grid
-                      m="auto"
-                      templateColumns={{
-                        base: "repeat(1,1fr)",
-                        sm: "repeat(1,1fr)",
-                        md: "repeat(1,1fr)",
-                        lg: "60% 40%",
-                        xl: "70% 30%"
-                      }}
-                      justify="space-between"
-                      mb="4"
-                    >
-                      <Text
-                        fontSize="xl"
-                        fontWeight="bold"
-                        textTransform="capitalize"
-                        mb={{ sm: "4", base: "4" }}
-                        bgGradient="linear(to-r, blue.500, purple.500)"
-                        bgClip="text"
-                        _hover={{
-                          transform: "translateX(10px)"
-                        }}
-                        transition="all 0.3s ease"
-                      >
-                        {item.productRefLink}
-                      </Text>
+                    <CardBody>
                       <Grid
-                        m={{ lg: "auto", sm: "left", base: "right" }}
                         templateColumns={{
-                          base: "repeat(1,1fr)",
-                          sm: "repeat(2,1fr)",
-                          md: "repeat(2,1fr)",
-                          lg: "repeat(2,1fr)",
-                          xl: "repeat(2,1fr)"
+                          base: "1fr",
+                          md: "auto 1fr auto"
                         }}
-                        gap="4"
-                        justify="space-between"
-                        mb="2"
+                        gap={6}
+                        alignItems="center"
                       >
-                        <Button
-                          colorScheme="blue"
-                          onClick={() => handleAddToCart(item)}
-                          _hover={{
-                            transform: "scale(1.05)",
-                            boxShadow: "lg"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          Add to Cart
-                        </Button>
-                        <Button
-                          colorScheme="red"
-                          onClick={() => handleDelete(item._id)}
-                          _hover={{
-                            transform: "scale(1.05)",
-                            boxShadow: "lg"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          Remove
-                        </Button>
-                      </Grid>
-                    </Grid>
-
-                    <Grid
-                      m="auto"
-                      templateColumns={{
-                        base: "repeat(1,1fr)",
-                        sm: "40% 50%",
-                        md: "30% 60%",
-                        lg: "30% 60%",
-                        xl: "20% 60%"
-                      }}
-                      align="center"
-                      mb="1"
-                    >
-                      <Box
-                        position="relative"
-                        _hover={{
-                          transform: "scale(1.05)"
-                        }}
-                        transition="all 0.3s ease"
-                      >
-                        <img
-                          src={item.imageTsrc}
-                          alt={item.name}
-                          boxSize="180px"
-                          m="auto"
+                        <Box
+                          position="relative"
+                          w="200px"
+                          h="200px"
                           borderRadius="lg"
-                          boxShadow="md"
-                        />
-                      </Box>
+                          overflow="hidden"
+                        >
+                          <Image
+                            src={item.imageTsrc || item.image || '/placeholder-image.png'}
+                            alt={item.name || "Product Image"}
+                            w="100%"
+                            h="100%"
+                            objectFit="cover"
+                            fallback={
+                              <Box
+                                w="100%"
+                                h="100%"
+                                bg="gray.100"
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                              >
+                                <Text color="gray.500">No Image</Text>
+                              </Box>
+                            }
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/placeholder-image.png';
+                            }}
+                          />
+                        </Box>
 
-                      <Box
-                        ml="4"
-                        textAlign={{
-                          lg: "left",
-                          md: "left",
-                          sm: "left",
-                          base: "center"
-                        }}
-                      >
-                        <Text
-                          fontSize="lg"
-                          fontWeight="bold"
-                          textTransform="capitalize"
-                          _hover={{
-                            color: "blue.500",
-                            transform: "translateX(10px)"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          {item.name}
-                        </Text>
-                        <Text 
-                          fontSize="lg" 
-                          fontWeight="bold"
-                          _hover={{
-                            color: "green.500",
-                            transform: "translateX(10px)"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          Price : ₹ {item.price}.00 /-
-                        </Text>
-                        <Text
-                          fontSize="lg"
-                          fontWeight="bold"
-                          color="gray.600"
-                          textTransform="capitalize"
-                          _hover={{
-                            color: "purple.500",
-                            transform: "translateX(10px)"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          {item.productType}
-                        </Text>
-                        <Text
-                          fontSize="lg"
-                          fontWeight="bold"
-                          color="gray.600"
-                          textTransform="capitalize"
-                          _hover={{
-                            color: "purple.500",
-                            transform: "translateX(10px)"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          Colour : {item.colors}
-                        </Text>
-                        <Text
-                          fontSize="md"
-                          fontWeight="600"
-                          color="gray.600"
-                          textTransform="capitalize"
-                          _hover={{
-                            color: "purple.500",
-                            transform: "translateX(10px)"
-                          }}
-                          transition="all 0.3s ease"
-                        >
-                          Shape : {item.shape}
-                        </Text>
-                      </Box>
-                    </Grid>
-                  </Box>
+                        <VStack align="start" spacing={3}>
+                          <Heading size="md" color="teal.500">
+                            {item.name}
+                          </Heading>
+                          <Text fontSize="xl" fontWeight="bold" color="gray.700">
+                            {formatPrice(item.price)}
+                          </Text>
+                          <HStack spacing={4}>
+                            <Badge colorScheme="purple" fontSize="sm">
+                              {item.productType}
+                            </Badge>
+                            <Badge colorScheme="blue" fontSize="sm">
+                              {item.colors}
+                            </Badge>
+                            <Badge colorScheme="green" fontSize="sm">
+                              {item.shape}
+                            </Badge>
+                          </HStack>
+                          <Text fontSize="sm" color="gray.600">
+                            {item.productRefLink}
+                          </Text>
+                        </VStack>
+
+                        <VStack spacing={4}>
+                          <Button
+                            colorScheme="teal"
+                            leftIcon={<AddIcon />}
+                            onClick={() => handleAddToCart(item)}
+                            w="full"
+                            _hover={{
+                              transform: "translateY(-2px)",
+                              boxShadow: "lg"
+                            }}
+                            transition="all 0.2s"
+                          >
+                            Add to Cart
+                          </Button>
+                          <Button
+                            colorScheme="red"
+                            variant="outline"
+                            leftIcon={<DeleteIcon />}
+                            onClick={() => handleDelete(item._id)}
+                            w="full"
+                            _hover={{
+                              transform: "translateY(-2px)",
+                              boxShadow: "lg"
+                            }}
+                            transition="all 0.2s"
+                          >
+                            Remove
+                          </Button>
+                        </VStack>
+                      </Grid>
+                    </CardBody>
+                  </Card>
                 ))}
-            </Grid>
-          </Box>
-        )}
+              </Grid>
+            )}
+          </VStack>
+        </Container>
       </Box>
       <Footer />
     </Box>

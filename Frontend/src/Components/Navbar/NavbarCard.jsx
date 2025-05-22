@@ -71,6 +71,7 @@ export const NavbarCard1 = () => {
 
 export const NavbarCard2 = () => {
   const { isAuth, setisAuth, Authdata } = useContext(AuthContext);
+ 
   const navigate = useNavigate();
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -176,11 +177,11 @@ export const NavbarCard2 = () => {
                     fontWeight={"600"}
                     fontSize="15px"
                     m="auto"
-                    mt="-2px"
+                  
                     w="90px"
                     textAlign="center"
                   >
-                    {Authdata[0]?.first_name || "User"}
+                    {Authdata[0]?.name || "User"}
                     <TriangleDownIcon
                       ml="2px"
                       fontSize={"9px"}

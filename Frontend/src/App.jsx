@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { AuthContextProvider } from "./ContextApi/AuthContext";
 import { Box } from "@chakra-ui/react";
+import OrderDetails from './Pages/OrderDetails/OrderDetails';
 
 function App() {
   return (

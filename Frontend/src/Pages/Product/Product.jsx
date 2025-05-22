@@ -8,7 +8,7 @@ import ProductCard from "./ProductCard";
 import ProdFilter from "./ProdFilter";
 import ProdFrame from "./ProdFrame";
 import { TbArrowsUpDown } from "react-icons/tb";
-import { Box, Flex, Select, Switch, Text, Image } from "@chakra-ui/react";
+import { Box, Flex, Select, Switch, Text, Image, Container } from "@chakra-ui/react";
 import {
   Gender,
   ProductTypes,
@@ -110,14 +110,13 @@ const NewProduct = () => {
   return (
     <>
       <Navbar />
-      <Box>
-        {/* <Image
-          src="https://static1.lenskart.com/media/desktop/img/Mar23/spring/home/PLP%20Camapaign%20-%20WEB_1.jpg"
-          alt="img"
-          w="96%"
-          m="auto"
-        /> */}
-        <Flex mt="132px" px="2%" gap="4" cursor="pointer">
+      <Box 
+        as="main" 
+        pt="103px"
+        minH="calc(100vh - 140px)"
+      >
+        <Container maxW="container.xl" py={8}>
+        <Flex  px="2%" gap="4" cursor="pointer">
           <Flex
             w="17%"
             m={0}
@@ -220,6 +219,7 @@ const NewProduct = () => {
           </Box>
         </Flex>
         <Pagination current={page} onChange={(value) => setPage(value)} />
+      </Container>
       </Box>
       <Footer />
     </>

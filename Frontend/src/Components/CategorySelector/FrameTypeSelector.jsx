@@ -18,11 +18,11 @@ const FrameTypeSelector = ({ handleSubCategorySelect }) => {
       title: 'Rectangle Frames',
       type: 'frame'
     },
-    {
-      id: 'Wayfarer',
-      title: 'Wayfarer Frames',
-      type: 'frame'
-    },
+    // {
+    //   id: 'Wayfarer',
+    //   title: 'Wayfarer Frames',
+    //   type: 'frame'
+    // },
     {
       id: 'Round',
       title: 'Round Frames',
@@ -89,14 +89,23 @@ const FrameTypeSelector = ({ handleSubCategorySelect }) => {
       <Flex direction="column" fontSize="md" gap="2">
         {frameTypes.map((frame) => (
           <Box
-            key={frame.id}
-            _hover={{ fontWeight: "bold" }}
-            cursor="pointer"
-            fontWeight={selectedFrameType === frame.id ? "bold" : "normal"}
-            onClick={() => handleFrameSelect(frame)}
-          >
-            {frame.title}
-          </Box>
+          key={frame.id}
+          _hover={{ 
+            bg: "gray.100",
+            color: "teal.500",
+            transform: "translateX(5px)",
+            transition: "all 0.2s ease-in-out",
+            maxW: "150px"
+          }}
+          cursor="pointer"
+          p="2"
+          borderRadius="md"
+          maxW="150px"
+          fontWeight={selectedFrameType === frame.id ? "bold" : "normal"}
+          onClick={() => handleFrameSelect(frame)}
+        >
+          {frame.title}
+        </Box>
         ))}
       </Flex>
     </Flex>
