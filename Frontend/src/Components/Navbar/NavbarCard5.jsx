@@ -247,7 +247,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      {/* <Menu>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -287,7 +287,7 @@ function NavbarCard5() {
             </Grid>
           </Box>
         </MenuList>
-      </Menu>
+      </Menu> */}
 
       {/* <Menu>
         <MenuButton

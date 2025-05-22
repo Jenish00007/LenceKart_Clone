@@ -18,11 +18,11 @@ const FrameTypeSelector = ({ handleSubCategorySelect }) => {
       title: 'Rectangle Frames',
       type: 'frame'
     },
-    {
-      id: 'Wayfarer',
-      title: 'Wayfarer Frames',
-      type: 'frame'
-    },
+    // {
+    //   id: 'Wayfarer',
+    //   title: 'Wayfarer Frames',
+    //   type: 'frame'
+    // },
     {
       id: 'Round',
       title: 'Round Frames',
