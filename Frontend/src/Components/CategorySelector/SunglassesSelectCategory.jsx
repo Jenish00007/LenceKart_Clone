@@ -12,9 +12,9 @@ const SunglassesSelectCategory = () => {
 
   const categories = [
     {
-      id: 'classic-sunglasses',
+      id: 'Rs. 1500-1999',
       title: 'CLASSIC SUNGLASSES',
-      price: '1299'
+      price: '1999'
     },
     {
       id: 'premium-sunglasses',

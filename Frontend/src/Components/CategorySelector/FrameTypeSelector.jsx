@@ -4,52 +4,52 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFrameType } from '../../redux/slices/filterSlice';
 
-const FrameTypeSelector = () => {
+const FrameTypeSelector = ({ handleSubCategorySelect }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.filter?.selectedCategory);
-  const selectedType = useSelector((state) => state.filter?.selectedType || '');
+ 
+  const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
   const selectedFrameType = useSelector((state) => state.filter?.frameType || '');
-  const productType = useSelector((state) => state.filter?.productType || '');
-
+  const personCategory = useSelector((state) => state.filter.selectedCategory);
+  const masterCategory = useSelector((state) => state.filter?.selectedType);
   const frameTypes = [
     {
-      id: 'rectangle',
+      id: 'Rectange',
       title: 'Rectangle Frames',
       type: 'frame'
     },
     {
-      id: 'wayfarer',
+      id: 'Wayfarer',
       title: 'Wayfarer Frames',
       type: 'frame'
     },
     {
-      id: 'round',
+      id: 'Round',
       title: 'Round Frames',
       type: 'frame'
     },
     {
-      id: 'aviator',
+      id: 'Aviator',
       title: 'Aviator Frames',
       type: 'frame'
     },
     {
-      id: 'cat-eye',
+      id: 'Cat-Eye',
       title: 'Cat-Eye Frames',
       type: 'frame'
     },
     {
-      id: 'rimless',
+      id: 'Rimless',
       title: 'Rimless Frames',
       type: 'frame'
     },
     {
-      id: 'half-rim',
+      id: 'Half Rim',
       title: 'Half Rim Frames',
       type: 'frame'
     },
     {
-      id: 'geometric',
+      id: 'Geometric',
       title: 'Geometric Frames',
       type: 'frame'
     }
@@ -58,19 +58,21 @@ const FrameTypeSelector = () => {
   const handleFrameSelect = (frame) => {
     if (!frame?.id) return;
     dispatch(setFrameType(frame.id));
-    
+      
     const queryParams = new URLSearchParams();
-    if (selectedCategory) {
-      queryParams.append('category', selectedCategory);
-    }
-    if (selectedType) {
-      queryParams.append('type', selectedType);
-    }
-    if (productType) {
-      queryParams.append('productType', productType);
-    }
+
     queryParams.append('frameType', frame.id);
-    
+  
+    if (masterCategory) {
+      queryParams.append('masterCategory', masterCategory);
+    }
+    if (personCategory) {
+      queryParams.append('personCategory', personCategory);
+    }
+    if (selectedCategoryPrice) {
+      queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
+    }
+   
     navigate(`/products?${queryParams.toString()}`);
   };
 

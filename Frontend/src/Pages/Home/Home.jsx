@@ -316,7 +316,7 @@ const Home = () => {
         loading={colorContactLensesLoading} 
         error={colorContactLensesError} 
         heading="COLOR CONTACT LENSES" 
-      />  
+      />   
         <SpecialProducts />
         <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
         <HomeCard7 />

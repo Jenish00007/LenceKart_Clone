@@ -12,14 +12,14 @@ const ComputerSelectCategory = () => {
 
   const categories = [
     {
-      id: 'blu-computer-glasses',
+      id: 'classic-eyeglasses',
       title: 'Blu 0 Computer Glasses',
-      price: '1299'
+      price: '1499'
     },
     {
-      id: 'premium-computer-glasses',
+      id: 'premium-eyeglasses',
       title: 'PREMIUM RANGE',
-      price: '3000'
+      price: '4999'
     }
   ];
 

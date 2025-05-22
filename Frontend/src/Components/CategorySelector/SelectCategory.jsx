@@ -14,17 +14,17 @@ const SelectCategory = () => {
     {
       id: 'classic-eyeglasses',
       title: 'CLASSIC EYE-GLASSES',
-      price: '1199'
+      price: '1499'
     },
     {
       id: 'premium-eyeglasses',
       title: 'PREMIUM EYE-GLASSES',
-      price: '3000'
+      price: '4999'
     },
     {
-      id: 'computer-eyeglasses',
-      title: 'COMPUTER EYE-GLASSES',
-      price: '1299'
+      id: 'designer-eyeglasses',
+      title: 'DESIGNER EYE-GLASSES',
+      price: '15000'
     }
   ];
 
