@@ -3,7 +3,8 @@ import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
 export default function CartItem() {
-  const { cart, coupon } = useSelector((state) => state.CartReducer);
+  const cart = useSelector((state) => state.cart?.cart || []);
+  const coupon = useSelector((state) => state.cart?.coupon || 0);
 
   // Sync cart with localStorage whenever it changes
   useEffect(() => {

@@ -18,16 +18,40 @@ const SingleProduct = () => {
   const [data, setData] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.cart);
+  const cart = useSelector((state) => state.cart?.cart || []);
   const { isAuth } = useContext(AuthContext);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleAddToCart = async () => {
+    if (!isAuth) {
+      onOpen();
+      return;
+    }
+
     try {
-      const existingItem = cart.findIndex((item) => item._id === data._id);
+      const existingItem = cart.findIndex((item) => item.productId === data._id);
       if (existingItem === -1) {
-        await dispatch(addToCart(data));
+        const cartItem = {
+          productId: data._id,
+          quantity: 1,
+          price: data.price,
+          name: data.name,
+          image: data.imageTsrc,
+          imageTsrc: data.imageTsrc,
+          productType: data.productType,
+          shape: data.shape || "Rectangle",
+          gender: data.gender || "Unisex",
+          style: data.style || "Classic"
+        };
+        
+        // Save to localStorage first
+        const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+        localStorage.setItem('cart', JSON.stringify([...currentCart, cartItem]));
+        
+        // Then dispatch to Redux
+        await dispatch(addToCart(cartItem));
+        
         toast({
           title: "Added to Cart",
           description: "Product has been added to your cart",
@@ -36,8 +60,9 @@ const SingleProduct = () => {
           isClosable: true,
           position: "bottom"
         });
+        
         setTimeout(() => {
-          navigate("/cart");
+          navigate("/shipping");
         }, 1000);
       } else {
         toast({
