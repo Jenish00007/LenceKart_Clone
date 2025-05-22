@@ -138,7 +138,7 @@ const OrderDetails = () => {
               <Text fontSize="xl" color="red.500">Order not found</Text>
               <Button
                 leftIcon={<ArrowBackIcon />}
-                onClick={() => navigate('/orders')}
+                onClick={() => navigate('/products')}
                 colorScheme="teal"
               >
                 Back to Orders
