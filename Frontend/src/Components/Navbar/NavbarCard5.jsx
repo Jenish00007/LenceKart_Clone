@@ -77,13 +77,20 @@ function NavbarCard5() {
         <Flex direction="column" fontSize="md" gap="2">
           {items.map((item, index) => (
             <Box
-              key={index}
-              _hover={{ fontWeight: "bold" }}
-              cursor="pointer"
-              onClick={() => handleSubCategorySelect(item, type, selectedCategoryType)}
-            >
-              {item}
-            </Box>
+            key={index}
+            _hover={{ 
+              bg: "gray.100",
+              color: "teal.500",
+              transform: "translateX(5px)",
+              transition: "all 0.2s ease-in-out"
+            }}
+            cursor="pointer"
+            p="2"
+            borderRadius="md"
+            onClick={() => handleSubCategorySelect(item, type, selectedCategoryType)}
+          >
+            {item}
+          </Box>
           ))}
         </Flex>
       </Flex>
