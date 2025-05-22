@@ -27,8 +27,6 @@ const AuthProvider = ({ children }) => {
             // Fetch and store user data
             const userData = await response.json();
             setAuthData(userData);
-            console.log(userData);
-          } else {
             // Token is invalid, remove it
             localStorage.removeItem("token");
           }
