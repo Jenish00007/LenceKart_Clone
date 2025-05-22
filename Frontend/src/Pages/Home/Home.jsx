@@ -262,22 +262,61 @@ const Home = () => {
         <br />
        
         <HomeCard6 
-          type={eyeglasses} 
-          loading={eyeglassesLoading} 
-          error={eyeglassesError} 
-          heading="EYEGLASSES" 
-        />
-        <HomeCard6 
-          type={sunglasses} 
-          loading={sunglassesLoading} 
-          error={sunglassesError} 
-          heading="SUNGLASSES" 
-        />
-      </Box>
-      <SpecialProducts />
+        type={eyeglasses} 
+        loading={eyeglassesLoading} 
+        error={eyeglassesError} 
+        heading="EYEGLASSES" 
+      />
+      <HomeCard6 
+        type={sunglasses} 
+        loading={sunglassesLoading} 
+        error={sunglassesError} 
+        heading="SUNGLASSES" 
+      />
+
+      {/* <LenskartSwaps /> */}
+         {/* Middle Ad Banner */}
+         {!adBannersLoading && !adBannersError && adBanners[1] && renderAdBanner(adBanners[1])}
+         <br />
+      <HomeCard6 
+        type={zeroPowerComputerBlueLenses} 
+        loading={zeroPowerComputerBlueLensesLoading} 
+        error={zeroPowerComputerBlueLensesError} 
+         heading="WITH ZERO POWER COMPUTER BLU LENSES"
+        
+      />
+     
+      <HomeCard6
+       type={sunglasses}
+        heading="WITH POWER COMPUTER BLU LENSES" 
+      />
+
+
+     
+       {/* Bottom Ad Banner */}
+       {!adBannersLoading && !adBannersError && adBanners[2] && renderAdBanner(adBanners[2])}
+       <br />
+      <br />
+      <HomeCard6 
+        type={contactLenses} 
+        loading={contactLensesLoading} 
+        error={contactLensesError} 
+        heading="CONTACT LENSES" 
+      />
+      
+      <HomeCard6 
+        type={colorContactLenses} 
+        loading={colorContactLensesLoading} 
+        error={colorContactLensesError} 
+        heading="COLOR CONTACT LENSES" 
+      />   
+
+<SpecialProducts />
         <HomeCard5c type={HomeDetails14} heading="MEET OUR HAPPY CUSTOMERS" />
         <HomeCard7 />
       <Footer />
+      </Box>
+      
     </Box>
   );
 };
