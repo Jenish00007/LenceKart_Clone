@@ -10,6 +10,7 @@ import Checkout from "../Pages/Checkout/Checkout";
 import Payment from "../Pages/Payment/Payment";
 import Confirm from "../Pages/Confirm/Confirm";
 import OrderHistory from "../Pages/OrderHistory/OrderHistory";
+import OrderDetails from "../Pages/OrderDetails/OrderDetails";
 import Wishlist from "../Pages/Wishlist/Wishlist";
 import Productlist from "../Pages/Admin/Productlist";
 import ProductPost from "../Pages/Admin/ProductPost";
@@ -79,6 +80,14 @@ const AllRoutes = () => {
         element={
           <Privateroutes>
             <OrderHistory />
+          </Privateroutes>
+        }
+      />
+      <Route
+        path="/orders/:orderId"
+        element={
+          <Privateroutes>
+            <OrderDetails />
           </Privateroutes>
         }
       />
