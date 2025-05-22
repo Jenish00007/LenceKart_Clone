@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import Loading from "./Loading";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -16,6 +17,7 @@ import {
   Frame2
 } from "./FilterDetails";
 import { API_URL } from "../../config";
+import { useSearchParams } from "react-router-dom";
 
 const NewProduct = () => {
   const [products, setProducts] = useState([]);
@@ -24,45 +26,71 @@ const NewProduct = () => {
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState("");
   const [gender, setGender] = useState("");
-  const [productRef, setProductRef] = useState("");
+  const [frametype, setFrametype] = useState("");
+  const [shape, setShape] = useState("");
+  const [style, setStyle] = useState("");
+  const [colors, setColors] = useState("");
+  const [searchParams] = useSearchParams();
+  const [shapeParams] = useSearchParams();
+  const [frameTypeParams] = useSearchParams();
 
+  const selectedFrameType = useSelector((state) => state.category.selectedFrameType);
+  const selectedCategory = useSelector((state) => state.category.selectedCategory);
+  // console.log("Frame  Type Params:", frameTypeParams.get('frameType'));
   const fetchproduct = async () => {
     setIsLoaded(true);
     try {
-      const response = await fetch(
-        `${API_URL}/product?sort=${sort}&productRefLink=${productRef}&productType=${types}&gender=${gender}&page=${page}`
-      );
+      const searchQuery = searchParams.get('search') || '';
+      const shape = shapeParams.get('shape') || '';
+      const frameType = frameTypeParams.get('frameType') || '';
+      const trending = frameTypeParams.get('trending') || '';
+     
+      console.log(selectedFrameType,selectedCategory , "selectedFrameType")
+      let url;
+      if (trending) {
+        url = `${API_URL}/product/trending`;
+      } else {
+        url = `${API_URL}/product?sort=${sort}&frameType=${frameType}&productType=${types}&gender=${gender}&shape=${shape}&style=${style}&colors=${colors}&page=${page}&search=${searchQuery}`;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const postData = await response.json();
+      // console.log("Selected Frame Type:", selectedFrameType);
+      // console.log("Products received:", postData);
       setProducts(postData);
       setIsLoaded(false);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching products:", error);
       setIsLoaded(false);
     }
   };
 
   useEffect(() => {
+    console.log("Search params changed:", searchParams.toString());
     fetchproduct();
-  }, [page, sort, gender, types, productRef]);
+  }, [page, sort, gender, types, frametype, shape, style, colors, searchParams]);
 
   const handleClick = (value) => {
-    setProductRef(value);
+    setFrametype(frametype === value ? "" : value);
   };
 
   const handleClick2 = (value) => {
-    setProductRef(value);
+    setShape(shape === value ? "" : value);
   };
 
   return (
     <>
       <Navbar />
       <Box>
-        <Image
+        {/* <Image
           src="https://static1.lenskart.com/media/desktop/img/Mar23/spring/home/PLP%20Camapaign%20-%20WEB_1.jpg"
           alt="img"
           w="96%"
           m="auto"
-        />
+        /> */}
         <Flex m="0" px="2%" gap="4" cursor="pointer">
           <Flex
             w="17%"
@@ -74,12 +102,14 @@ const NewProduct = () => {
               heading={"FRAME TYPE"}
               type={Frame1}
               filter={handleClick}
+              selectedValue={frametype}
             />
 
             <ProdFrame
               heading={"FRAME SHAPE"}
               type={Frame2}
               filter={handleClick2}
+              selectedValue={shape}
             />
 
             <ProdFilter
@@ -93,8 +123,8 @@ const NewProduct = () => {
               val1={types}
               type2={FrameColor}
               heading2={"FRAME COLOR"}
-              handlechange2={setProductRef}
-              val2={productRef}
+              handlechange2={setColors}
+              val2={colors}
             />
 
             <hr />
@@ -115,7 +145,7 @@ const NewProduct = () => {
               borderColor="#ededed"
             >
               <Text fontSize="15px" color="gray.600" fontWeight="500">
-                EYEGLASSES & SUNGLASSES
+                {searchParams.get('search') ? `Search Results for: ${searchParams.get('search')}` : 'EYEGLASSES & SUNGLASSES'}
               </Text>
               <Flex>
                 <Flex alignItems="center">
@@ -158,7 +188,7 @@ const NewProduct = () => {
                 color="gray"
                 mt="5"
               >
-                No Glasses Found
+                No Products Found 
               </Text>
             )}
           </Box>

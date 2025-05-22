@@ -1,6 +1,10 @@
 import React from 'react';
-import { Box, Text, Image, Badge, Flex, keyframes } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Box, Text, Image, Badge, Flex } from '@chakra-ui/react';
+import { Link, useNavigate } from 'react-router-dom';
+import { keyframes } from '@emotion/react';
+import { useDispatch } from 'react-redux';
+import { setSelectedCategory, setProductType } from '../../redux/slices/filterSlice';
+
 
 // Define keyframe animations
 const titleFloat = keyframes`
@@ -8,7 +12,7 @@ const titleFloat = keyframes`
   50% { transform: translateY(-3px); }
 `;
 
-const titleGradient = keyframes`
+const titleGradient  = keyframes`
   0% { 
     background-position: 0% 50%;
   }
@@ -42,44 +46,100 @@ const categories = [
   {
     title: 'Eyeglasses',
     sections: [
-      { name: 'Men', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
-      { name: 'Women', image: 'https://static.lenskart.com/media/desktop/img/women_pic.png' },
-      { name: 'Kids', image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png' },
-      { name: 'Essentials', image: 'https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg' }
+      { 
+        name: 'Men', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass01.png',
+        category: 'men',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Women', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass02.png',
+        category: 'women',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Kids', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass03.png',
+        category: 'kids',
+        productType: 'eyeglasses'
+      },
+      { 
+        name: 'Essentials', 
+        image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Eyeglass04.png',
+        category: 'essentials',
+        productType: 'eyeglasses'
+      }
     ]
   },
   {
     title: 'Sunglasses',
     sections: [
-      { name: 'Men', image: 'https://static.lenskart.com/media/desktop/img/men_pic.png' },
-      { name: 'Women', image: 'https://static.lenskart.com/media/desktop/img/women_pic.png' },
-      { name: 'Kids', image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png' },
-      { name: 'Essentials', image: 'https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg' }
+      { 
+        name: 'Men', 
+        image: 'https://static.lenskart.com/media/desktop/img/men_pic.png',
+        category: 'men',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Women', 
+        image: 'https://static.lenskart.com/media/desktop/img/women_pic.png',
+        category: 'women',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Kids', 
+        image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png',
+        category: 'kids',
+        productType: 'sunglasses'
+      },
+      { 
+        name: 'Essentials', 
+        image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Sunglass%2004.png',
+        category: 'essentials',
+        productType: 'sunglasses'
+      }
     ]
   },
   {
     title: 'Special Powers',
     badge: 'Exclusive',
     sections: [
-      { name: 'Zero Power', image: 'https://static1.lenskart.com/media/desktop/img/May22/zero-power.jpg' },
-      { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/May22/progressive.jpg' },
-      { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/May22/reading.jpg' },
-      { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/May22/power-sun.jpg' }
+      { name: 'Zero Power', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power01.png' },
+      { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power02.png' },
+      { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power03.png' },
+      { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/a/Sunglass%2003.png' }
     ]
   },
   {
     title: 'Contact Lenses & Accessories',
     badge: 'Try for free',
     sections: [
-      { name: 'Clear', image: 'https://static1.lenskart.com/media/desktop/img/May22/clear-contact.jpg' },
-      { name: 'Color', image: 'https://static1.lenskart.com/media/desktop/img/May22/color-contact.jpg' },
-      { name: 'Trial Pack', image: 'https://static1.lenskart.com/media/desktop/img/May22/trial-pack.jpg' },
-      { name: 'Cases & Cleaner', image: 'https://static1.lenskart.com/media/desktop/img/May22/cases-cleaner.jpg' }
+      { name: 'Clear', image: 'https://static5.lenskart.com/media/uploads/Clear-lens-060225.png' },
+      { name: 'Color', image: 'https://static5.lenskart.com/media/uploads/color-lens-060225.png' },
+      { name: 'Trial Pack', image: 'https://static5.lenskart.com/media/uploads/Trial-Pack-x1.png' },
+      { name: 'Cases & Cleaner', image: 'https://static5.lenskart.com/media/uploads/Cases-Chains-140225.png' }
     ]
   }
 ];
 
 const CategoryGrid = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSectionClick = (section) => {
+    // Dispatch actions to update Redux state
+    dispatch(setSelectedCategory(section.category));
+    dispatch(setProductType(section.productType));
+
+    // Navigate to products page with query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('productType', section.productType);
+    queryParams.append('category', section.category);
+    
+    navigate(`/products?${queryParams.toString()}`);
+  };
+
   return (
     <Box w="100%" bg="gray.50" py={4}>
       {categories.map((category, idx) => (
@@ -150,7 +210,12 @@ const CategoryGrid = () => {
                 justify={{ lg: 'space-between' }}
               >
                 {category.sections.map((section, sectionIdx) => (
-                  <Link to="/products" key={sectionIdx} style={{ flex: '1' }}>
+                  <Box 
+                    key={sectionIdx} 
+                    style={{ flex: '1' }}
+                    onClick={() => handleSectionClick(section)}
+                    cursor="pointer"
+                  >
                     <Box 
                       w={{ base: "100px", md: "180px", lg: "100%" }}
                       position="relative"
@@ -201,7 +266,7 @@ const CategoryGrid = () => {
                         {section.name}
                       </Text>
                     </Box>
-                  </Link>
+                  </Box>
                 ))}
               </Flex>
             </Box>

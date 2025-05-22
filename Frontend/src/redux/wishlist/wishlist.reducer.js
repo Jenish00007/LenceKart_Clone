@@ -12,27 +12,30 @@ export const wishlistReducer = (state = wishlistInitalState, action) => {
     case ADD_TO_WISHLIST: {
       const { wishlist } = state;
       const product = payload;
+      
+      // Check if product already exists in wishlist
+      const exists = wishlist.some(item => item._id === product._id);
+      if (exists) {
+        return state;
+      }
 
-      const newItem = {
-        ...product
-      };
       return {
         ...state,
-        wishlist: [...wishlist, newItem]
+        wishlist: [...wishlist, product]
       };
     }
     case REMOVE_FROM_WISHLIST: {
       return {
+        ...state,
         wishlist: state.wishlist.filter((item) => item._id !== payload)
       };
     }
-
     case RESET: {
       return {
+        ...state,
         wishlist: []
       };
     }
-
     default: {
       return state;
     }

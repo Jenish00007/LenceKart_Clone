@@ -2,9 +2,8 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   removeFromCart,
-  decrement,
-  increment
-} from "../../redux/CartPage/action";
+  updateCartItem
+} from "../../redux/cart";
 import {
   Flex,
   Heading,
@@ -12,70 +11,95 @@ import {
   Image,
   Text,
   Box,
-  Grid
+  Grid,
 } from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const slideIn = keyframes`
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
 
 const CartItem = () => {
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.CartReducer);
+  const { cart } = useSelector((state) => state.cart);
 
-  const handleDelete = (item) => {
-    dispatch(removeFromCart(item));
+  const handleDelete = (productId) => {
+    dispatch(removeFromCart(productId));
   };
 
-  const handleDecrementChange = (id, qty) => {
-    if (qty < 1) {
-      dispatch(removeFromCart(id));
+  const handleQuantityChange = (productId, newQuantity) => {
+    if (newQuantity < 1) {
+      dispatch(removeFromCart(productId));
     } else {
-      dispatch(decrement(id));
+      dispatch(updateCartItem(productId, newQuantity));
     }
-  };
-
-  const handleIncrementChange = (id) => {
-    dispatch(increment(id));
   };
 
   return (
     <Box>
       {cart &&
-        cart &&
-        cart.map((item) => (
+        cart.map((item, index) => (
           <Grid
+            key={item._id}
             templateColumns={{
               lg: "20% 80%",
               md: "20% 80%",
               base: "repeat(1, 1fr)"
             }}
             gap={6}
-            border={"0px solid grey"}
-            borderRadius="10px"
-            boxShadow={"lg"}
-            padding={"15px"}
+            borderRadius="lg"
+            boxShadow="lg"
+            padding="20px"
             w="100%"
             justifyContent="space-between"
+            bg="white"
+            mb={4}
+            _hover={{
+              transform: "translateY(-5px)",
+              boxShadow: "xl"
+            }}
+            transition="all 0.3s ease"
+            animation={`${fadeIn} 0.8s ease-out ${index * 0.1}s`}
           >
-            <Image
-              w={{
-                base: "60%",
-                sm: "50%",
-                md: "100%",
-                lg: "100%",
-                xl: "100%",
-                "2xl": "100%"
+            <Box
+              position="relative"
+              _hover={{
+                transform: "scale(1.05)"
               }}
-              margin={{
-                base: "auto",
-                sm: "auto",
-                md: "auto",
-                lg: "unset",
-                xl: "unset",
-                "2xl": "unset"
-              }}
-              src={item.imageTsrc}
-            />
+              transition="all 0.3s ease"
+            >
+              <Image
+                w={{
+                  base: "60%",
+                  sm: "50%",
+                  md: "100%",
+                  lg: "100%",
+                  xl: "100%",
+                  "2xl": "100%"
+                }}
+                margin={{
+                  base: "auto",
+                  sm: "auto",
+                  md: "auto",
+                  lg: "unset",
+                  xl: "unset",
+                  "2xl": "unset"
+                }}
+                src={item.image}
+                borderRadius="lg"
+                boxShadow="md"
+                alt={item.name}
+              />
+            </Box>
             <Flex
               flexDirection={"column"}
-              border={"0px solid blue"}
               gap="4"
               width={{
                 base: "90%",
@@ -96,7 +120,6 @@ const CartItem = () => {
             >
               <Flex
                 justifyContent={"space-between"}
-                border={"0px solid green"}
                 gap="20"
                 marginTop={5}
               >
@@ -107,16 +130,37 @@ const CartItem = () => {
                   textTransform={"capitalize"}
                   letterSpacing="-0.32px"
                   fontWeight={500}
+                  bgGradient="linear(to-r, blue.500, purple.500)"
+                  bgClip="text"
+                  _hover={{
+                    transform: "translateX(10px)"
+                  }}
+                  transition="all 0.3s ease"
                 >
-                  {item.productRefLink}
+                  {item.name}
                 </Heading>
                 <Flex gap={"2"}>
-                  <Text fontSize={"18px"} fontWeight="500" color="gray.600">
+                  <Text 
+                    fontSize={"18px"} 
+                    fontWeight="500" 
+                    color="gray.600"
+                    _hover={{
+                      color: "green.500",
+                      transform: "translateX(-10px)"
+                    }}
+                    transition="all 0.3s ease"
+                  >
                     ₹{item.mPrice}
                   </Text>
                 </Flex>
               </Flex>
-              <Box border={"1px dashed #CECEDF"}></Box>
+              <Box 
+                border={"1px dashed #CECEDF"}
+                _hover={{
+                  borderColor: "blue.500"
+                }}
+                transition="all 0.3s ease"
+              />
               <Flex justifyContent={"space-between"}>
                 <Heading
                   as="h1"
@@ -124,28 +168,51 @@ const CartItem = () => {
                   lineHeight="22px"
                   textTransform={"capitalize"}
                   fontWeight={500}
+                  _hover={{
+                    color: "blue.500",
+                    transform: "translateX(10px)"
+                  }}
+                  transition="all 0.3s ease"
                 >
                   Final Price
                 </Heading>
                 <Flex gap={"2"}>
-                  <Text fontSize={"18px"} fontWeight="500" color="gray.600">
-                    ₹{item.mPrice}
+                  <Text 
+                    fontSize={"18px"} 
+                    fontWeight="500" 
+                    color="gray.600"
+                    _hover={{
+                      color: "green.500",
+                      transform: "translateX(-10px)"
+                    }}
+                    transition="all 0.3s ease"
+                  >
+                    ₹{item.price}
                   </Text>
                 </Flex>
               </Flex>
-              <Box border={"1px dashed #CECEDF"}></Box>
+              <Box 
+                border={"1px dashed #CECEDF"}
+                _hover={{
+                  borderColor: "blue.500"
+                }}
+                transition="all 0.3s ease"
+              />
               <Flex
-                border={"0px solid grey"}
                 gap="5"
                 justifyContent="space-between"
               >
                 <Button
                   backgroundColor={"white"}
-                  _hover={"backgroundColor:white"}
+                  _hover={{
+                    color: "red.500",
+                    transform: "translateX(10px)"
+                  }}
                   textDecoration="underline"
                   fontSize={"18"}
                   ml="-1.5"
                   onClick={() => handleDelete(item._id)}
+                  transition="all 0.3s ease"
                 >
                   Remove
                 </Button>
@@ -155,26 +222,48 @@ const CartItem = () => {
                   border="1px"
                   borderColor="gray.400"
                   borderRadius="3xl"
+                  _hover={{
+                    borderColor: "blue.500",
+                    boxShadow: "md"
+                  }}
+                  transition="all 0.3s ease"
                 >
                   <Button
                     bg="whiteAlpha.900"
                     size="md"
                     borderRadius="50%"
                     fontSize="20px"
-                    onClick={() =>
-                      handleDecrementChange(item.id, item.quantity)
-                    }
+                    onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                    _hover={{
+                      bg: "gray.100",
+                      transform: "scale(1.1)"
+                    }}
+                    transition="all 0.3s ease"
                   >
                     -
                   </Button>
 
-                  <Box mx="2">{item.quantity}</Box>
+                  <Box 
+                    mx="2"
+                    fontWeight="bold"
+                    _hover={{
+                      color: "blue.500"
+                    }}
+                    transition="all 0.3s ease"
+                  >
+                    {item.quantity}
+                  </Box>
                   <Button
                     bg="whiteAlpha.900"
                     borderRadius="50%"
                     fontSize="20px"
                     size="md"
-                    onClick={() => handleIncrementChange(item.id)}
+                    onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                    _hover={{
+                      bg: "gray.100",
+                      transform: "scale(1.1)"
+                    }}
+                    transition="all 0.3s ease"
                   >
                     +
                   </Button>

@@ -1,55 +1,132 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../redux/CartPage/action";
+import { addToCart } from "../../redux/cart";
 import { addToWishlist } from "../../redux/wishlist/wishlist.actions";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
 import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
-import { Grid, GridItem, Image } from "@chakra-ui/react";
+import { Grid, GridItem, Image, useToast, Box, useDisclosure } from "@chakra-ui/react";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../ContextApi/AuthContext";
+import Login from "../../Pages/Login/Login";
 
 const SingleProduct = () => {
   const { id } = useParams();
   const [data, setData] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.CartReducer);
+  const { cart } = useSelector((state) => state.cart);
+  const { isAuth } = useContext(AuthContext);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleAddToCart = () => {
-    const existingItem = cart.findIndex((item) => item._id === data._id);
-    if (existingItem === -1) {
-      data.quantity = 1;
-      dispatch(addToCart(data));
-      setTimeout(() => {
-        navigate("/cart");
-      }, 1000);
-    } else {
-      alert("Product Already Add in Cart");
+  const handleAddToCart = async () => {
+    try {
+      const existingItem = cart.findIndex((item) => item._id === data._id);
+      if (existingItem === -1) {
+        await dispatch(addToCart(data));
+        toast({
+          title: "Added to Cart",
+          description: "Product has been added to your cart",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setTimeout(() => {
+          navigate("/cart");
+        }, 1000);
+      } else {
+        toast({
+          title: "Product Already in Cart",
+          description: "This product is already in your cart",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add item to cart",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
   };
 
   const handleAddToWishlist = () => {
+    if (!isAuth) {
+      onOpen();
+     
+      return;
+    }
+
     dispatch(addToWishlist(data));
-    setTimeout(() => {
-      navigate("/wishlist");
-    }, 1000);
+    toast({
+      title: "Added to Wishlist",
+      description: "Product has been added to your wishlist",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+      position: "bottom"
+    });
+  };
+
+  const trackProductVisit = async () => {
+    if (isAuth) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        console.log('Tracking product visit for:', id);
+        
+        const response = await fetch(`${API_URL}/product/visit/${id}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        console.log('Visit tracking response:', data);
+        
+        if (!response.ok) {
+          console.error('Failed to track product visit:', data.message);
+        }
+      } catch (error) {
+        console.error('Error tracking product visit:', error);
+      }
+    }
   };
 
   const fetchSingleProduct = () => {
     axios(`${API_URL}/product/${id}`)
-      .then((res) => setData(res.data.product))
+      .then((res) => {
+        setData(res.data.product);
+        // Track visit after product data is loaded
+        trackProductVisit();
+      })
       .catch((err) => console.log(err));
   };
+
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
 
   return (
-    <>
+    <Box>
       <Navbar />
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
       <br />
       <br />
 
@@ -67,23 +144,23 @@ const SingleProduct = () => {
       >
         <GridItem
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
           display={{ lg: "inherit", base: "none" }}
           _hover={{ transform: "scale(1.1)" }}
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
           w={{ lg: "100%", sm: "80%", base: "80%" }}
           m="auto"
         >
-          <Image _hover={{ transform: "scale(1.1)" }} src={data.imageTsrc} />
+          <Image _hover={{ transform: "scale(1.1)" }} src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           p={5}
@@ -99,7 +176,7 @@ const SingleProduct = () => {
           />
         </GridItem>
 
-        {ProdImage.map((ele, i) => (
+        {/* {ProdImage.map((ele, i) => (
           <GridItem
             _hover={{ transform: "scale(1.1)" }}
             display={{ lg: "inherit", base: "none" }}
@@ -111,31 +188,31 @@ const SingleProduct = () => {
           >
             <Image src={ele.src} />
           </GridItem>
-        ))}
+        ))} */}
 
         <GridItem
           _hover={{ transform: "scale(1.1)" }}
           display={{ lg: "inherit", base: "none" }}
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
         <GridItem
           _hover={{ transform: "scale(1.1)" }}
           display={{ lg: "inherit", base: "none" }}
           borderRadius={10}
-          p="80px 5px"
+          p="40px 5px"
           border="1px solid"
           borderColor="gray.300"
         >
-          <Image src={data.imageTsrc} />
+          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
       </Grid>
       <Footer />
-    </>
+    </Box>
   );
 };
 

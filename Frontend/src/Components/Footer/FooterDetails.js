@@ -1,32 +1,28 @@
 export const services = [
   {
-    labels: "Enter My Power",
-  },
-  {
     labels: "Buying Guide",
+    path: "/buying-guide"
   },
   {
     labels: "Frame Size",
+    path: "/frame-size"
   },
 ];
 
-export const about = [
-  {
-    labels: "We Are Hiring",
-  },
-  {
-    labels: "Refer & Earn",
-  },
+export const about  = [
   {
     labels: "About Us",
-  },
-  {
-    labels: "Lenskart Coupons",
+    path: "/about-us"
   },
 ];
 
 export const helps = [
   {
+    labels: "Help",
+    path: "/help"
+  },
+  {
     labels: "FAQ's",
+    path: "/faq"
   },
 ];

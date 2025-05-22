@@ -1,10 +1,12 @@
 import React from "react";
-import { Box, Text, Image, Flex, Center, Grid, Icon, VStack, HStack, keyframes } from "@chakra-ui/react";
+import { Box, Text, Image, Flex, Center, Grid, Icon, VStack, HStack,} from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
 import { AiFillFacebook, AiOutlineInstagram } from "react-icons/ai";
 import { TfiTwitter } from "react-icons/tfi";
+import { Link } from "react-router-dom";
 
 // Define keyframe animations
-const pulse = keyframes`
+const pulse  = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
   100% { transform: scale(1); }
@@ -51,28 +53,82 @@ export const FooterCard1 = ({ type, heading }) => {
         display="inline-block"
         bgGradient="linear(to-r, blue.400, purple.500)"
         bgClip="text"
-        _hover={{
-          bgGradient: "linear(to-r, blue.500, purple.600)"
-        }}
         transition="all 0.3s ease"
+        _after={{
+          content: '""',
+          position: "absolute",
+          bottom: "-2px",
+          left: "0",
+          width: "0",
+          height: "2px",
+          bgGradient: "linear(to-r, blue.400, purple.500)",
+          transition: "width 0.3s ease"
+        }}
+        _hover={{
+          bgGradient: "linear(to-r, blue.500, purple.600)",
+          transform: "scale(1.05)",
+          borderColor: "blue.400",
+          _after: {
+            width: "100%"
+          }
+        }}
       >
         {heading}
       </Text>
       <VStack align="flex-start" spacing={3}>
         {type.map((i, index) => (
-          <Text
-            key={index}
-            fontSize="15px"
-            _hover={{ 
-              bgGradient: "linear(to-r, blue.400, purple.500)",
-              bgClip: "text",
-              transform: "translateX(5px)"
-            }}
-            transition="all 0.3s ease"
-            cursor="pointer"
-          >
-            {i.labels}
-          </Text>
+          <Link to={i.path} key={index}>
+            <Text
+              fontSize="15px"
+              position="relative"
+              transition="all 0.3s ease"
+              cursor="pointer"
+              _before={{
+                content: '""',
+                position: "absolute",
+                left: "-15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                bgGradient: "linear(to-r, blue.400, purple.500)",
+                opacity: 0,
+                transition: "all 0.3s ease"
+              }}
+              _after={{
+                content: '""',
+                position: "absolute",
+                bottom: "-2px",
+                left: "0",
+                width: "0",
+                height: "1px",
+                bgGradient: "linear(to-r, blue.400, purple.500)",
+                transition: "width 0.3s ease"
+              }}
+              _hover={{ 
+                bgGradient: "linear(to-r, blue.400, purple.500)",
+                bgClip: "text",
+                transform: "translateX(5px)",
+                fontWeight: "500",
+                _before: {
+                  opacity: 1,
+                  left: "-10px",
+                  animation: `${pulse} 1s ease-in-out infinite`
+                },
+                _after: {
+                  width: "100%"
+                }
+              }}
+              sx={{
+                "&:hover": {
+                  textShadow: "0 0 8px rgba(66, 153, 225, 0.5)"
+                }
+              }}
+            >
+              {i.labels}
+            </Text>
+          </Link>
         ))}
       </VStack>
     </VStack>
@@ -193,21 +249,90 @@ export const FooterCard = () => {
         justify={{ base: "center", md: "flex-start" }}
         wrap="wrap"
       >
-        {["T&C", "Privacy", "Disclaimer"].map((text, index) => (
+        <Link to="/terms-and-conditions">
           <Text
-            key={index}
             fontSize="sm"
             cursor="pointer"
+            position="relative"
+            _before={{
+              content: '""',
+              position: "absolute",
+              bottom: "-2px",
+              left: "0",
+              width: "0",
+              height: "1px",
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              transition: "width 0.3s ease"
+            }}
             _hover={{ 
               bgGradient: "linear(to-r, blue.400, purple.500)",
               bgClip: "text",
-              transform: "translateX(5px)"
+              transform: "translateX(5px)",
+              _before: {
+                width: "100%"
+              }
             }}
             transition="all 0.3s ease"
           >
-            {text}
+            T&C
           </Text>
-        ))}
+        </Link>
+        <Link to="/privacy-policy">
+          <Text
+            fontSize="sm"
+            cursor="pointer"
+            position="relative"
+            _before={{
+              content: '""',
+              position: "absolute",
+              bottom: "-2px",
+              left: "0",
+              width: "0",
+              height: "1px",
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              transition: "width 0.3s ease"
+            }}
+            _hover={{ 
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              bgClip: "text",
+              transform: "translateX(5px)",
+              _before: {
+                width: "100%"
+              }
+            }}
+            transition="all 0.3s ease"
+          >
+            Privacy
+          </Text>
+        </Link>
+        <Link to="/disclaimer">
+          <Text
+            fontSize="sm"
+            cursor="pointer"
+            position="relative"
+            _before={{
+              content: '""',
+              position: "absolute",
+              bottom: "-2px",
+              left: "0",
+              width: "0",
+              height: "1px",
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              transition: "width 0.3s ease"
+            }}
+            _hover={{ 
+              bgGradient: "linear(to-r, blue.400, purple.500)",
+              bgClip: "text",
+              transform: "translateX(5px)",
+              _before: {
+                width: "100%"
+              }
+            }}
+            transition="all 0.3s ease"
+          >
+            Disclaimer
+          </Text>
+        </Link>
       </HStack>
 
       <VStack 

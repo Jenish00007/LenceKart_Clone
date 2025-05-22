@@ -4,6 +4,12 @@ export const Gender = [
   },
   {
     title: "Women"
+  },
+  {
+    title: "Unisex"
+  },
+  {
+    title: "Kids"
   }
 ];
 
@@ -15,6 +21,10 @@ export const ProductTypes = [
   {
     name: "Sun Glasses",
     title: "sunglasses"
+  },
+  {
+    name: "Contact Lenses",
+    title: "contact-lenses"
   }
 ];
 
@@ -26,7 +36,7 @@ export const FrameColor = [
     title: "Blue"
   },
   {
-    title: "white"
+    title: "White"
   },
   {
     title: "Gold"
@@ -76,7 +86,7 @@ export const Frame2 = [
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/CatEye.png",
     title: "Cat Eye",
-    name: "Cateye"
+    name: "Cat Eye"
   },
 
   {
@@ -88,14 +98,14 @@ export const Frame2 = [
   {
     src:
       "https://static.lenskart.com/images/cust_mailer/Eyeglass/Geometric.png",
-    title: "Tinted ",
-    name: "Tinted "
+    title: "Geometric",
+    name: "Geometric"
   },
 
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Wayfarer.png",
-    title: "Wayfarer",
-    name: "Wayfarer"
+    title: "Aviator",
+    name: "Aviator"
   },
 
   {
@@ -107,8 +117,8 @@ export const Frame2 = [
   {
     src:
       "https://static.lenskart.com/images/cust_mailer/Eyeglass/Hexagonal.png",
-    title: "Hexagon",
-    name: "Hexagon"
+    title: "Oval",
+    name: "Oval"
   },
 
   {

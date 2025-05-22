@@ -6,13 +6,16 @@ import Nav from "./Nav";
 const Navbar = () => {
   return (
     <Box 
-      position="sticky" 
+      position="fixed" 
       top="0" 
+      left="0"
+      right="0"
       zIndex="1000" 
       bg="white"
       boxShadow="sm"
+      width="100%"
     >
-      <Box overflow="hidden" bg="white">
+      <Box overflow="hidden" bg="white" width="100%">
         <Box display={{ base: "none", xl: "inherit" }} color="blackAlpha.800">
           <NavbarCard1 />
           <NavbarCard2 />

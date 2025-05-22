@@ -1,86 +1,180 @@
-const mongoose = require("mongoose");
-const { ProductModel } = require("./Models/product.model");
-require("dotenv").config();
+const mongoose = require('mongoose');
+const ProductModel = require('./Models/product.model');
+const { Shape, initializeShapes } = require('./Models/Shape');
+const { Power, initializePowers } = require('./Models/Power');
+require('dotenv').config();
 
-// Expanded sample data for different categories
-const colors = ["Black", "Brown", "Blue", "Green", "Red", "Gold", "Silver", "Tortoise", "Grey", "Pink", "Purple", "White", "Transparent", "Multi-color", "Navy", "Beige", "Rose Gold", "Gunmetal", "Bronze", "Copper"];
-const shapes = ["Aviator", "Round", "Square", "Rectangle", "Cat Eye", "Wayfarer", "Oval", "Geometric", "Butterfly", "Clubmaster", "Browline", "Rimless", "Hexagonal", "Octagonal", "Teardrop", "Pilot", "Sport", "Wrap", "Shield", "Oversized"];
-const genders = ["Men", "Women", "Unisex", "Kids", "Teen", "Senior", "Youth", "Adult"];
-const styles = ["Casual", "Formal", "Sports", "Fashion", "Retro", "Vintage", "Modern", "Classic", "Trendy", "Professional", "Luxury", "Minimalist", "Bold", "Elegant", "Urban", "Street", "Business", "Party", "Beach", "Outdoor"];
-const productTypes = ["Sunglasses", "Eyeglasses", "Contact Lenses", "Computer Glasses", "Reading Glasses", "Blue Light Glasses", "Polarized Sunglasses", "Gradient Sunglasses", "Sports Glasses", "Safety Glasses", "Fashion Glasses", "Prescription Glasses", "Bifocal Glasses", "Progressive Glasses", "Photochromic Glasses"];
-const dimensions = ["50-20-145", "52-18-140", "54-19-150", "55-17-145", "53-19-145", "51-18-140", "56-16-145", "52-17-145", "54-18-145", "55-18-145", "53-17-145", "52-19-145", "54-20-145", "55-19-145", "56-17-145"];
-const materials = ["Acetate", "Metal", "Titanium", "Plastic", "TR90", "Stainless Steel", "Wood", "Carbon Fiber", "Aluminum", "Memory Metal", "Monel", "Beta Titanium", "Flexon", "Grilamid", "Ultem"];
-const lensTypes = ["Clear", "Photochromic", "Polarized", "Blue Light", "UV Protection", "Mirror Coated", "Gradient", "Anti-Reflective", "Transitions", "Photochromic Polarized", "Blue Light Filter", "Anti-Fog", "Scratch Resistant", "Impact Resistant", "High Index"];
-const brands = ["Ray-Ban", "Oakley", "Gucci", "Prada", "Versace", "Dior", "Tom Ford", "Burberry", "Armani", "Dolce & Gabbana", "Michael Kors", "Coach", "Fossil", "Vogue", "Hugo Boss"];
+const sampleProducts = [
+  // Eyeglasses with Power
+  {
+    name: "Classic Round Metal Eyeglasses",
+    imageTsrc: "/images/products/eyeglasses/round-metal.png",
+    caption: "Timeless Round Metal Frame",
+    productRefLink: "classic-round-metal",
+    price: 2499,
+    mPrice: 3999,
+    productId: "EG001",
+    productType: "EYEGLASSES_WITH_POWER",
+    powerType: "SINGLE_VISION",
+    powerRange: { min: -6.00, max: +6.00 },
+    prescriptionType: "Single Vision Only",
+    supportedPowers: "Supports All Powers",
+    frameType: "Full Rim",
+    shape: "Round",
+    frameSize: "Medium",
+    frameWidth: "135 mm",
+    weightGroup: "Light",
+    dimension: "135-18-140",
+    style: "Classic",
+    colors: ["Gold", "Silver"],
+    frameColors: ["Gold", "Silver"],
+    lensFeatures: ["Anti Glare", "UV Protection"],
+    gender: "Unisex",
+    ageGroup: "Adults",
+    rating: 4.5,
+    userRated: 128,
+    quantity: 50,
+    priceRange: "Rs. 2000-2499"
+  },
 
-// Generate random products
-const generateProducts = () => {
-  const products = [];
-  let id = 1;
+  // Sunglasses
+  {
+    name: "Premium Aviator Sunglasses",
+    imageTsrc: "/images/products/sunglasses/aviator.png",
+    caption: "Classic Aviator Style",
+    productRefLink: "premium-aviator",
+    price: 3999,
+    mPrice: 5999,
+    productId: "SG001",
+    productType: "SUNGLASSES",
+    powerType: "ZERO_POWER",
+    frameType: "Full Rim",
+    shape: "Aviator",
+    frameSize: "Large",
+    frameWidth: "140 mm",
+    weightGroup: "Light",
+    dimension: "140-16-145",
+    style: "Fashion",
+    colors: ["Gold", "Green"],
+    frameColors: ["Gold"],
+    lensFeatures: ["Polarized", "UV Protection"],
+    gender: "Unisex",
+    ageGroup: "Adults",
+    rating: 4.8,
+    userRated: 256,
+    quantity: 30,
+    priceRange: "Rs. 2500-4999"
+  },
 
-  for (let i = 0; i < 500; i++) {
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const shape = shapes[Math.floor(Math.random() * shapes.length)];
-    const gender = genders[Math.floor(Math.random() * genders.length)];
-    const style = styles[Math.floor(Math.random() * styles.length)];
-    const productType = productTypes[Math.floor(Math.random() * productTypes.length)];
-    const dimension = dimensions[Math.floor(Math.random() * dimensions.length)];
-    const material = materials[Math.floor(Math.random() * materials.length)];
-    const lensType = lensTypes[Math.floor(Math.random() * lensTypes.length)];
-    const brand = brands[Math.floor(Math.random() * brands.length)];
-    
-    const price = Math.floor(Math.random() * (20000 - 1000) + 1000);
-    const mPrice = Math.floor(price * 1.2); // 20% higher than price
-    const rating = (Math.random() * 2 + 3).toFixed(1); // Random rating between 3 and 5
-    const userRated = Math.floor(Math.random() * 10000);
+  // Computer Blue Light Glasses
+  {
+    name: "Blue Cut Computer Glasses",
+    imageTsrc: "/images/products/computer/blue-cut.png",
+    caption: "Digital Eye Strain Protection",
+    productRefLink: "blue-cut-computer",
+    price: 1999,
+    mPrice: 2999,
+    productId: "CB001",
+    productType: "COMPUTER_BLU_LENSES",
+    powerType: "ZERO_POWER",
+    frameType: "Half Rim",
+    shape: "Rectangle",
+    frameSize: "Medium",
+    frameWidth: "138 mm",
+    weightGroup: "Light",
+    dimension: "138-16-142",
+    style: "Modern",
+    colors: ["Black", "Blue"],
+    frameColors: ["Black", "Blue"],
+    lensFeatures: ["Blue Light Block", "Anti Glare"],
+    gender: "Unisex",
+    ageGroup: "Adults",
+    rating: 4.6,
+    userRated: 189,
+    quantity: 45,
+    priceRange: "Rs. 1500-1999"
+  },
 
-    const product = {
-      imageTsrc: `https://static.lenskart.com/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/lens/${id}.jpg`,
-      productRefLink: `/product/${id}`,
-      rating: parseFloat(rating),
-      colors: color,
-      price: price,
-      mPrice: mPrice,
-      name: `${brand} ${color} ${shape} ${productType} ${material}`,
-      shape: shape,
-      gender: gender,
-      style: style,
-      dimension: dimension,
-      productType: productType,
-      productId: `LK${id}`,
-      userRated: userRated,
-      quantity: Math.floor(Math.random() * 200) + 10,
-      id: id++,
-      material: material,
-      lensType: lensType,
-      brand: brand
-    };
+  // Contact Lenses
+  {
+    name: "Monthly Disposable Contact Lenses",
+    imageTsrc: "/images/products/contact-lenses/monthly.png",
+    caption: "Comfortable Monthly Wear",
+    productRefLink: "monthly-disposable",
+    price: 899,
+    mPrice: 1299,
+    productId: "CL001",
+    productType: "CONTACT_LENSES",
+    powerType: "CONTACT_LENS_POWER",
+    powerRange: { min: -8.00, max: +6.00 },
+    contactLensType: "Monthly",
+    contactLensMaterial: "Silicone Hydrogel",
+    gender: "Unisex",
+    ageGroup: "Adults",
+    rating: 4.7,
+    userRated: 312,
+    quantity: 100,
+    priceRange: "Rs. 500-999"
+  },
 
-    products.push(product);
+  // Color Contact Lenses
+  {
+    name: "Hazel Color Contact Lenses",
+    imageTsrc: "/images/products/contact-lenses/color-hazel.png",
+    caption: "Natural Looking Hazel Eyes",
+    productRefLink: "color-hazel",
+    price: 699,
+    mPrice: 999,
+    productId: "CCL001",
+    productType: "COLOR_CONTACT_LENSES",
+    powerType: "ZERO_POWER",
+    contactLensType: "Monthly",
+    contactLensMaterial: "Hydrogel",
+    gender: "Unisex",
+    ageGroup: "Adults",
+    rating: 4.4,
+    userRated: 156,
+    quantity: 80,
+    priceRange: "Rs. 500-999"
   }
+];
 
-  return products;
-};
+const initializeDatabase = async () => {
+  try {
+    // Connect to MongoDB
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('Connected to MongoDB');
 
-// Connect to MongoDB and insert products
-mongoose.connect(process.env.mongoURL)
-  .then(async () => {
-    console.log("Connected to MongoDB");
-    
-    // Clear existing products
-    await ProductModel.deleteMany({});
-    console.log("Cleared existing products");
-    
-    // Generate and insert new products
-    const products = generateProducts();
-    await ProductModel.insertMany(products);
-    console.log("Inserted 500 new products");
+    // Initialize shapes
+    await initializeShapes();
+    console.log('Shapes initialized');
+
+    // Initialize powers
+    await initializePowers();
+    console.log('Powers initialized');
+
+    // Check if products already exist
+    const productCount = await ProductModel.countDocuments();
+    if (productCount === 0) {
+      // Insert sample products
+      await ProductModel.insertMany(sampleProducts);
+      console.log('Sample products initialized successfully');
+    }
+
+    console.log('Database initialization completed');
     
     // Close the connection
-    mongoose.connection.close();
-    console.log("Connection closed");
-  })
-  .catch((err) => {
-    console.error("Error:", err);
-    mongoose.connection.close();
-  }); 
+    await mongoose.connection.close();
+    console.log('Database connection closed');
+
+  } catch (error) {
+    console.error('Error initializing database:', error);
+    process.exit(1);
+  }
+};
+
+// Run the initialization
+initializeDatabase();

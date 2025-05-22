@@ -1,42 +1,35 @@
 import React from "react";
-import { Box, Flex, Image, Spacer } from "@chakra-ui/react";
+import { Box, Flex, Text, Center } from "@chakra-ui/react";
 import Slider from "./Slider";
 
-const HomeCard2 = ({ type, src }) => {
+const HomeCard2 = ({ type, loading, error }) => {
+  if (loading) {
+    return <Center>Loading...</Center>;
+  }
+
+  if (error) {
+    return <Center color="red.500">{error}</Center>;
+  }
+
   return (
-    <Box justifyContent="left" w="95%" m="auto" mt="6" cursor="pointer">
-      <Flex mt="7">
-        <Box
-          boxSize="sm"
-          w={{
-            xs: "none",
-            sm: "none",
-            md: "none",
-            lg: "none",
-            xl: "50%",
-            base: "none"
-          }}
-          cursor="pointer"
-          pr={{ lg: "4", sm: "0", base: "0" }}
-        >
-          <Image
-            src={src}
-            boxSize="700px"
-            h="200px"
-            w={{
-              xs: "80%",
-              sm: "80%",
-              md: "80%",
-              lg: "100%",
-              xl: "100%",
-              base: "none"
-            }}
-          />
-        </Box>
-        <Spacer />
-        <Box
-          w={{ sm: "100%", md: "100%", lg: "100%", xl: "75%", base: "100%" }}
-        >
+    <Box w="100%" m="auto" mt="6" py={8} bg="white">
+      <Flex direction={{ base: "column", xl: "row" }} align="center" justify="center" w="95%" m="auto">
+        {/* Left Section: Vertically centered heading/subheading */}
+        <Flex w={{ base: "100%", xl: "28%" }} h="100%" align="center" justify="center" pr={{ xl: 8 }} mb={{ base: 8, xl: 0 }}>
+          <Box textAlign="left">
+            <Text fontSize={{ base: "2xl", md: "3xl", xl: "4xl" }} fontWeight="normal" letterSpacing="wide" color="#444" fontFamily="'Montserrat', Arial, sans-serif">
+              WEAR THE
+            </Text>
+            <Text fontSize={{ base: "3xl", md: "5xl", xl: "6xl" }} fontWeight="bold" letterSpacing="wide" mb={2} color="#222" fontFamily="'Playfair Display', serif">
+              TREND
+            </Text>
+            <Text fontSize="lg" color="#222" mt={2} fontFamily="'Montserrat', Arial, sans-serif">
+              Our hottest collections
+            </Text>
+          </Box>
+        </Flex>
+        {/* Right Section: Slider (with its own arrows) */}
+        <Box w={{ base: "100%", xl: "72%" }}>
           <Slider type={type} />
         </Box>
       </Flex>

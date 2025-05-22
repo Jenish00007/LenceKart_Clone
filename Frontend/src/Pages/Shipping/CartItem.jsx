@@ -1,8 +1,16 @@
 import { Box, Flex, Text, Image, Divider, Grid } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function CartItem() {
   const { cart, coupon } = useSelector((state) => state.CartReducer);
+
+  // Sync cart with localStorage whenever it changes
+  useEffect(() => {
+    if (cart && cart.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+  }, [cart]);
 
   const getTotalPrice = () => {
     const totalPrice = cart.reduce(
@@ -30,8 +38,8 @@ export default function CartItem() {
           </Text>
         </Box>
         <Box border="1px solid #ccc">
-          {cart.map((el) => (
-            <Box>
+          {cart.map((el, index) => (
+            <Box key={el._id || index}>
               <Grid
                 templateColumns={{
                   base: "repeat(1,1fr)",
@@ -65,6 +73,7 @@ export default function CartItem() {
                     }}
                     src={el.imageTsrc}
                     m="auto"
+                    alt={el.name || "Product image"}
                   />
                 </Box>
                 <Grid

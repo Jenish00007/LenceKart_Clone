@@ -11,7 +11,11 @@ import { FiPhoneCall } from "react-icons/fi";
 import { CiHeart } from "react-icons/ci";
 import { CgShoppingCart } from "react-icons/cg";
 import { TriangleDownIcon, SearchIcon } from "@chakra-ui/icons";
-import { keyframes } from "@chakra-ui/react";
+import { keyframes } from '@emotion/react';
+import { useSelector } from "react-redux";
+import { useDisclosure } from "@chakra-ui/react";
+import LogoutButton from "../LogoutButton";
+
 import {
   Box,
   Text,
@@ -69,6 +73,7 @@ export const NavbarCard2 = () => {
   const { isAuth, setisAuth, Authdata } = useContext(AuthContext);
   const navigate = useNavigate();
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const placeholders = [
     "Search for eyeglasses...",
     "Search for sunglasses...",
@@ -77,12 +82,35 @@ export const NavbarCard2 = () => {
     "Search for blue light glasses..."
   ];
 
+  const wishlistItems = useSelector((state) => state.wishlist.wishlist || []);
+  const wishlistCount = wishlistItems.length;
+
+  const cart = useSelector((state) => state.cart.cart || []);
+  const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+      navigate(`/products?search=${searchQuery}`);
+    }
+  };
+
+  const handleProtectedAction = (e) => {
+    e.preventDefault();
+    if (!isAuth) {
+      onOpen();
+    } else {
+      navigate(e.currentTarget.getAttribute('data-path'));
+    }
+  };
 
   return (
     <Box cursor="pointer">
@@ -113,6 +141,9 @@ export const NavbarCard2 = () => {
                 fontSize="17px"
                 h="45px"
                 pl="45px"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleSearch}
                 _placeholder={{
                   animation: `${typingAnimation} 3s steps(40, end) infinite, ${slideAnimation} 3s ease-in-out infinite, ${glowAnimation} 3s ease-in-out infinite`,
                   whiteSpace: "nowrap",
@@ -133,11 +164,12 @@ export const NavbarCard2 = () => {
               bg="whiteAlpha.900"
               fontSize="14px"
               fontWeight="400"
-              onClick={() => navigate("/orderhistory")}
+              onClick={handleProtectedAction}
+              data-path="/orderhistory"
             >
               Track Order
             </Button>
-            {isAuth === true ? (
+            {isAuth === true && Authdata && Authdata.length > 0 ? (
               <Popover trigger="hover">
                 <PopoverTrigger>
                   <Box
@@ -148,7 +180,7 @@ export const NavbarCard2 = () => {
                     w="90px"
                     textAlign="center"
                   >
-                    {Authdata[0].first_name}
+                    {Authdata[0]?.first_name || "User"}
                     <TriangleDownIcon
                       ml="2px"
                       fontSize={"9px"}
@@ -166,15 +198,16 @@ export const NavbarCard2 = () => {
                     fontSize="15px"
                     _hover={{ fontWeight: "bold" }}
                   >
-                    <Box
+                    <LogoutButton
                       color="#333368"
-                      onClick={() => {
-                        setisAuth(false);
-                        return <Navigate to="/" />;
-                      }}
-                    >
-                      Sign Out
-                    </Box>
+                      variant="ghost"
+                      h="auto"
+                      p="0"
+                      fontWeight="normal"
+                      fontSize="15px"
+                      _hover={{ fontWeight: "bold" }}
+                      customText="Sign Out"
+                    />
                   </PopoverBody>
                 </PopoverContent>
               </Popover>
@@ -190,30 +223,84 @@ export const NavbarCard2 = () => {
               bg="white"
               fontSize="14px"
               fontWeight="400"
-              onClick={() => navigate("/wishlist")}
+              onClick={handleProtectedAction}
+              data-path="/wishlist"
               _hover={{ bg: "gray.100" }}
               border="1px solid"
               borderColor="gray.200"
+              position="relative"
             >
               Wishlist
+              {wishlistCount > 0 && (
+                <Box
+                  position="absolute"
+                  top="-8px"
+                  right="-1px"
+                  bg="teal.500"
+                  color="white"
+                  borderRadius="full"
+                  minW="20px"
+                  h="20px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="bold"
+                  fontSize="10px"
+                  zIndex={1}
+                  boxShadow="md"
+                  border="2px solid white"
+                  transition="all 0.2s"
+                  p={0}
+                >
+                  {wishlistCount}
+                </Box>
+              )}
             </Button>
-            <Link to="/cart">
-              <Button
-                leftIcon={<CgShoppingCart color="black" size="20px" />}
-                size="lg"
-                bg="white"
-                fontSize="14px"
-                fontWeight="400"
-                _hover={{ bg: "gray.100" }}
-                border="1px solid"
-                borderColor="gray.200"
-              >
-                Cart
-              </Button>
-            </Link>
+            <Button
+              leftIcon={<CgShoppingCart color="black" size="20px" />}
+              size="lg"
+              bg="white"
+              fontSize="14px"
+              fontWeight="400"
+              onClick={handleProtectedAction}
+              data-path="/cart"
+              _hover={{ bg: "gray.100" }}
+              border="1px solid"
+              borderColor="gray.200"
+              position="relative"
+            >
+              Cart
+              {cartCount > 0 && (
+                <Box
+                  position="absolute"
+                  top="-8px"
+                  right="-2px"
+                  bg="teal.500"
+                  color="white"
+                  borderRadius="full"
+                  minW="20px"
+                  h="20px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="bold"
+                  fontSize="10px"
+                  zIndex={1}
+                  boxShadow="md"
+                  border="2px solid white"
+                  transition="all 0.2s"
+                  p={0}
+                >
+                  {cartCount}
+                </Box>
+              )}
+            </Button>
           </HStack>
         </HStack>
       </HStack>
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   );
 };

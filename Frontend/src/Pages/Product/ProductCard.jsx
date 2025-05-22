@@ -1,8 +1,18 @@
 import { Link } from "react-router-dom";
 import { Box, Flex, Grid, GridItem, Text, Image } from "@chakra-ui/react";
 import { AiFillStar } from "react-icons/ai";
+import PropTypes from 'prop-types';
 
-const ProductCard = ({ type }) => {
+const ProductCard = ({ type = [] }) => {
+  // If type is not an array or is empty, show a message
+  // if (!Array.isArray(type) || type.length === 0) {
+  //   return (
+  //     <Box textAlign="center" p={4}>
+  //       <Text>No products available</Text>
+  //     </Box>
+  //   );
+  // }
+
   return (
     <Grid
       m="20px 10px"
@@ -15,8 +25,8 @@ const ProductCard = ({ type }) => {
       height="100vh"
       gap={6}
     >
-      {type.map((ele) => (
-        <GridItem>
+      {type?.products?.map((ele) => (
+        <GridItem key={ele._id}>
           <Link to={`/products/${ele._id}`}>
             <Box
               position="relative"
@@ -34,7 +44,7 @@ const ProductCard = ({ type }) => {
                   m="auto"
                   width="80%"
                   src={ele.imageTsrc}
-                  alt="image"
+                  alt={ele.name || "product image"}
                   _hover={{ transform: "scale(1.1)" }}
                 />
                 <br />
@@ -138,4 +148,21 @@ const ProductCard = ({ type }) => {
   );
 };
 
+ProductCard.propTypes = {
+  type: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+      mPrice: PropTypes.number.isRequired,
+      imageTsrc: PropTypes.string.isRequired,
+      productRefLink: PropTypes.string.isRequired,
+      shape: PropTypes.string.isRequired,
+      rating: PropTypes.number,
+      userRated: PropTypes.number
+    })
+  )
+};
+
+// export default ProductCard;
 export default ProductCard;

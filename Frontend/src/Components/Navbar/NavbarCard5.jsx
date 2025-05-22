@@ -13,9 +13,107 @@ import {
   MenuButton,
   MenuList
 } from "@chakra-ui/react";
+import CategorySelector from "../CategorySelector/CategorySelector";
+import SelectCategory from "../CategorySelector/SelectCategory";
+import ComputerSelectCategory from "../CategorySelector/ComputerSelectCategory";
+import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCategory";
+import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedSubCategory, setSelectedType,} from '../../redux/slices/filterSlice';
+import { useNavigate } from 'react-router-dom';
+import KidsGlassesSelector from "../CategorySelector/KidsGlassesSelector";
+import DisposabilityFilter from '../Filters/DisposabilityFilter';
+import PowerFilter from '../Filters/PowerFilter';
+import ColorFilter from '../Filters/ColorFilter';
+import SolutionFilter from '../Filters/SolutionFilter';
+import CollectionFilter from '../Filters/CollectionFilter';
 
 function NavbarCard5() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const selectedSubCategory = useSelector((state) => state.filter.selectedSubCategory);
+  const selectedType = useSelector((state) => state.filter.selectedType);
+  const selectedCategory = useSelector((state) => state.filter.selectedCategory);
+  const productType = useSelector((state) => state.filter.productType);
+  const selectedFrameType = useSelector((state) => state.filter.frameType);
+
+  const handleSubCategorySelect = (subCategory, type = '', categoryType = '') => {
+    dispatch(setSelectedSubCategory(subCategory));
+    if (type) {
+      dispatch(setSelectedType(type));
+    }
+    
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory.toLowerCase().replace(/ /g, '-'));
+    if (type) {
+      queryParams.append('productType', type);
+    }
+    if (selectedCategory) {
+      queryParams.append('category', selectedCategory);
+    }
+    if (selectedFrameType) {
+      queryParams.append('frameType', selectedFrameType);
+    }
+    if (categoryType) {
+      queryParams.append('type', categoryType);
+    }
+  
+    navigate(`/products?${queryParams.toString()}`);
+  };
+
+  // Common component for Top Picks section
+  const TopPicksSection = ({ items, type, categoryType = '' }) => {
+    const selectedCategoryType = useSelector((state) => state.filter.selectedCategoryType);
+    
+    return (
+      <Flex direction="column" gap="6" pl={6}>
+        <Box
+          fontSize="md"
+          fontWeight="bold"
+          borderBottom="1px solid black"
+          p="1"
+        >
+          Our Top Picks
+        </Box>
+        <Flex direction="column" fontSize="md" gap="2">
+          {items.map((item, index) => (
+            <Box
+              key={index}
+              _hover={{ fontWeight: "bold" }}
+              cursor="pointer"
+              onClick={() => handleSubCategorySelect(item, type, selectedCategoryType)}
+            >
+              {item}
+            </Box>
+          ))}
+        </Flex>
+      </Flex>
+    );
+  };
+
+  const eyeglassTopPicks = [
+    'New Arrivals',
+    'Lenskart BLU lenses',
+    'Trending',
+    'Tinted Eyeglasses',
+    'Computer Eyeglasses',
+    'Progressive Eyeglasses'
+  ];
+
+  const computerGlassTopPicks = [
+    'New Arrivals',
+    'Lenskart BLU lenses',
+    'Trending'
+  ];
+
+  const sunglassTopPicks = [
+    'New Arrivals',
+    'Pilot Style',
+    'Power Sunglasses',
+    'Polarized Sunglasses'
+  ];
+
   return (
     <Flex bg="#fbf9f7" cursor="pointer" gap="6">
       <Menu>
@@ -35,159 +133,28 @@ function NavbarCard5() {
           h="400px"
           bg="whiteAlpha.800"
           w="100%"
-          p="5"
+          pb="5"
         >
-          <Link to="/products">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Flex direction="column" justifyContent="space-evenly" mt="20">
-                  <Flex gap="5" fontSize="15px">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+          <Box>
+            <Grid gridTemplateColumns="repeat(4, 1fr)" w="100%" gap={5}>
+              <Box mt="10">
+                <CategorySelector />
+              </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Women
-                    </Box>
-                  </Flex>
+              <Box>
+                <SelectCategory />
+              </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kent Dodds"
-                      src="https://static.lenskart.com/media/desktop/img/kid_pic.png"
-                      alt="kid"
-                      size="md"
-                    />
-                    <Box
-                      fontSize="lg"
-                      fontWeight="bold"
-                      _hover={{ textDecoration: "underline" }}
-                    >
-                      Kids
-                    </Box>
-                  </Flex>
-                </Flex>
+              <TopPicksSection 
+                items={eyeglassTopPicks} 
+                type="eyeglasses"
+              />
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    SELECT CATEGORY
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }}>
-                    CLASSIC EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>1199</span>
-                    </p>
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }}>
-                    PREMIUM EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>3000</span>
-                    </p>
-                  </Box>
-                  <Box fontSize="md" _hover={{ bg: "blackAlpha.200" }} p="2">
-                    COMPUTER EYE-GLASSES
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Our Top Picks
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Best Seller</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Lenskart BLU lenses
-                    </Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Trending</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Tinted Eyeglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Computer Eyeglasses
-                    </Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Progressive Eyeglasses
-                    </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Frame Type
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Rectangle Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Wayfarer Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Round Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Aviator Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cat-Eye Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rimless Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Half Rim Frames</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Geometric Frames </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Brands
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Vincent Chase</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Lenskart Air</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>John Jacobs</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>OJOS</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>New Balance</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Carrera</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Fossil</Box>
-                  </Flex>
-                </Flex>
-              </Grid>
-            </Box>
-          </Link>
+              <Flex direction="column" gap="6">
+                <FrameTypeSelector />
+              </Flex>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -210,90 +177,68 @@ function NavbarCard5() {
           w="100%"
           p="5"
         >
-          <Link to="/products">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
-                <Flex
-                  direction="column"
-                  gap="4"
-                  justifyContent="space-evenly"
-                  mt="20"
-                >
-                  <Flex gap="5">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Women
-                    </Box>
-                  </Flex>
+              <Box>
+                <ComputerSelectCategory />
+              </Box>
 
-                  <Flex gap="5">
-                    <Avatar
-                      name="Kent Dodds"
-                      src="https://static.lenskart.com/media/desktop/img/kid_pic.png"
-                      alt="kid"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Kids
-                    </Box>
-                  </Flex>
-                </Flex>
+              <TopPicksSection 
+                items={computerGlassTopPicks} 
+                type="computer-glasses"
+              />
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    SELECT CATEGORY
-                  </Box>
+              <Flex direction="column" gap="6">
+                <FrameTypeSelector />
+              </Flex>
+            </Grid>
+          </Box>
+        </MenuList>
+      </Menu>
 
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    Blu 0 Computer Glasses
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    PREMIUM RANGE
-                    <p>
-                      Starting From ₹ <span>3000</span>
-                    </p>
-                  </Box>
-                </Flex>
-              </Grid>
-            </Box>
-          </Link>
+      <Menu>
+        <MenuButton
+          bg="#fbf9f7"
+          fontSize="15px"
+          fontWeight="600"
+          _hover={{
+            borderBottom: "4px solid teal"
+          }}
+        >
+          SUNGLASSES
+        </MenuButton>
+
+        <MenuList
+          color="blackAlpha.900"
+          h="400px"
+          bg="whiteAlpha.800"
+          w="100%"
+          p="5"
+        >
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
+              </Box>
+
+              <Box>
+                <SunglassesSelectCategory />
+              </Box>
+
+              <TopPicksSection 
+                items={sunglassTopPicks} 
+                type="sunglasses"
+              />
+
+              <Flex direction="column" gap="6">
+                <FrameTypeSelector />
+              </Flex>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -311,51 +256,24 @@ function NavbarCard5() {
 
         <MenuList
           color="blackAlpha.900"
-          h="100%"
+          h="400px"
           bg="whiteAlpha.800"
           w="100%"
-          p="2"
+          p="5"
         >
-          <Link to="/products">
-            <Box>
-              <Grid
-                gridTemplateColumns="repeat(3, 1fr)"
-                justifyContent="center"
-                p="5"
-              >
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg1"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/glasses.jpg"
-                    alt="kidsIcon_1"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Eye Glasses
-                  </Box>
-                </Box>
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg2"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/computer-glasses.jpg"
-                    alt="kidsIcon_2"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Zero Power Computer Glasses
-                  </Box>
-                </Box>
-                <Box bg="whiteAlpha.900" h="250px" w="240px">
-                  <img
-                    className="navImg2"
-                    src="https://static1.lenskart.com/media/desktop/img/May22/Sunnies.jpg"
-                    alt="kidsIcon_3"
-                  />
-                  <Box mt="10px" textAlign="center" fontSize="lg">
-                    Sun Glasses
-                  </Box>
-                </Box>
-              </Grid>
-            </Box>
-          </Link>
+          <Box>
+            <Grid gridTemplateColumns="repeat(4, 1fr)" w="100%">
+              <Box>
+                <KidsGlassesSelector />
+              </Box>
+
+              <TopPicksSection items={eyeglassTopPicks} type="kids-glasses" />
+
+              <Flex direction="column" gap="6">
+                <FrameTypeSelector />
+              </Flex>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
 
@@ -375,269 +293,36 @@ function NavbarCard5() {
           color="blackAlpha.900"
           h="400px"
           bg="whiteAlpha.800"
-          p="5"
-          w="100%"
-        >
-          <Link to="/newproduct">
-            <Box>
-              <Grid gridTemplateColumns="repeat(5, 1fr)" p="1" w="100%">
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Brands
-                  </Box>
-                  <Flex direction="column" gap="2" fontSize="md">
-                    <Box _hover={{ fontWeight: "bold" }}> Aqualens</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Bausch Lomb</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Johnson & Johnson</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Soflens</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Acuvue</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Alcon</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Air Optix</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Pure Vision</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Disposability
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}> Monthly</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Day & Night</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Daily</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Yearly</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Bi-weekly</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Power
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Spherical - CYL</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Spherical + CYL</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cylindrical Power</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Toric Power</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Explore by Colors
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Green</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Blue</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Brown</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Turquoise</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>View all colors</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Solution
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Small</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Large</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      View all solutions
-                    </Box>
-                  </Flex>
-                </Flex>
-              </Grid>
-            </Box>
-          </Link>
-        </MenuList>
-      </Menu>
-
-      <Menu>
-        <MenuButton
-          bg="#fbf9f7"
-          fontSize="15px"
-          fontWeight="600"
-          _hover={{
-            borderBottom: "4px solid teal"
-          }}
-        >
-          SUN GLASSES
-        </MenuButton>
-
-        <MenuList
-          color="blackAlpha.900"
-          h="400px"
-          bg="whiteAlpha.800"
           w="100%"
           p="5"
         >
-          <Link to="/products">
-            <Box>
-              <Grid gridTemplateColumns="repeat(6, 1fr)">
-                <Flex direction="column" justifyContent="space-evenly">
-                  <Flex gap="5">
-                    <Avatar
-                      name="Dan Abrahmov"
-                      src="https://static.lenskart.com/media/desktop/img/men_pic.png"
-                      alt="men"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Men
-                    </Box>
-                  </Flex>
+          <Box>
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
+              <Box>
+                <DisposabilityFilter />
+              </Box>
 
-                  <Flex gap="5" mt="-40%">
-                    <Avatar
-                      name="Kola Tioluwani"
-                      src="https://static.lenskart.com/media/desktop/img/women_pic.png"
-                      alt="women"
-                      size="md"
-                    />
-                    <Box
-                      _hover={{ textDecoration: "underline" }}
-                      fontSize="md"
-                      fontWeight="bold"
-                    >
-                      Women
-                    </Box>
-                  </Flex>
-                </Flex>
+              <Box>
+                <PowerFilter />
+              </Box>
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    SELECT CATEGORY
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md">
-                    CLASSIC SUNGLASSES
-                    <p>
-                      Starting From ₹ <span>1299</span>
-                    </p>
-                  </Box>
-                  <Box _hover={{ bg: "blackAlpha.200" }} fontSize="md" p="2">
-                    PREMIUM SUNGLASSES
-                    <p>
-                      Starting From ₹ <span>2500</span>
-                    </p>
-                  </Box>
-                </Flex>
+              <Box>
+                <ColorFilter />
+              </Box>
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Our Top Picks
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>New Arrivals</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Best Seller</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Pilot Style</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Power Sunglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Polarized Sunglasses
-                    </Box>
-                  </Flex>
-                </Flex>
+              <Box>
+                <SolutionFilter />
+              </Box>
 
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Shape
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Aviator</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rounders</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Wayfarer</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Rectangle</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Hexagon</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Cat-Eye</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Clubmaster</Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Colections
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Glam Slam</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Havana</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Polarized</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>Power Sunglasses</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>
-                      Designer Sunglasses
-                    </Box>
-                  </Flex>
-                </Flex>
-
-                <Flex direction="column" gap="6">
-                  <Box
-                    fontSize="md"
-                    fontWeight="bold"
-                    borderBottom="1px solid black"
-                    p="1"
-                  >
-                    Brand
-                  </Box>
-                  <Flex direction="column" fontSize="md" gap="2">
-                    <Box _hover={{ fontWeight: "bold" }}>Vincent Chase</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>John Jacobs</Box>
-                    <Box _hover={{ fontWeight: "bold" }}>OJOS</Box>
-                  </Flex>
-                </Flex>
-              </Grid>
-            </Box>
-          </Link>
+              <Box>
+                <CollectionFilter />
+              </Box>
+            </Grid>
+          </Box>
         </MenuList>
       </Menu>
     </Flex>
   );
 }
+
 export default NavbarCard5;

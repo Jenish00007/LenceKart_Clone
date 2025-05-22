@@ -86,10 +86,10 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
             textAlign="center"
             fontSize={{ lg: "md", md: "md", base: "sm" }}
           >
-            BUY 1 GET 1 WITH GOLD MEMBERSHIP
+            BUY
           </Text>
 
-          <Text fontSize="12px">(with 1 Year Warranty & 14 day Return)</Text>
+          {/* <Text fontSize="12px">(with 1 Year Warranty & 14 day Return)</Text> */}
         </Flex>
       </Button>
       <Button
@@ -103,7 +103,7 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
       >
         Add to Wishlist
       </Button>
-      <Button
+      {/* <Button
         p={{ lg: 7, base: 0 }}
         m={{ lg: "10px 20px", base: "10px auto" }}
         w={{ lg: "90%", base: "100%" }}
@@ -119,15 +119,14 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
           alt="img"
           ml="20"
         />
-      </Button>
-      <br />
-      <br />
+      </Button> */}
+    
 
       <ProdDetails type={type} />
 
-      {ProdImage1.map((ele, i) => (
+      {/* {ProdImage1.map((ele, i) => (
         <Image src={ele.src} key={i} />
-      ))}
+      ))} */}
     </Box>
   );
 };

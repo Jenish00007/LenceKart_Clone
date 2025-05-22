@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import CartItem from "./CartItem";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
+import { AuthContext } from "../../ContextApi/AuthContext";
 import {
   Box,
   Text,
@@ -12,12 +13,17 @@ import {
   Radio,
   RadioGroup,
   Stack,
-  Flex
+  Flex,
+  useToast
 } from "@chakra-ui/react";
+import { API_URL } from "../../config";
 import "../../App.css";
+import { handleAuthRedirect } from '../../utils/auth';
 
 function Shipping() {
   const navigate = useNavigate();
+  const toast = useToast();
+  const { authData, isAuth, setAuthData, setisAuth } = useContext(AuthContext);
 
   const init = {
     first_name: "",
@@ -42,6 +48,72 @@ function Shipping() {
   const [cities, setCities] = useState();
   const [countries, setCountries] = useState();
   const [statess, setStatess] = useState();
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      handleAuthRedirect(navigate, 'Please sign in to continue with shipping');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    // Load cart items from localStorage
+    const loadCartItems = () => {
+      try {
+        const cartData = localStorage.getItem('cart');
+        console.log('Raw cart data from localStorage:', cartData);
+        
+        if (cartData) {
+          const parsedCart = JSON.parse(cartData);
+          console.log('Parsed cart items:', parsedCart);
+          
+          if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+            setCartItems(parsedCart);
+          } else {
+            console.log('Cart is empty or invalid format');
+            setCartItems([]);
+          }
+        } else {
+          console.log('No cart data found in localStorage');
+          setCartItems([]);
+        }
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        setCartItems([]);
+      }
+    };
+
+    loadCartItems();
+  }, []);
+
+  // Load user data from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        setAuthData([parsedUserData]);
+        setisAuth(true);
+        console.log('User data loaded from localStorage:', parsedUserData);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, [setAuthData, setisAuth]);
+
+  // Debug logging for auth state
+  useEffect(() => {
+    console.log('Current Auth State:', {
+      isAuth,
+      authData,
+      token: localStorage.getItem('token'),
+      userData: localStorage.getItem('user')
+    });
+  }, [isAuth, authData]);
 
   const Required = (props) => {
     return (
@@ -132,6 +204,130 @@ function Shipping() {
         break;
     }
   };
+
+  const calculateOrderDetails = () => {
+    const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.18; // 18% tax
+    const total = subtotal + tax;
+
+    return {
+      items: cartItems.map(item => ({
+        id: item._id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.imageTsrc
+      })),
+      subtotal,
+      tax,
+      coupon: 0,
+      total
+    };
+  };
+
+  const handlePlaceOrder = async () => {
+    try {
+      setLoading(true);
+
+      // Check if cart is empty
+      if (!cartItems || cartItems.length === 0) {
+        toast({
+          title: "Error",
+          description: "Your cart is empty. Please add items before placing an order.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      // Get user data from localStorage as fallback
+      const storedUserData = localStorage.getItem('user');
+      let user;
+      
+      if (authData && authData.length > 0) {
+        user = authData[0];
+      } else if (storedUserData) {
+        try {
+          user = JSON.parse(storedUserData);
+          setAuthData([user]);
+          setisAuth(true);
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+        }
+      }
+
+      if (!user || !user.id) {
+        toast({
+          title: "Error",
+          description: "Please login to place an order",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      // Validate shipping form data
+      if (!userData.first_name || !userData.last_name || !userData.phone || 
+          !userData.email || !userData.address || !userData.pincode || 
+          !userData.city || !userData.state || !userData.country) {
+        toast({
+          title: "Error",
+          description: "Please fill in all shipping details",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        return;
+      }
+
+      // Store shipping address in localStorage
+      const shippingData = {
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        phone: userData.phone,
+        email: userData.email,
+        address: userData.address,
+        pincode: userData.pincode,
+        city: userData.city,
+        state: userData.state,
+        country: userData.country
+      };
+
+      localStorage.setItem('shippingAddress', JSON.stringify(shippingData));
+
+      // Navigate to payment page
+      navigate("/payment");
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFormValid = 
+    userData.first_name.length >= 1 &&
+    userData.last_name.length >= 1 &&
+    userData.phone.length === 10 &&
+    userData.email.includes("@") &&
+    userData.email.includes(".com") &&
+    userData.address.length >= 1 &&
+    userData.pincode.length === 6 &&
+    userData.city.length >= 1 &&
+    userData.country.length >= 1 &&
+    userData.state.length >= 1;
 
   return (
     <>
@@ -372,43 +568,22 @@ function Shipping() {
               </Grid>
               <br />
 
-              {userData.first_name.length >= 1 &&
-              userData.last_name.length >= 1 &&
-              userData.phone.length === 10 &&
-              userData.email.includes("@") &&
-              userData.email.includes(".com") &&
-              userData.address.length >= 1 &&
-              userData.pincode.length === 6 &&
-              userData.city.length >= 1 &&
-              userData.country.length >= 1 &&
-              userData.state.length >= 1 ? (
-                <Button
-                  onClick={() => navigate("/checkout")}
-                  bg="#00b9c6"
-                  p="25px 20px"
-                  color="#fff"
-                  textAlign="center"
-                  fontWeight="bold"
-                  borderRadius="5px"
-                  fontSize="18px"
-                  ml={{ lg: "80%", sm: "70%", base: "50%" }}
-                >
-                  CONTINUE
-                </Button>
-              ) : (
-                <Button
-                  bg="#cccccc"
-                  p="25px 20px"
-                  color="#fff"
-                  textAlign="center"
-                  fontWeight="bold"
-                  borderRadius="5px"
-                  fontSize="18px"
-                  ml={{ lg: "80%", md: "72%", sm: "60%", base: "40%" }}
-                >
-                  CONTINUE
-                </Button>
-              )}
+              <Button
+                onClick={isFormValid ? handlePlaceOrder : undefined}
+                bg={isFormValid ? "#00b9c6" : "#cccccc"}
+                p="25px 20px"
+                color="#fff"
+                textAlign="center"
+                fontWeight="bold"
+                borderRadius="5px"
+                fontSize="18px"
+                ml={{ lg: "80%", sm: "70%", base: "50%" }}
+                isLoading={loading}
+                loadingText="Placing Order..."
+                disabled={!isFormValid || loading}
+              >
+                CONTINUE
+              </Button>
             </Box>
             <br />
           </Box>
