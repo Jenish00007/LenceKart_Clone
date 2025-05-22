@@ -121,7 +121,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setSunglasses(response.data.products);
+        setSunglasses(response.data);
         setSunglassesLoading(false);
       } catch (err) {
         console.error('Error fetching sunglasses:', err);
@@ -137,7 +137,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setEyeglasses(response.data.products);
+        setEyeglasses(response.data);
         setEyeglassesLoading(false);
       } catch (err) {
         console.error('Error fetching eyeglasses:', err);
@@ -153,7 +153,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setZeroPowerComputerBlueLenses(response.data.products);
+        setZeroPowerComputerBlueLenses(response.data);
         setZeroPowerComputerBlueLensesLoading(false);
       } catch (err) {
         console.error('Error fetching computer blue lenses:', err);
@@ -169,7 +169,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setContactLenses(response.data.products);
+        setContactLenses(response.data);
         setContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching contact lenses:', err);
@@ -185,7 +185,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setColorContactLenses(response.data.products);
+        setColorContactLenses(response.data);
         setColorContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching color contact lenses:', err);
