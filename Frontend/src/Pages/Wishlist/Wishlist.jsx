@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Text, Button, Heading, Grid, useToast } from "@chakra-ui/react";
+import { Box, Text, Button, Heading, Grid, useToast, Container } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 
 import { removeFromWishlist } from "../../redux/wishlist/wishlist.actions";
@@ -70,13 +70,14 @@ const Wishlist = () => {
   return (
     <Box>
       <Navbar />
-      <br />
-      <br />
-      <Box
-        minHeight="635"
-        w={{ lg: "80%", md: "90%", sm: "90%", base: "95%" }}
-        m="auto"
+     
+      <Box 
+        as="main" 
+        pt="120px"
+      minH="calc(100vh - 140px)"
       >
+        <Container maxW="container.xl" py={8}>
+     
         <Heading
           fontSize="25px"
           textAlign="left"
@@ -301,6 +302,8 @@ const Wishlist = () => {
             </Grid>
           </Box>
         )}
+     
+      </Container>
       </Box>
       <Footer />
     </Box>

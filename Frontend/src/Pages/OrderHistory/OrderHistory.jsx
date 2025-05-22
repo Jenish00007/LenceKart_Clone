@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Text, Stack, Heading, Image, Grid, Badge, useColorModeValue, HStack } from "@chakra-ui/react";
+import { Box, Text, Stack, Heading, Image, Grid, Badge, useColorModeValue, HStack, Container } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -58,12 +58,12 @@ const OrderHistory = () => {
   return (
     <Box bg={useColorModeValue("gray.50", "gray.900")} minH="100vh">
       <Navbar />
-      <Box
-        minHeight="635"
-        p={8}
-        w={{ lg: "80%", md: "90%", sm: "95%", base: "95%" }}
-        m="auto"
+      <Box 
+        as="main" 
+        pt="80px"
+        minH="calc(100vh - 140px)"
       >
+        <Container maxW="container.xl" py={8}>
         <Heading
           fontSize="28px"
           mt="2%"
@@ -218,7 +218,9 @@ const OrderHistory = () => {
             ))}
           </Stack>
         )}
+        </Container>
       </Box>
+
       <Footer />
     </Box>
   );

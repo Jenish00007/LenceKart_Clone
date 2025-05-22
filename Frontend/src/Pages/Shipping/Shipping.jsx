@@ -14,7 +14,8 @@ import {
   RadioGroup,
   Stack,
   Flex,
-  useToast
+  useToast,
+  Container
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import "../../App.css";
@@ -332,8 +333,12 @@ function Shipping() {
   return (
     <>
       <Navbar />
-      <br />
-      <br />
+      <Box 
+        as="main" 
+        pt="120px"
+        minH="calc(100vh - 140px)"
+      >
+        <Container maxW="container.xl" py={8}>
       <Grid
         m="auto"
         templateColumns={{
@@ -592,8 +597,8 @@ function Shipping() {
           <CartItem />
         </GridItem>
       </Grid>
-      <br />
-      <br />
+      </Container>
+      </Box>
       <Footer />
     </>
   );

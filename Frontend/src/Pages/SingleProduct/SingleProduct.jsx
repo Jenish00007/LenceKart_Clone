@@ -8,7 +8,7 @@ import Footer from "../../Components/Footer/Footer";
 import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
-import { Grid, GridItem, Image, useToast, Box, useDisclosure } from "@chakra-ui/react";
+import { Grid, GridItem, Image, useToast, Box, useDisclosure, Container } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import Login from "../../Pages/Login/Login";
@@ -149,12 +149,16 @@ const SingleProduct = () => {
   return (
     <Box>
       <Navbar />
+      <Box 
+        as="main" 
+        pt="150px"
+        minH="calc(100vh - 140px)"
+      >
+        <Container maxW="container.xl" py={8}>
       <Box style={{ display: 'none' }}>
         <Login isOpen={isOpen} onClose={onClose} />
       </Box>
-      <br />
-      <br />
-
+   
       <Grid
         gap={5}
         m="auto"
@@ -236,6 +240,8 @@ const SingleProduct = () => {
           <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
         </GridItem>
       </Grid>
+      </Container>
+      </Box>
       <Footer />
     </Box>
   );
