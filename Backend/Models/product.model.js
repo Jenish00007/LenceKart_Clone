@@ -208,6 +208,22 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  topPicks: {
+    type: String,
+    enum: ["new-arrivals", "best-sellers", "trending", "exclusive"]
+  },
+  masterCategory: {
+    type: String,
+    enum: ["eyeglasses", "sunglasses", "contact-lenses"]
+  },
+  personCategory: {
+    type: String,
+    enum: ["men", "women", "kids", "unisex"]
+  },
+  selectedCategoryPrice: {
+    type: String,
+    enum: ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"]
+  },
   recommended: {
     type: Boolean,
     default: false

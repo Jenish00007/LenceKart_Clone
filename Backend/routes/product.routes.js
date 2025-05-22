@@ -135,74 +135,88 @@ productRouter.get("/", async (req, res) => {
     const query = {};
     console.log("Received query params:", req.query);
 
-    if (req.query.rating) {
-      query.rating = req.query.rating;
+    // Log each parameter as it's being processed
+    if (req.query.sort) {
+      console.log("Sort parameter:", req.query.sort);
     }
-    if (req.query.colors) {
-      query.colors = { $in: [req.query.colors] };
-    }
-    if (req.query.price) {
-      query.price = req.query.price;
-    }
-    if (req.query.mPrice) {
-      query.mPrice = req.query.mPrice;
-    }
-    if (req.query.shape) {
-      query.shape = req.query.shape;
-    }
-    if (req.query.gender) {
-      query.gender = req.query.gender;
-    }
-    if (req.query.style) {
-      query.style = req.query.style;
-    }
-    if (req.query.dimension) {
-      query.dimension = req.query.dimension;
+    if (req.query.frameType) {
+      console.log("Frame type parameter:", req.query.frameType);
+      query.frameType = req.query.frameType;
     }
     if (req.query.productType) {
+      console.log("Product type parameter:", req.query.productType);
       query.productType = req.query.productType;
     }
-    if (req.query.userRated) {
-      query.userRated = req.query.userRated;
+    if (req.query.gender) {
+      console.log("Gender parameter:", req.query.gender);
+      query.gender = req.query.gender;
+    }
+    if (req.query.shape) {
+      console.log("Shape parameter:", req.query.shape);
+      query.shape = req.query.shape;
+    }
+    if (req.query.style) {
+      console.log("Style parameter:", req.query.style);
+      query.style = req.query.style;
+    }
+    if (req.query.colors) {
+      console.log("Colors parameter:", req.query.colors);
+      query.colors = { $in: [req.query.colors] };
+    }
+    if (req.query.page) {
+      console.log("Page parameter:", req.query.page);
     }
     if (req.query.search) {
+      console.log("Search parameter:", req.query.search);
       query.$or = [
         { name: { $regex: req.query.search, $options: "i" } },
         { productRefLink: { $regex: req.query.search, $options: "i" } },
         { productType: { $regex: req.query.search, $options: "i" } }
       ];
-      console.log("Search query:", query.$or);
     }
-    if (req.query.productRefLink) {
-      query.productRefLink = { $regex: req.query.productRefLink, $options: "i" };
+    if (req.query.topPicks) {
+      console.log("Top picks parameter:", req.query.topPicks);
+      query.topPicks = req.query.topPicks;
     }
-    if (req.query.frameType) {
-      query.frameType = req.query.frameType;
+    if (req.query.masterCategory) {
+      console.log("Master category parameter:", req.query.masterCategory);
+      query.masterCategory = req.query.masterCategory;
+    }
+    if (req.query.personCategory) {
+      console.log("Person category parameter:", req.query.personCategory);
+      query.personCategory = req.query.personCategory;
+    }
+    if (req.query.selectedCategoryPrice) {
+      console.log("Selected category price parameter:", req.query.selectedCategoryPrice);
+      // Map the selectedCategoryPrice to actual price ranges
+      const priceRanges = {
+        "classic-eyeglasses": { min: 500, max: 1499 },
+        "premium-eyeglasses": { min: 1500, max: 4999 },
+        "designer-eyeglasses": { min: 5000, max: 15000 }
+      };
+      
+      const range = priceRanges[req.query.selectedCategoryPrice];
+      if (range) {
+        query.price = {
+          $gte: range.min,
+          $lte: range.max
+        };
+      }
     }
 
-    console.log("Final query:", query);
+    console.log("Final query object:", JSON.stringify(query, null, 2));
 
     const products = await ProductModel.find(query)
       .sort({ price: req.query.sort === "lowtohigh" ? 1 : -1 })
       .skip(parseInt(req.query.page) * 12)
       .limit(12);
 
-    const totalCount = await ProductModel.countDocuments(query);
-
-    console.log("Found products:", products.length);
-
-    res.status(200).json({
-      success: true,
-      totalCount: totalCount,
-      products: products
-    });
+    console.log("Number of products found:", products.length);
+    
+    res.status(200).json(products);
   } catch (error) {
-    console.error("Error in product search:", error);
-    res.status(500).json({
-      success: false,
-      error: "Error searching products",
-      details: error.message
-    });
+    console.error("Error in product filtering:", error);
+    res.status(500).json({ error: "Failed to fetch products", details: error.message });
   }
 });
 

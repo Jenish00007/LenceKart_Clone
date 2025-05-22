@@ -16,12 +16,12 @@ const CategorySelector = () => {
 
   const categories = [
     {
-      id: 'men',
+      id: 'Men',
       title: 'Men',
       image: 'https://static.lenskart.com/media/desktop/img/men_pic.png'
     },
     {
-      id: 'women',
+      id: 'Women',
       title: 'Women',
       image: 'https://static.lenskart.com/media/desktop/img/women_pic.png'
     },

@@ -10,12 +10,15 @@ const SunglassesFilters = () => {
   const filterOptions = {
     shape: [
       'Aviator',
-      'Rounders',
+      'Round',
       'Wayfarer',
       'Rectangle',
       'Hexagon',
-      'Cat-Eye',
-      'Clubmaster'
+      'Cat Eye',
+      'Oval',
+      'Club Master',
+      'Geometric',
+      'Square'
     ],
     collection: [
       'Glam Slam',

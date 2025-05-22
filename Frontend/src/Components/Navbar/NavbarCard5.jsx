@@ -32,33 +32,31 @@ import CollectionFilter from '../Filters/CollectionFilter';
 function NavbarCard5() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const selectedSubCategory = useSelector((state) => state.filter.selectedSubCategory);
-  const selectedType = useSelector((state) => state.filter.selectedType);
-  const selectedCategory = useSelector((state) => state.filter.selectedCategory);
-  const productType = useSelector((state) => state.filter.productType);
-  const selectedFrameType = useSelector((state) => state.filter.frameType);
-
+ 
+  const personCategory = useSelector((state) => state.filter.selectedCategory);
+  const frameType = useSelector((state) => state.filter.frameType);
+  const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
   const handleSubCategorySelect = (subCategory, type = '', categoryType = '') => {
     dispatch(setSelectedSubCategory(subCategory));
     if (type) {
       dispatch(setSelectedType(type));
     }
-    
+   
+   
     const queryParams = new URLSearchParams();
-    queryParams.append('subCategory', subCategory.toLowerCase().replace(/ /g, '-'));
+    queryParams.append('topPicks', subCategory.toLowerCase().replace(/ /g, '-'));
     if (type) {
-      queryParams.append('productType', type);
+      queryParams.append('masterCategory', type);
     }
-    if (selectedCategory) {
-      queryParams.append('category', selectedCategory);
+    if (personCategory) {
+      queryParams.append('personCategory', personCategory);
     }
-    if (selectedFrameType) {
-      queryParams.append('frameType', selectedFrameType);
+    if (frameType) {
+      queryParams.append('frameType', frameType);
     }
-    if (categoryType) {
-      queryParams.append('type', categoryType);
+    if (selectedCategoryPrice) {
+      queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
     }
-  
     navigate(`/products?${queryParams.toString()}`);
   };
 
@@ -184,7 +182,7 @@ function NavbarCard5() {
               </Box>
 
               <Box>
-                <ComputerSelectCategory />
+              <SelectCategory />
               </Box>
 
               <TopPicksSection 
@@ -226,7 +224,7 @@ function NavbarCard5() {
               </Box>
 
               <Box>
-                <SunglassesSelectCategory />
+              <SelectCategory />
               </Box>
 
               <TopPicksSection 
@@ -262,12 +260,19 @@ function NavbarCard5() {
           p="5"
         >
           <Box>
-            <Grid gridTemplateColumns="repeat(4, 1fr)" w="100%">
-              <Box>
-                <KidsGlassesSelector />
+            <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
+              <Box mt="20">
+                <CategorySelector />
               </Box>
 
-              <TopPicksSection items={eyeglassTopPicks} type="kids-glasses" />
+              <Box>
+              <SelectCategory />
+              </Box>
+
+              <TopPicksSection 
+                items={sunglassTopPicks} 
+                type="sunglasses"
+              />
 
               <Flex direction="column" gap="6">
                 <FrameTypeSelector />
@@ -277,7 +282,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      {/* <Menu>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -320,7 +325,7 @@ function NavbarCard5() {
             </Grid>
           </Box>
         </MenuList>
-      </Menu>
+      </Menu> */}
     </Flex>
   );
 }
