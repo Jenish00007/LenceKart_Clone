@@ -10,7 +10,7 @@ import SaleBox from "./SaleBox";
 import CartEmpty from "./CartEmpty";
 import CouponBox from "./CouponBox";
 import Footer from "../../Components/Footer/Footer";
-import { Flex, Text, Button, Box,} from "@chakra-ui/react";
+import { Flex, Text, Button, Box, Container } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 
 const fadeIn = keyframes`
@@ -75,6 +75,12 @@ const CartPage = () => {
   return (
     <>
       <Navbar />
+      <Box 
+        as="main" 
+        pt="140px"
+        minH="calc(100vh - 140px)"
+      >
+        <Container maxW="container.xl" py={8}>
       {cart && cart.length > 0 ? (
         <Flex
           width={"90%"}
@@ -191,6 +197,8 @@ const CartPage = () => {
           <CartEmpty />
         </Box>
       )}
+      </Container>
+      </Box>
       <Footer />
     </>
   );

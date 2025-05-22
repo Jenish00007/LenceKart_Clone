@@ -285,73 +285,79 @@ const Payment = () => {
   };
 
   return (
-    <Box>
+    <Box minH="100vh" bg="gray.50">
       <Navbar />
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
-          <Heading size="lg" textAlign="center">Payment Details</Heading>
-          
-          <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="lg">
-            <VStack spacing={4} align="stretch">
-              <Heading size="md">Order Summary</Heading>
-              <Divider />
-              
-              {cart.map((item) => (
-                <HStack key={item.id} justify="space-between">
-                  <Text>{item.productRefLink || "Vincent Chase Eyeglasses"}</Text>
-                  <Text>₹{Math.round(item.price + item.price * 0.18)}.00</Text>
-                </HStack>
-              ))}
-              
-              <Divider />
-              
-              <HStack justify="space-between">
-                <Text fontWeight="bold">Subtotal:</Text>
-                <Text>₹{getTotalPrice()}.00</Text>
-              </HStack>
-              
-              <HStack justify="space-between">
-                <Text fontWeight="bold">Tax (18%):</Text>
-                <Text>₹{Math.round(getTotalPrice() * 0.18)}.00</Text>
-              </HStack>
-              
-              {coupon > 0 && (
+      <Box 
+        as="main" 
+        pt="140px" // Add padding-top to account for fixed Navbar
+        minH="calc(100vh - 140px)" // Subtract Navbar height from min-height
+      >
+        <Container maxW="container.xl" py={8}>
+          <VStack spacing={8} align="stretch">
+            <Heading size="lg" textAlign="center">Payment Details</Heading>
+            
+            <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="lg" bg="white">
+              <VStack spacing={4} align="stretch">
+                <Heading size="md">Order Summary</Heading>
+                <Divider />
+                
+                {cart.map((item) => (
+                  <HStack key={item.id} justify="space-between">
+                    <Text>{item.productRefLink || "Vincent Chase Eyeglasses"}</Text>
+                    <Text>₹{Math.round(item.price + item.price * 0.18)}.00</Text>
+                  </HStack>
+                ))}
+                
+                <Divider />
+                
                 <HStack justify="space-between">
-                  <Text fontWeight="bold">Coupon Discount:</Text>
-                  <Text color="green.500">-₹{coupon}.00</Text>
+                  <Text fontWeight="bold">Subtotal:</Text>
+                  <Text>₹{getTotalPrice()}.00</Text>
                 </HStack>
-              )}
-              
-              <Divider />
-              
-              <HStack justify="space-between">
-                <Text fontWeight="bold" fontSize="xl">Total:</Text>
-                <Text fontWeight="bold" fontSize="xl">
-                  ₹{Math.round(getTotalPrice() + getTotalPrice() * 0.18) - (coupon || 0)}.00
-                </Text>
-              </HStack>
-            </VStack>
-          </Box>
+                
+                <HStack justify="space-between">
+                  <Text fontWeight="bold">Tax (18%):</Text>
+                  <Text>₹{Math.round(getTotalPrice() * 0.18)}.00</Text>
+                </HStack>
+                
+                {coupon > 0 && (
+                  <HStack justify="space-between">
+                    <Text fontWeight="bold">Coupon Discount:</Text>
+                    <Text color="green.500">-₹{coupon}.00</Text>
+                  </HStack>
+                )}
+                
+                <Divider />
+                
+                <HStack justify="space-between">
+                  <Text fontWeight="bold" fontSize="xl">Total:</Text>
+                  <Text fontWeight="bold" fontSize="xl">
+                    ₹{Math.round(getTotalPrice() + getTotalPrice() * 0.18) - (coupon || 0)}.00
+                  </Text>
+                </HStack>
+              </VStack>
+            </Box>
 
-          <Button
-            colorScheme="teal"
-            size="lg"
-            onClick={handlePayment}
-            isLoading={loading}
-            loadingText="Processing..."
-          >
-            Proceed to Pay
-          </Button>
+            <Button
+              colorScheme="teal"
+              size="lg"
+              onClick={handlePayment}
+              isLoading={loading}
+              loadingText="Processing..."
+            >
+              Proceed to Pay
+            </Button>
 
-          <Button
-            variant="outline"
-            colorScheme="teal"
-            onClick={() => navigate('/shipping')}
-          >
-            Back to Shipping
-          </Button>
-        </VStack>
-      </Container>
+            <Button
+              variant="outline"
+              colorScheme="teal"
+              onClick={() => navigate('/shipping')}
+            >
+              Back to Shipping
+            </Button>
+          </VStack>
+        </Container>
+      </Box>
       <Footer />
     </Box>
   );
