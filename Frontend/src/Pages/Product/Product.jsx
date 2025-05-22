@@ -117,7 +117,7 @@ const NewProduct = () => {
           w="96%"
           m="auto"
         /> */}
-        <Flex m="0" px="2%" gap="4" cursor="pointer">
+        <Flex mt="132px" px="2%" gap="4" cursor="pointer">
           <Flex
             w="17%"
             m={0}
