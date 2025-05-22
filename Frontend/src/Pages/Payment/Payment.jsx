@@ -10,7 +10,9 @@ import {
   VStack,
   HStack,
   useToast,
-  Divider
+  Divider,
+  Flex,
+  Image
 } from '@chakra-ui/react';
 import { createPaymentOrder, verifyPayment, loadRazorpayScript } from '../../services/payment.service';
 import { AuthContext } from '../../ContextApi/AuthContext';
@@ -294,18 +296,76 @@ const Payment = () => {
       >
         <Container maxW="container.xl" py={8}>
           <VStack spacing={8} align="stretch">
-            <Heading size="lg" textAlign="center">Payment Details</Heading>
+            <Heading 
+              size="lg" 
+              textAlign="center"
+              bgGradient="linear(to-r, blue.500, purple.500)"
+              bgClip="text"
+            >
+              Payment Details
+            </Heading>
             
-            <Box p={6} borderWidth="1px" borderRadius="lg" boxShadow="lg" bg="white">
+            <Box 
+              p={6} 
+              borderWidth="1px" 
+              borderRadius="lg" 
+              boxShadow="lg" 
+              bg="white"
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "xl"
+              }}
+              transition="all 0.3s ease"
+            >
               <VStack spacing={4} align="stretch">
                 <Heading size="md">Order Summary</Heading>
                 <Divider />
                 
                 {cart.map((item) => (
-                  <HStack key={item.id} justify="space-between">
-                    <Text>{item.productRefLink || "Vincent Chase Eyeglasses"}</Text>
-                    <Text>₹{Math.round(item.price + item.price * 0.18)}.00</Text>
-                  </HStack>
+                  <Flex 
+                    key={item.id} 
+                    justify="space-between" 
+                    align="center"
+                    p={2}
+                    _hover={{
+                      bg: "gray.50",
+                      borderRadius: "md"
+                    }}
+                  >
+                    <HStack spacing={4}>
+                      <Box 
+                        position="relative" 
+                        boxSize="50px" 
+                        borderRadius="md" 
+                        overflow="hidden"
+                        bg="gray.100"
+                      >
+                        <Image 
+                          src={item.imageTsrc || item.image || item.imageUrl || '/placeholder-image.png'} 
+                          alt={item.productRefLink || "Product Image"}
+                          boxSize="100%"
+                          objectFit="cover"
+                          fallback={
+                            <Box 
+                              boxSize="100%" 
+                              bg="gray.200" 
+                              display="flex" 
+                              alignItems="center" 
+                              justifyContent="center"
+                            >
+                              <Text fontSize="xs" color="gray.500">No Image</Text>
+                            </Box>
+                          }
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/placeholder-image.png';
+                          }}
+                        />
+                      </Box>
+                      <Text noOfLines={2}>{item.productRefLink || "Vincent Chase Eyeglasses"}</Text>
+                    </HStack>
+                    <Text fontWeight="bold">₹{Math.round(item.price + item.price * 0.18)}.00</Text>
+                  </Flex>
                 ))}
                 
                 <Divider />
@@ -331,7 +391,7 @@ const Payment = () => {
                 
                 <HStack justify="space-between">
                   <Text fontWeight="bold" fontSize="xl">Total:</Text>
-                  <Text fontWeight="bold" fontSize="xl">
+                  <Text fontWeight="bold" fontSize="xl" color="teal.500">
                     ₹{Math.round(getTotalPrice() + getTotalPrice() * 0.18) - (coupon || 0)}.00
                   </Text>
                 </HStack>
@@ -344,6 +404,11 @@ const Payment = () => {
               onClick={handlePayment}
               isLoading={loading}
               loadingText="Processing..."
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "lg"
+              }}
+              transition="all 0.3s ease"
             >
               Proceed to Pay
             </Button>
@@ -352,6 +417,12 @@ const Payment = () => {
               variant="outline"
               colorScheme="teal"
               onClick={() => navigate('/shipping')}
+              _hover={{
+                bg: "gray.50",
+                transform: "translateY(-2px)",
+                boxShadow: "md"
+              }}
+              transition="all 0.3s ease"
             >
               Back to Shipping
             </Button>
