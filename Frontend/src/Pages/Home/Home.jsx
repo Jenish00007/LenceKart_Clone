@@ -254,6 +254,10 @@ const Home = () => {
         <TrendingEyeglasses />
         <HomeCard5b type={HomeDetails5} />
         <RecentlyViewed />
+        <br />
+        <br />
+        <br />
+        <br />
         <HomeCard4
           text="As Seen on Shark Tank"
           src="https://static1.lenskart.com/media/desktop/img/Dec22/1-Dec/Homepage-Banner-web.gif"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, Tooltip, Icon, useToast, useDisclosure } from "@chakra-ui/react";
+import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, VStack, Tooltip, Icon, useToast, useDisclosure, Skeleton } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 import { FiShoppingCart, FiHeart, FiEye } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,7 +44,6 @@ const TrendingEyeglasses = () => {
   const handleWishlistToggle = (product) => {
     if (!isAuth) {
       onOpen();
-     
       return;
     }
 
@@ -76,7 +75,6 @@ const TrendingEyeglasses = () => {
   const handleAddToCart = async (product) => {
     if (!isAuth) {
       onOpen();
-     
       return;
     }
 
@@ -99,18 +97,6 @@ const TrendingEyeglasses = () => {
 
       // Update Redux store
       await dispatch(addToCart(cartItem));
-
-      // Update local storage
-      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const updatedCart = existingItem
-        ? currentCart.map(item => 
-            item.productId === product._id 
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        : [...currentCart, cartItem];
-      
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
 
       toast({
         title: 'Added to cart',
@@ -152,14 +138,32 @@ const TrendingEyeglasses = () => {
   }, []);
 
   if (loading) {
-    return <Text>Loading trending products...</Text>;
+    return (
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
+        <Skeleton height="40px" mb={6} />
+        <Grid
+          templateColumns={{
+            base: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+          }}
+          gap={{ base: 3, sm: 4, md: 6 }}
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+            <Skeleton key={item} height={{ base: "350px", md: "450px" }} borderRadius="lg" />
+          ))}
+        </Grid>
+      </Box>
+    );
   }
 
   return (
-    <Box p={8} bg="gray.50">
+    <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
       <Heading
         textAlign="center"
-        mb={8}
+        mb={{ base: 6, md: 8 }}
+        size={{ base: "md", sm: "lg" }}
         bgGradient="linear(to-r, blue.400, purple.500)"
         bgClip="text"
         _hover={{
@@ -170,11 +174,12 @@ const TrendingEyeglasses = () => {
       </Heading>
       <Grid
         templateColumns={{
-          base: "repeat(1, 1fr)",
-          md: "repeat(2, 1fr)",
+          base: "repeat(2, 1fr)",
+          sm: "repeat(2, 1fr)",
+          md: "repeat(3, 1fr)",
           lg: "repeat(4, 1fr)",
         }}
-        gap={6}
+        gap={{ base: 3, sm: 4, md: 6 }}
       >
         {trendingProducts?.map((product) => (
           <Card
@@ -186,15 +191,17 @@ const TrendingEyeglasses = () => {
             bg="white"
             boxShadow="md"
             transition="all 0.3s"
+            h="100%"
             _hover={{
-              transform: "translateY(-5px)",
+              transform: "translateY(-2px)",
               shadow: "lg"
             }}
           >
-            <CardBody>
+            <CardBody p={{ base: 3, sm: 4 }}>
               <Box 
                 position="relative"
                 bg="#fbf9f7"
+                borderRadius="md"
                 _hover={{
                   '&::after': {
                     content: '""',
@@ -212,11 +219,10 @@ const TrendingEyeglasses = () => {
                 <Image
                   src={product.imageTsrc}
                   alt={product.name}
-                  height="200px"
+                  height={{ base: "120px", sm: "150px", md: "180px" }}
                   width="100%"
                   objectFit="cover"
-                
-                  // p={4}
+                  borderRadius="md"
                   transition="transform 0.3s ease"
                   _hover={{ transform: 'scale(1.1)' }}
                 />
@@ -226,7 +232,7 @@ const TrendingEyeglasses = () => {
                   left={2}
                   bgGradient="linear(to-r, #00b9c5, #00a5b0, #008c96)"
                   color="white"
-                  fontSize="xs"
+                  fontSize={{ base: "xx-small", sm: "xs" }}
                   px={2}
                   py={0.5}
                   borderRadius="sm"
@@ -234,14 +240,16 @@ const TrendingEyeglasses = () => {
                   Trending
                 </Badge>
               </Box>
-              <Flex justifyContent="space-between" alignItems="center" mb={2}>
-                <Flex
+              
+              <VStack align="start" spacing={{ base: 2, sm: 3 }} mt={3}>
+                <Flex 
                   borderRadius="20px"
                   alignItems="center"
                   gap="5px"
                   p="5px 10px"
                   bgColor="#eeeef5"
-                  fontSize="13px"
+                  fontSize={{ base: "11px", sm: "13px" }}
+                  alignSelf="flex-start"
                 >
                   <Text>
                     {product.rating || (Math.random() * (5 - 1) + 1).toFixed(1)}
@@ -251,78 +259,117 @@ const TrendingEyeglasses = () => {
                     {product.userRated || Math.floor(Math.random() * 999 + 1)}
                   </Text>
                 </Flex>
-              </Flex>
 
-              <Text fontWeight="bold" fontSize="lg" mb={2} noOfLines={2} color="#000042">
-                {product.name}
-              </Text>
-              <Text color="gray.600" fontSize="sm" mb={2}>
-                {product.productType}
-              </Text>
-              <Text color="gray.600" fontSize="sm" mb={2}>
-                Shape: {product.shape || "Rectangle"}
-              </Text>
-              
-              <Flex justify="space-between" align="center" mb={4}>
-                <Text color="blue.600" fontSize="xl" fontWeight="bold">
-                  ₹{product.price}
+                <Text 
+                  fontWeight="bold" 
+                  fontSize={{ base: "sm", sm: "md", md: "lg" }} 
+                  noOfLines={2} 
+                  color="#000042"
+                  lineHeight="1.2"
+                  minH={{ base: "32px", sm: "40px" }}
+                >
+                  {product.name}
                 </Text>
-                <Text color="gray.500" fontSize="sm" textDecoration="line-through">
-                  ₹{product.mPrice}
+                
+                <Text 
+                  color="gray.600" 
+                  fontSize={{ base: "xs", sm: "sm" }}
+                  noOfLines={1}
+                >
+                  {product.productType}
                 </Text>
-              </Flex>
+                
+                <Text 
+                  color="gray.600" 
+                  fontSize={{ base: "xs", sm: "sm" }}
+                  noOfLines={1}
+                >
+                  Shape: {product.shape || "Rectangle"}
+                </Text>
+                
+                <Flex justify="space-between" align="center" w="100%">
+                  <Text 
+                    color="blue.600" 
+                    fontSize={{ base: "md", sm: "lg", md: "xl" }} 
+                    fontWeight="bold"
+                  >
+                    ₹{product.price}
+                  </Text>
+                  <Text 
+                    color="gray.500" 
+                    fontSize={{ base: "xs", sm: "sm" }} 
+                    textDecoration="line-through"
+                  >
+                    ₹{product.mPrice}
+                  </Text>
+                </Flex>
 
-              <Box
-                fontSize="13px"
-                color="#cbb881"
-                w="100%"
-                padding="2"
-                fontWeight="bold"
-                bgGradient="linear(to-r, #f8f2e0, yellow.50)"
-                mb={3}
-                textAlign="center"
-              >
-                BUY1 GET1 +10% OFF
-              </Box>
+                <Box
+                  fontSize={{ base: "10px", sm: "12px", md: "13px" }}
+                  color="#cbb881"
+                  w="100%"
+                  padding="2"
+                  fontWeight="bold"
+                  bgGradient="linear(to-r, #f8f2e0, yellow.50)"
+                  textAlign="center"
+                  borderRadius="sm"
+                >
+                  BUY1 GET1 +10% OFF
+                </Box>
+              </VStack>
             </CardBody>
+            
             <Divider />
-            <CardFooter>
-              <HStack spacing={4} width="100%" justify="space-between">
-                <Tooltip label="Add to Cart">
-                  <Button
-                    size="sm"
-                    leftIcon={<Icon as={FiShoppingCart} />}
-                    colorScheme="blue"
-                    variant="ghost"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Cart
-                  </Button>
-                </Tooltip>
-                <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
-                  <Button
-                    size="sm"
-                    leftIcon={<Icon as={FiHeart} />}
-                    colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
-                    variant="ghost"
-                    onClick={() => handleWishlistToggle(product)}
-                  >
-                    Wishlist
-                  </Button>
-                </Tooltip>
+            
+            <CardFooter p={{ base: 2, sm: 3 }}>
+              <VStack spacing={2} width="100%">
+                <HStack spacing={{ base: 1, sm: 2 }} width="100%" justify="space-around">
+                  <Tooltip label="Add to Cart">
+                    <Button
+                      size={{ base: "xs", sm: "sm" }}
+                      fontSize={{ base: "10px", sm: "12px" }}
+                      px={{ base: 2, sm: 3 }}
+                      leftIcon={<Icon as={FiShoppingCart} boxSize={{ base: 3, sm: 4 }} />}
+                      colorScheme="blue"
+                      variant="ghost"
+                      onClick={() => handleAddToCart(product)}
+                      flex="1"
+                    >
+                      <Text display={{ base: "none", sm: "block" }}>Cart</Text>
+                    </Button>
+                  </Tooltip>
+                  
+                  <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
+                    <Button
+                      size={{ base: "xs", sm: "sm" }}
+                      fontSize={{ base: "10px", sm: "12px" }}
+                      px={{ base: 2, sm: 3 }}
+                      leftIcon={<Icon as={FiHeart} boxSize={{ base: 3, sm: 4 }} />}
+                      colorScheme="pink"
+                      variant="ghost"
+                      onClick={() => handleWishlistToggle(product)}
+                      flex="1"
+                    >
+                      <Text display={{ base: "none", sm: "block" }}>Wishlist</Text>
+                    </Button>
+                  </Tooltip>
+                </HStack>
+                
                 <Tooltip label="View Details">
                   <Button
-                    size="sm"
-                    leftIcon={<Icon as={FiEye} />}
+                    size={{ base: "xs", sm: "sm" }}
+                    fontSize={{ base: "10px", sm: "12px" }}
+                    leftIcon={<Icon as={FiEye} boxSize={{ base: 3, sm: 4 }} />}
                     colorScheme="teal"
                     variant="ghost"
                     as={Link}
                     to={`/products/${product._id}`}
+                    width="100%"
                   >
-                    View
+                    View Details
                   </Button>
                 </Tooltip>
-              </HStack>
+              </VStack>
             </CardFooter>
           </Card>
         ))}

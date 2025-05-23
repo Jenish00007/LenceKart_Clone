@@ -54,7 +54,6 @@ const RecommendedCategories = () => {
   const handleWishlistToggle = (product) => {
     if (!isAuth) {
       onOpen();
-     
       return;
     }
 
@@ -86,7 +85,6 @@ const RecommendedCategories = () => {
   const handleAddToCart = async (product) => {
     if (!isAuth) {
       onOpen();
-     
       return;
     }
 
@@ -141,18 +139,19 @@ const RecommendedCategories = () => {
 
   if (loading) {
     return (
-      <Box p={8} bg="gray.50">
-        <Skeleton height="40px" mb={8} />
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
+        <Skeleton height="40px" mb={6} />
         <Grid
           templateColumns={{
-            base: "repeat(1, 1fr)",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
+            base: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
           }}
-          gap={6}
+          gap={{ base: 3, sm: 4, md: 6 }}
         >
-          {[1, 2, 3].map((item) => (
-            <Skeleton key={item} height="400px" borderRadius="lg" />
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <Skeleton key={item} height={{ base: "320px", md: "400px" }} borderRadius="lg" />
           ))}
         </Grid>
       </Box>
@@ -160,21 +159,27 @@ const RecommendedCategories = () => {
   }
 
   return (
-    <Box p={8} bg="gray.50">
+    <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
       <Fade in={true}>
-        <VStack spacing={8} align="stretch">
-          <Flex justify="space-between" align="center">
+        <VStack spacing={{ base: 6, md: 8 }} align="stretch">
+          <Flex 
+            justify="space-between" 
+            align="center" 
+            direction={{ base: "column", sm: "row" }}
+            gap={{ base: 3, sm: 0 }}
+          >
             <Heading
-              size="lg"
+              size={{ base: "md", sm: "lg" }}
               bgGradient="linear(to-r, blue.400, purple.500)"
               bgClip="text"
+              textAlign={{ base: "center", sm: "left" }}
               _hover={{
                 bgGradient: "linear(to-r, blue.500, purple.600)",
               }}
             >
               Recommended Products
             </Heading>
-            <Tag size="lg" colorScheme="purple" borderRadius="full">
+            <Tag size={{ base: "md", sm: "lg" }} colorScheme="purple" borderRadius="full">
               <TagLeftIcon as={FiTrendingUp} />
               <TagLabel>Trending Now</TagLabel>
             </Tag>
@@ -182,11 +187,12 @@ const RecommendedCategories = () => {
 
           <Grid
             templateColumns={{
-              base: "repeat(1, 1fr)",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
+              base: "repeat(2, 1fr)",
+              sm: "repeat(2, 1fr)", 
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
             }}
-            gap={6}
+            gap={{ base: 3, sm: 4, md: 6 }}
           >
             {recommendedProducts?.map((product) => (
               <ScaleFade key={product._id} initialScale={0.9} in={true}>
@@ -197,20 +203,22 @@ const RecommendedCategories = () => {
                   borderRadius="lg"
                   overflow="hidden"
                   transition="all 0.3s"
+                  h="100%"
                   _hover={{
-                    transform: 'translateY(-5px)',
+                    transform: 'translateY(-2px)',
                     shadow: 'lg'
                   }}
                 >
-                  <CardBody>
+                  <CardBody p={{ base: 3, sm: 4 }}>
                     <Box position="relative">
                       <Image
                         src={product.imageTsrc}
                         alt={product.name}
-                        height="200px"
+                        height={{ base: "120px", sm: "150px", md: "180px" }}
                         width="100%"
                         objectFit="cover"
                         fallbackSrc="https://via.placeholder.com/200"
+                        borderRadius="md"
                       />
                       <Badge
                         position="absolute"
@@ -219,68 +227,96 @@ const RecommendedCategories = () => {
                         colorScheme="purple"
                         borderRadius="full"
                         px={2}
+                        fontSize={{ base: "xx-small", sm: "xs" }}
                       >
                         Recommended
                       </Badge>
                     </Box>
 
-                    <VStack align="start" spacing={2} mt={4}>
-                      <Heading size="sm" noOfLines={2}>
+                    <VStack align="start" spacing={2} mt={3}>
+                      <Heading 
+                        size={{ base: "xs", sm: "sm" }} 
+                        noOfLines={2}
+                        lineHeight="1.2"
+                        minH={{ base: "32px", sm: "40px" }}
+                      >
                         {product.name}
                       </Heading>
-                      <Text color="teal.500" fontWeight="bold" fontSize="lg">
+                      <Text 
+                        color="teal.500" 
+                        fontWeight="bold" 
+                        fontSize={{ base: "sm", sm: "md", md: "lg" }}
+                      >
                         ₹{product.price}
                       </Text>
-                      <HStack spacing={2}>
-                        <Badge colorScheme="green" variant="subtle">
+                      <VStack spacing={1} align="start" w="100%">
+                        <Badge colorScheme="green" variant="subtle" fontSize="xx-small">
                           In Stock
                         </Badge>
-                        <Badge colorScheme="purple" variant="subtle">
+                        <Badge 
+                          colorScheme="purple" 
+                          variant="subtle" 
+                          fontSize="xx-small"
+                          noOfLines={1}
+                        >
                           {product.category}
                         </Badge>
-                      </HStack>
+                      </VStack>
                     </VStack>
                   </CardBody>
 
                   <Divider />
 
-                  <CardFooter>
-                    <HStack spacing={4} width="100%" justify="space-between">
-                      <Tooltip label="Add to Cart">
-                        <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiShoppingCart} />}
-                          colorScheme="blue"
-                          variant="ghost"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          Cart
-                        </Button>
-                      </Tooltip>
-                      <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
-                        <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiHeart} />}
-                          colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
-                          variant="ghost"
-                          onClick={() => handleWishlistToggle(product)}
-                        >
-                          Wishlist
-                        </Button>
-                      </Tooltip>
+                  <CardFooter p={{ base: 2, sm: 3 }}>
+                    <VStack spacing={2} width="100%">
+                      <HStack spacing={{ base: 1, sm: 2 }} width="100%" justify="space-around">
+                        <Tooltip label="Add to Cart">
+                          <Button
+                            size={{ base: "xs", sm: "sm" }}
+                            fontSize={{ base: "10px", sm: "12px" }}
+                            px={{ base: 2, sm: 3 }}
+                            leftIcon={<Icon as={FiShoppingCart} boxSize={{ base: 3, sm: 4 }} />}
+                            colorScheme="blue"
+                            variant="ghost"
+                            onClick={() => handleAddToCart(product)}
+                            flex="1"
+                          >
+                            <Text display={{ base: "none", sm: "block" }}>Cart</Text>
+                          </Button>
+                        </Tooltip>
+                        
+                        <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
+                          <Button
+                            size={{ base: "xs", sm: "sm" }}
+                            fontSize={{ base: "10px", sm: "12px" }}
+                            px={{ base: 2, sm: 3 }}
+                            leftIcon={<Icon as={FiHeart} boxSize={{ base: 3, sm: 4 }} />}
+                            colorScheme="pink"
+                            variant="ghost"
+                            onClick={() => handleWishlistToggle(product)}
+                            flex="1"
+                          >
+                            <Text display={{ base: "none", sm: "block" }}>Wishlist</Text>
+                          </Button>
+                        </Tooltip>
+                      </HStack>
+                      
                       <Tooltip label="View Details">
                         <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiEye} />}
+                          size={{ base: "xs", sm: "sm" }}
+                          fontSize={{ base: "10px", sm: "12px" }}
+                          leftIcon={<Icon as={FiEye} boxSize={{ base: 3, sm: 4 }} />}
                           colorScheme="teal"
-                          variant="ghost"
+                         variant="ghost"
                           as={Link}
                           to={`/products/${product._id}`}
+                          width="100%"
                         >
-                          View
+                          View Details
                         </Button>
+                       
                       </Tooltip>
-                    </HStack>
+                    </VStack>
                   </CardFooter>
                 </Card>
               </ScaleFade>
@@ -295,4 +331,4 @@ const RecommendedCategories = () => {
   );
 };
 
-export default RecommendedCategories; 
+export default RecommendedCategories;
