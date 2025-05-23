@@ -85,7 +85,7 @@ const HomeCard2 = ({ type, loading, error }) => {
           animation={`${slideIn} 0.8s ease-out`}
           textAlign={{ base: "center", md: "left" }}
         >
-          <Box>
+          <Box textAlign="center">
             <Text 
               fontSize={headingSize}
               fontWeight="normal" 
@@ -117,11 +117,10 @@ const HomeCard2 = ({ type, loading, error }) => {
               color={textColor} 
               mt={{ base: 1, md: 2 }} 
               fontFamily="'Montserrat', Arial, sans-serif"
-              maxW={{ base: "100%", md: "80%" }}
+              maxW={{ base: "100%", md: "100%" }}
               lineHeight={{ base: "short", md: "tall" }}
-              mx={{ base: "auto", md: 0 }}
             >
-              Discover our hottest collections
+              Discover our collections
             </Text>
           </Box>
         </Flex>
