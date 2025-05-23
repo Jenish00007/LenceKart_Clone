@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -229,6 +228,13 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
 };
 
 const ProductSection = ({ title, products, loading = false }) => {
+  const [page, setPage] = useState(0);
+  const productsPerPage = 4;
+  const totalPages = Math.ceil((products?.length || 0) / productsPerPage);
+  const paginatedProducts = products?.slice(
+    page * productsPerPage,
+    (page + 1) * productsPerPage
+  ) || [];
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuth } = useContext(AuthContext);
@@ -331,7 +337,7 @@ const ProductSection = ({ title, products, loading = false }) => {
           }}
           gap={{ base: 3, sm: 4, md: 6 }}
         >
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+          {[1, 2, 3, 4].map((item) => (
             <Skeleton key={item} height={{ base: "320px", md: "400px" }} borderRadius="lg" />
           ))}
         </Grid>
@@ -376,7 +382,7 @@ const ProductSection = ({ title, products, loading = false }) => {
               }}
               gap={{ base: 3, sm: 4, md: 6 }}
             >
-              {products?.map((product) => (
+              {paginatedProducts.map((product) => (
                 <ProductCard
                   key={product._id}
                   product={product}
@@ -387,10 +393,14 @@ const ProductSection = ({ title, products, loading = false }) => {
                 />
               ))}
             </Grid>
+            <Flex justify="center" mt={4} gap={2}>
+              <Button onClick={() => setPage(p => Math.max(0, p - 1))} isDisabled={page === 0} size="sm">Prev</Button>
+              <Text fontSize="sm" color="gray.600" alignSelf="center">Page {page + 1} of {totalPages}</Text>
+              <Button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} isDisabled={page === totalPages - 1} size="sm">Next</Button>
+            </Flex>
           </VStack>
         </Fade>
       </Container>
-
       <Box style={{ display: 'none' }}>
         <Login isOpen={isOpen} onClose={onClose} />
       </Box>
