@@ -45,78 +45,75 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
         transform: 'translateY(-5px)',
         boxShadow: 'xl',
       }}
+      p={{ base: 2, sm: 4 }}
     >
-      <CardBody>
+      <CardBody p={{ base: 2, sm: 4 }}>
         <Box position="relative">
           <Image
             src={product.imageTsrc}
             alt={product.name}
             borderRadius="lg"
             objectFit="cover"
-            height="200px"
+            height={{ base: "120px", sm: "180px" }}
             width="100%"
           />
         </Box>
-        <Stack mt="6" spacing="3">
-          <VStack align="start" spacing={1}>
-            <Heading size="md" noOfLines={1}>
+        <Stack mt={{ base: 2, sm: 4 }} spacing={{ base: 2, sm: 3 }}>
+          <VStack align="start" spacing={1} w="100%">
+            <Heading size="sm" noOfLines={1} fontSize={{ base: "sm", sm: "md" }}>
               {product.name}
             </Heading>
-            <HStack spacing={2}>
+            <HStack spacing={1}>
               <Tag size="sm" colorScheme="blue">{product.productType}</Tag>
               {product.trending && <Tag size="sm" colorScheme="green">Trending</Tag>}
             </HStack>
           </VStack>
-          
-          <Flex align="center">
-            <Box display="flex" alignItems="center">
+          <Flex align="center" minW={0}>
+            <Box display="flex" alignItems="center" minW={0}>
               {Array(5)
                 .fill('')
                 .map((_, i) => (
                   <Box
                     key={i}
                     color={i < Math.floor(product.rating) ? 'yellow.400' : 'gray.300'}
+                    fontSize={{ base: "xs", sm: "sm" }}
                   >
                     ★
                   </Box>
                 ))}
-              <Text ml={2} color="gray.600" fontSize="sm">
+              <Text ml={2} color="gray.600" fontSize={{ base: "xs", sm: "sm" }}>
                 ({product.rating} • {product.userRated} reviews)
               </Text>
             </Box>
           </Flex>
-
-          <HStack spacing={2}>
+          <HStack spacing={1}>
             <Tag size="sm" colorScheme="purple">{product.gender}</Tag>
             <Tag size="sm" colorScheme="orange">{product.shape}</Tag>
           </HStack>
-
           <Flex justify="space-between" align="center">
             <VStack align="start" spacing={0}>
-              <Text color="blue.600" fontSize="xl" fontWeight="bold">
+              <Text color="blue.600" fontSize={{ base: "md", sm: "xl" }} fontWeight="bold">
                 ₹{product.price}
               </Text>
               {product.mPrice > product.price && (
-                <Text color="gray.500" fontSize="sm" textDecoration="line-through">
+                <Text color="gray.500" fontSize={{ base: "xs", sm: "sm" }} textDecoration="line-through">
                   ₹{product.mPrice}
                 </Text>
               )}
             </VStack>
             {discount > 0 && (
-              <Badge colorScheme="green" fontSize="sm">
+              <Badge colorScheme="green" fontSize={{ base: "xs", sm: "sm" }}>
                 {discount}% OFF
               </Badge>
             )}
           </Flex>
-
           {product.quantity < 50 && (
-            <Text color="red.500" fontSize="sm">
+            <Text color="red.500" fontSize={{ base: "xs", sm: "sm" }}>
               Only {product.quantity} left!
             </Text>
           )}
-
           <Flex gap={2}>
-            <HStack spacing={4} width="100%" justify="space-between">
+            <HStack spacing={{ base: 2, sm: 4 }} width="100%" justify="space-between">
               <Tooltip label="Add to Cart">
                 <Button
                   size="sm"
@@ -124,6 +121,8 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   colorScheme="blue"
                   variant="ghost"
                   onClick={() => onAddToCart(product)}
+                  fontSize={{ base: "xs", sm: "sm" }}
+                  px={{ base: 2, sm: 3 }}
                 >
                   Cart
                 </Button>
@@ -135,6 +134,8 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   colorScheme="pink"
                   variant="ghost"
                   onClick={() => onWishlistToggle(product)}
+                  fontSize={{ base: "xs", sm: "sm" }}
+                  px={{ base: 2, sm: 3 }}
                 >
                   Wishlist
                 </Button>
@@ -146,6 +147,8 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   colorScheme="teal"
                   variant="ghost"
                   onClick={() => onViewDetails(product)}
+                  fontSize={{ base: "xs", sm: "sm" }}
+                  px={{ base: 2, sm: 3 }}
                 >
                   View
                 </Button>
@@ -160,7 +163,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
 
 const ProductSection = ({ title, products }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = useBreakpointValue({ base: 1, sm: 2, md: 3, lg: 4 });
+  const itemsPerPage = useBreakpointValue({ base: 2, sm: 2, md: 3, lg: 4 });
   const totalPages = Math.ceil((products?.length || 0) / itemsPerPage);
   const navigate = useNavigate();
   const toast = useToast();
@@ -340,12 +343,12 @@ const ProductSection = ({ title, products }) => {
             <Box
               display="flex"
               transition="transform 0.5s ease"
-              transform={`translateX(-${currentIndex * (100 / totalPages)}%)`}
+              transform={`translateX(-${currentIndex * 100}%)`}
               width={`${totalPages * 100}%`}
             >
               {Array.from({ length: totalPages }).map((_, pageIndex) => (
-                <Box key={pageIndex} width={`${100 / totalPages}%`} px={2}>
-                  <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
+                <Box key={pageIndex} width="100%" px={2}>
+                  <SimpleGrid columns={{ base: 2, sm: 2, md: 3, lg: 4 }} spacing={{ base: 3, sm: 4, md: 6 }}>
                     {products
                       ?.slice(
                         pageIndex * itemsPerPage,
