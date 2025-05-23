@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Text,
-  SimpleGrid,
+  Grid,
   Image,
   Flex,
   Spinner,
@@ -56,7 +56,6 @@ const RecentlyViewed = () => {
   const handleWishlistToggle = (product) => {
     if (!isAuth) {
       onOpen();
-      
       return;
     }
 
@@ -198,13 +197,21 @@ const RecentlyViewed = () => {
 
   if (loading) {
     return (
-      <Box p={4}>
-        <Skeleton height="40px" mb={4} />
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={4}>
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
+        <Skeleton height="40px" mb={6} />
+        <Grid
+          templateColumns={{
+            base: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+          }}
+          gap={{ base: 3, sm: 4, md: 6 }}
+        >
           {[1, 2, 3, 4].map((item) => (
-            <Skeleton key={item} height="300px" borderRadius="lg" />
+            <Skeleton key={item} height={{ base: "320px", md: "400px" }} borderRadius="lg" />
           ))}
-        </SimpleGrid>
+        </Grid>
       </Box>
     );
   }
@@ -214,20 +221,40 @@ const RecentlyViewed = () => {
   }
 
   return (
-    <Box p={6}>
+    <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
       <Fade in={true}>
-        <VStack spacing={6} align="stretch">
-          <Flex justify="space-between" align="center">
-            <Heading size="lg" color="blue.600">
+        <VStack spacing={{ base: 6, md: 8 }} align="stretch">
+          <Flex 
+            justify="space-between" 
+            align="center" 
+            direction={{ base: "column", sm: "row" }}
+            gap={{ base: 3, sm: 0 }}
+          >
+            <Heading
+              size={{ base: "md", sm: "lg" }}
+              color="blue.600"
+              textAlign={{ base: "center", sm: "left" }}
+              _hover={{
+                color: "blue.700",
+              }}
+            >
               Recently Viewed Products
             </Heading>
-            <Tag size="lg" colorScheme="blue" borderRadius="full">
+            <Tag size={{ base: "md", sm: "lg" }} colorScheme="blue" borderRadius="full">
               <TagLeftIcon as={FiClock} />
               <TagLabel>Last 24 Hours</TagLabel>
             </Tag>
           </Flex>
 
-          <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={6}>
+          <Grid
+            templateColumns={{
+              base: "repeat(2, 1fr)",
+              sm: "repeat(2, 1fr)", 
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            }}
+            gap={{ base: 3, sm: 4, md: 6 }}
+          >
             {products.map((product, index) => (
               <ScaleFade key={product._id} initialScale={0.9} in={true} delay={index * 0.1}>
                 <Card
@@ -237,99 +264,129 @@ const RecentlyViewed = () => {
                   borderRadius="lg"
                   overflow="hidden"
                   transition="all 0.3s"
+                  h="100%"
                   _hover={{
-                    transform: 'translateY(-5px)',
+                    transform: 'translateY(-2px)',
                     shadow: 'lg'
                   }}
                 >
-                  <Link to={`/products/${product._id}`}>
-                    <Box position="relative">
-                      <Image
-                        src={product.imageTsrc}
-                        alt={product.name}
-                        height="200px"
-                        width="100%"
-                        objectFit="cover"
-                        fallbackSrc="https://via.placeholder.com/200"
-                      />
-                      <Badge
-                        position="absolute"
-                        top={2}
-                        right={2}
-                        colorScheme="blue"
-                        borderRadius="full"
-                        px={2}
-                      >
-                        Recently Viewed
-                      </Badge>
-                    </Box>
-                  </Link>
+                  <CardBody p={{ base: 3, sm: 4 }}>
+                    <Link to={`/products/${product._id}`}>
+                      <Box position="relative">
+                        <Image
+                          src={product.imageTsrc}
+                          alt={product.name}
+                          height={{ base: "120px", sm: "150px", md: "180px" }}
+                          width="100%"
+                          objectFit="cover"
+                          fallbackSrc="https://via.placeholder.com/200"
+                          borderRadius="md"
+                        />
+                        <Badge
+                          position="absolute"
+                          top={2}
+                          right={2}
+                          colorScheme="blue"
+                          borderRadius="full"
+                          px={2}
+                          fontSize={{ base: "xx-small", sm: "xs" }}
+                        >
+                          Recently Viewed
+                        </Badge>
+                      </Box>
+                    </Link>
 
-                  <CardBody>
-                    <VStack align="start" spacing={2}>
+                    <VStack align="start" spacing={2} mt={3}>
                       <Link to={`/products/${product._id}`}>
-                        <Heading size="sm" noOfLines={2} _hover={{ color: "blue.500" }}>
+                        <Heading 
+                          size={{ base: "xs", sm: "sm" }} 
+                          noOfLines={2} 
+                          _hover={{ color: "blue.500" }}
+                          lineHeight="1.2"
+                          minH={{ base: "32px", sm: "40px" }}
+                        >
                           {product.name}
                         </Heading>
                       </Link>
-                      <Text color="teal.500" fontWeight="bold" fontSize="lg">
+                      <Text 
+                        color="teal.500" 
+                        fontWeight="bold" 
+                        fontSize={{ base: "sm", sm: "md", md: "lg" }}
+                      >
                         ₹{product.price}
                       </Text>
-                      <HStack spacing={2}>
-                        <Badge colorScheme="green" variant="subtle">
+                      <VStack spacing={1} align="start" w="100%">
+                        <Badge colorScheme="green" variant="subtle" fontSize="xx-small">
                           In Stock
                         </Badge>
-                        <Badge colorScheme="purple" variant="subtle">
+                        <Badge 
+                          colorScheme="purple" 
+                          variant="subtle" 
+                          fontSize="xx-small"
+                          noOfLines={1}
+                        >
                           {product.category}
                         </Badge>
-                      </HStack>
+                      </VStack>
                     </VStack>
                   </CardBody>
 
                   <Divider />
 
-                  <CardFooter>
-                    <HStack spacing={4} width="100%" justify="space-between">
-                      <Tooltip label="Add to Cart">
-                        <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiShoppingCart} />}
-                          colorScheme="blue"
-                          variant="ghost"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          Cart
-                        </Button>
-                      </Tooltip>
-                      <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
-                        <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiHeart} />}
-                          colorScheme={wishlistItems.some(item => item._id === product._id) ? "pink" : "pink"}
-                          variant="ghost"
-                          onClick={() => handleWishlistToggle(product)}
-                        >
-                          Wishlist
-                        </Button>
-                      </Tooltip>
+                  <CardFooter p={{ base: 2, sm: 3 }}>
+                    <VStack spacing={2} width="100%">
+                      <HStack spacing={{ base: 1, sm: 2 }} width="100%" justify="space-around">
+                        <Tooltip label="Add to Cart">
+                          <Button
+                            size={{ base: "xs", sm: "sm" }}
+                            fontSize={{ base: "10px", sm: "12px" }}
+                            px={{ base: 2, sm: 3 }}
+                            leftIcon={<Icon as={FiShoppingCart} boxSize={{ base: 3, sm: 4 }} />}
+                            colorScheme="blue"
+                            variant="ghost"
+                            onClick={() => handleAddToCart(product)}
+                            flex="1"
+                          >
+                            <Text display={{ base: "none", sm: "block" }}>Cart</Text>
+                          </Button>
+                        </Tooltip>
+                        
+                        <Tooltip label={wishlistItems.some(item => item._id === product._id) ? "Remove from Wishlist" : "Add to Wishlist"}>
+                          <Button
+                            size={{ base: "xs", sm: "sm" }}
+                            fontSize={{ base: "10px", sm: "12px" }}
+                            px={{ base: 2, sm: 3 }}
+                            leftIcon={<Icon as={FiHeart} boxSize={{ base: 3, sm: 4 }} />}
+                            colorScheme="pink"
+                            variant="ghost"
+                            onClick={() => handleWishlistToggle(product)}
+                            flex="1"
+                          >
+                            <Text display={{ base: "none", sm: "block" }}>Wishlist</Text>
+                          </Button>
+                        </Tooltip>
+                      </HStack>
+                      
                       <Tooltip label="View Details">
                         <Button
-                          size="sm"
-                          leftIcon={<Icon as={FiEye} />}
+                          size={{ base: "xs", sm: "sm" }}
+                          fontSize={{ base: "10px", sm: "12px" }}
+                          leftIcon={<Icon as={FiEye} boxSize={{ base: 3, sm: 4 }} />}
                           colorScheme="teal"
                           variant="ghost"
                           as={Link}
                           to={`/products/${product._id}`}
+                          width="100%"
                         >
-                          View
+                          View Details
                         </Button>
                       </Tooltip>
-                    </HStack>
+                    </VStack>
                   </CardFooter>
                 </Card>
               </ScaleFade>
             ))}
-          </SimpleGrid>
+          </Grid>
         </VStack>
       </Fade>
       <Box style={{ display: 'none' }}>
@@ -339,4 +396,4 @@ const RecentlyViewed = () => {
   );
 };
 
-export default RecentlyViewed; 
+export default RecentlyViewed;

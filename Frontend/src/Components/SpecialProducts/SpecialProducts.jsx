@@ -170,7 +170,7 @@ const ProductSection = ({ title, products }) => {
   const wishlistItems = useSelector((state) => state.wishlist.wishlist);
   const cartItems = useSelector((state) => state.cart.cart);
 
-  const handleAuthAction = (action) => {
+  const handleAuthAction = () => {
     if (!isAuth) {
       onOpen();
       return false;
@@ -179,14 +179,10 @@ const ProductSection = ({ title, products }) => {
   };
 
   const handleWishlistToggle = (product) => {
-    if (!isAuth) {
-      onOpen();
-      
-      return;
-    }
+    if (!handleAuthAction()) return;
 
     const isFavorite = wishlistItems.some(item => item._id === product._id);
-    
+
     if (isFavorite) {
       dispatch(removeFromWishlist(product._id));
       toast({
@@ -212,12 +208,10 @@ const ProductSection = ({ title, products }) => {
 
   const handleAddToCart = async (product) => {
     if (!handleAuthAction()) return;
-    
+
     try {
-      // Check if item already exists in cart
       const existingItem = cartItems.find(item => item.productId === product._id);
-      
-      // Format the product data with all required fields
+
       const cartItem = {
         productId: product._id,
         quantity: existingItem ? existingItem.quantity + 1 : 1,
@@ -230,19 +224,17 @@ const ProductSection = ({ title, products }) => {
         style: product.style || "Classic"
       };
 
-      // Update Redux store
       await dispatch(addToCart(cartItem));
 
-      // Update local storage
       const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
       const updatedCart = existingItem
-        ? currentCart.map(item => 
-            item.productId === product._id 
+        ? currentCart.map(item =>
+            item.productId === product._id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
         : [...currentCart, cartItem];
-      
+
       localStorage.setItem('cart', JSON.stringify(updatedCart));
 
       toast({
@@ -323,13 +315,7 @@ const ProductSection = ({ title, products }) => {
           </Heading>
         </Flex>
 
-        <Box
-          position="relative"
-          overflow="hidden"
-          borderRadius="lg"
-          bg="gray.50"
-          p={4}
-        >
+        <Box position="relative" overflow="hidden" borderRadius="lg" bg="gray.50" p={4}>
           <Box position="relative" px={1}>
             <IconButton
               icon={<ChevronLeftIcon boxSize={6} color="blue.600" />}
@@ -358,11 +344,7 @@ const ProductSection = ({ title, products }) => {
               width={`${totalPages * 100}%`}
             >
               {Array.from({ length: totalPages }).map((_, pageIndex) => (
-                <Box
-                  key={pageIndex}
-                  width={`${100 / totalPages}%`}
-                  px={2}
-                >
+                <Box key={pageIndex} width={`${100 / totalPages}%`} px={2}>
                   <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={6}>
                     {products
                       ?.slice(
@@ -397,7 +379,7 @@ const ProductSection = ({ title, products }) => {
               cursor="pointer"
               onClick={() => setCurrentIndex(index)}
               transition="all 0.3s"
-              _hover={{ 
+              _hover={{
                 bg: currentIndex === index ? "blue.600" : "gray.400",
                 transform: "scale(1.2)"
               }}

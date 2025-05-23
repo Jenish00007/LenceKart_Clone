@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
-import { Box, Image, Text, Icon, Button, Badge, Flex, IconButton, keyframes, useToast, useDisclosure } from '@chakra-ui/react';
+import { Box, Image, Text, Icon, Button, Badge, Flex, IconButton, useToast, useDisclosure } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
+import { keyframes } from '@emotion/react';
 
 // Define keyframe animations
 const float = keyframes`
@@ -79,7 +80,8 @@ const ProductCard = ({ product }) => {
 
   return (
     <Box 
-      w={{ base: "180px", md: "220px", lg: "240px" }}
+      w="100%"
+      minW={0}
       bg="white"
       position="relative"
       transition="all 0.3s ease"
