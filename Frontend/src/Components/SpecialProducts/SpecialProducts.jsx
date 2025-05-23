@@ -21,7 +21,8 @@ import {
   Tooltip,
   useDisclosure,
   SimpleGrid,
-  useBreakpointValue
+  useBreakpointValue,
+  Wrap
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
@@ -46,6 +47,10 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
         boxShadow: 'xl',
       }}
       p={{ base: 2, sm: 4 }}
+      minH={{ base: '340px', sm: '380px' }}
+      m={{ base: 1, sm: 2 }}
+      boxShadow="md"
+      borderRadius="lg"
     >
       <CardBody p={{ base: 2, sm: 4 }}>
         <Box position="relative">
@@ -59,14 +64,14 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
           />
         </Box>
         <Stack mt={{ base: 2, sm: 4 }} spacing={{ base: 2, sm: 3 }}>
-          <VStack align="start" spacing={1} w="100%">
-            <Heading size="sm" noOfLines={1} fontSize={{ base: "sm", sm: "md" }}>
+          <VStack align="start" spacing={1} w="100%" minW={0}>
+            <Heading size="sm" noOfLines={1} fontSize={{ base: "sm", sm: "md" }} isTruncated>
               {product.name}
             </Heading>
-            <HStack spacing={1}>
-              <Tag size="sm" colorScheme="blue">{product.productType}</Tag>
-              {product.trending && <Tag size="sm" colorScheme="green">Trending</Tag>}
-            </HStack>
+            <Wrap spacing={1} shouldWrapChildren>
+              <Tag size="sm" colorScheme="blue" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.productType}</Tag>
+              {product.trending && <Tag size="sm" colorScheme="green" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>Trending</Tag>}
+            </Wrap>
           </VStack>
           <Flex align="center" minW={0}>
             <Box display="flex" alignItems="center" minW={0}>
@@ -81,28 +86,28 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                     ★
                   </Box>
                 ))}
-              <Text ml={2} color="gray.600" fontSize={{ base: "xs", sm: "sm" }}>
+              <Text ml={2} color="gray.600" fontSize={{ base: "xs", sm: "sm" }} isTruncated>
                 ({product.rating} • {product.userRated} reviews)
               </Text>
             </Box>
           </Flex>
-          <HStack spacing={1}>
-            <Tag size="sm" colorScheme="purple">{product.gender}</Tag>
-            <Tag size="sm" colorScheme="orange">{product.shape}</Tag>
-          </HStack>
-          <Flex justify="space-between" align="center">
-            <VStack align="start" spacing={0}>
-              <Text color="blue.600" fontSize={{ base: "md", sm: "xl" }} fontWeight="bold">
+          <Wrap spacing={1} shouldWrapChildren>
+            <Tag size="sm" colorScheme="purple" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.gender}</Tag>
+            <Tag size="sm" colorScheme="orange" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.shape}</Tag>
+          </Wrap>
+          <Flex justify="space-between" align="center" minW={0}>
+            <VStack align="start" spacing={0} minW={0}>
+              <Text color="blue.600" fontSize={{ base: "md", sm: "xl" }} fontWeight="bold" noOfLines={1} isTruncated>
                 ₹{product.price}
               </Text>
               {product.mPrice > product.price && (
-                <Text color="gray.500" fontSize={{ base: "xs", sm: "sm" }} textDecoration="line-through">
+                <Text color="gray.500" fontSize={{ base: "xs", sm: "sm" }} textDecoration="line-through" noOfLines={1} isTruncated>
                   ₹{product.mPrice}
                 </Text>
               )}
             </VStack>
             {discount > 0 && (
-              <Badge colorScheme="green" fontSize={{ base: "xs", sm: "sm" }}>
+              <Badge colorScheme="green" fontSize={{ base: "2xs", sm: "xs" }} px={{ base: 1, sm: 2 }}>
                 {discount}% OFF
               </Badge>
             )}
@@ -123,6 +128,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   onClick={() => onAddToCart(product)}
                   fontSize={{ base: "xs", sm: "sm" }}
                   px={{ base: 2, sm: 3 }}
+                  borderRadius="md"
                 >
                   Cart
                 </Button>
@@ -136,6 +142,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   onClick={() => onWishlistToggle(product)}
                   fontSize={{ base: "xs", sm: "sm" }}
                   px={{ base: 2, sm: 3 }}
+                  borderRadius="md"
                 >
                   Wishlist
                 </Button>
@@ -149,6 +156,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                   onClick={() => onViewDetails(product)}
                   fontSize={{ base: "xs", sm: "sm" }}
                   px={{ base: 2, sm: 3 }}
+                  borderRadius="md"
                 >
                   View
                 </Button>
