@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Login from "../../Pages/Login/Login";
 import Signup from "../../Pages/Signup/Signup";
 import { AuthContext } from "../../ContextApi/AuthContext";
@@ -33,11 +33,7 @@ import {
   VStack,
   Divider,
   Icon,
-  useToast,
-  useColorModeValue,
-  InputGroup,
-  InputLeftElement,
-  Tooltip
+  useToast
 } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 import NavScroll from "./NavScroll";
@@ -76,11 +72,6 @@ function Nav() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(null);
   const toast = useToast();
-
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const hoverBg = useColorModeValue("gray.100", "gray.700");
-
   const placeholders = [
     "Search for eyeglasses...",
     "Search for sunglasses...",
@@ -89,46 +80,44 @@ function Nav() {
     "Search for blue light glasses..."
   ];
 
-  const fetchUserData = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await fetch(`${API_URL}/user/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const data = await response.json();
-      
-      if (Array.isArray(data)) {
-        const currentUser = data.find(user => user._id === JSON.parse(atob(token.split('.')[1])).id);
-        if (currentUser) {
-          setUserData(currentUser);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch user data",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  }, [toast]);
-
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await fetch(`${API_URL}/user/`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+          }
+          const data = await response.json();
+          
+          if (Array.isArray(data)) {
+            const currentUser = data.find(user => user._id === JSON.parse(atob(token.split('.')[1])).id);
+            if (currentUser) {
+              setUserData(currentUser);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch user data",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    };
+
     if (isAuth) {
       fetchUserData();
     }
-  }, [isAuth, fetchUserData]);
+  }, [isAuth, toast]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -137,22 +126,22 @@ function Nav() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSearch = useCallback((e) => {
+  const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
     }
-  }, [searchQuery, navigate]);
+  };
 
-  const handleProtectedAction = useCallback((action) => {
+  const handleProtectedAction = (action) => {
     if (!isAuth) {
       handleAuthRedirect(navigate, `Please sign in to ${action}`);
       return false;
     }
     return true;
-  }, [isAuth, navigate]);
+  };
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logout();
     onClose();
     navigate('/');
@@ -162,89 +151,76 @@ function Nav() {
       duration: 3000,
       isClosable: true,
     });
-  }, [logout, onClose, navigate, toast]);
+  };
 
   return (
     <Box
       display={{ lg: "inherit", xl: "none" }}
       cursor="pointer"
-      bg={bgColor}
+      bg="#fbf9f7"
       p={2.5}
-      transition="all 0.3s ease"
     >
       <HStack m="auto" justifyContent="space-between">
         <Box w={{ lg: "20%", md: "20%", sm: "22%", base: "30%" }}>
           <Link to="/">
             <Image
               src="https://i.imgur.com/OHxtfjd.png"
-              alt="LenceKart Logo"
+              alt="logo"
               w={{ lg: "50%", md: "50%", sm: "50%", base: "50%" }}
-              transition="transform 0.3s ease"
-              _hover={{ transform: "scale(1.05)" }}
             />
           </Link>
         </Box>
         <HStack spacing={4}>
-          <Tooltip label="Wishlist" placement="bottom">
-            <Link 
-              to={isAuth ? "/wishlist" : "#"} 
-              onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your wishlist'))}
+          <Link 
+            to={isAuth ? "/wishlist" : "#"} 
+            onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your wishlist'))}
+          >
+            <Box 
+              _hover={{ color: "blue.500" }}
+              transition="color 0.2s"
             >
-              <Box 
-                _hover={{ color: "blue.500", transform: "scale(1.1)" }}
-                transition="all 0.2s"
-              >
-                <CiHeart size="24px" color="black" />
-              </Box>
-            </Link>
-          </Tooltip>
-          <Tooltip label="Cart" placement="bottom">
-            <Link 
-              to={isAuth ? "/cart" : "#"} 
-              onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your cart'))}
+              <CiHeart size="24px" color="black" />
+            </Box>
+          </Link>
+          <Link 
+            to={isAuth ? "/cart" : "#"} 
+            onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your cart'))}
+          >
+            <Box 
+              _hover={{ color: "blue.500" }}
+              transition="color 0.2s"
             >
-              <Box 
-                _hover={{ color: "blue.500", transform: "scale(1.1)" }}
-                transition="all 0.2s"
-              >
-                <CgShoppingCart size="24px" color="black" />
-              </Box>
-            </Link>
-          </Tooltip>
+              <CgShoppingCart size="24px" color="black" />
+            </Box>
+          </Link>
           {isAuth && userData ? (
             <HStack spacing={2}>
-              <Tooltip label="Account" placement="bottom">
-                <Avatar
-                  size="sm"
-                  name={`${userData.first_name} ${userData.last_name}`}
-                  src={userData.avatar || "https://bit.ly/broken-link"}
-                  bg="blue.500"
-                  color="white"
-                  cursor="pointer"
-                  onClick={onOpen}
-                  transition="transform 0.2s"
-                  _hover={{ transform: "scale(1.1)" }}
-                />
-              </Tooltip>
+              <Avatar
+                size="sm"
+                name={`${userData.first_name} ${userData.last_name}`}
+                src={userData.avatar || "https://bit.ly/broken-link"}
+                bg="blue.500"
+                color="white"
+                cursor="pointer"
+                onClick={onOpen}
+              />
               <Text 
                 fontSize="sm" 
                 fontWeight="medium"
                 display={{ base: "none", md: "block" }}
                 cursor="pointer"
                 onClick={onOpen}
-                _hover={{ color: "blue.500" }}
-                transition="color 0.2s"
               >
                 {userData.first_name}
               </Text>
             </HStack>
           ) : (
             <Button 
-              bg={bgColor}
+              bg="white" 
               onClick={onOpen}
-              _hover={{ bg: hoverBg }}
+              _hover={{ bg: "gray.100" }}
               border="1px solid"
-              borderColor={borderColor}
+              borderColor="gray.200"
               transition="all 0.2s"
             >
               <HamburgerIcon color="black" boxSize="20px" />
@@ -258,9 +234,9 @@ function Nav() {
             onClose={onClose}
           >
             <DrawerOverlay />
-            <DrawerContent bg={bgColor}>
+            <DrawerContent color="blackAlpha.900">
               <DrawerCloseButton />
-              <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
+              <DrawerHeader bg="whiteAlpha.900">
                 {isAuth && userData ? (
                   <Flex
                     borderBottom="2px solid #18CFA8"
@@ -272,56 +248,233 @@ function Nav() {
                   >
                     <Flex w="100%" align="center" gap={4}>
                       <Avatar
-                        size="lg"
                         name={`${userData.first_name} ${userData.last_name}`}
                         src={userData.avatar || "https://bit.ly/broken-link"}
+                        size="lg"
                         bg="blue.500"
                         color="white"
                       />
-                      <VStack align="start" spacing={1}>
-                        <Heading size="md">
+                      <Flex
+                        direction="column"
+                        justifyContent="center"
+                        alignItems="flex-start"
+                      >
+                        <Text 
+                          fontSize="xl" 
+                          fontWeight="bold" 
+                          color="gray.800"
+                        >
                           {userData.first_name} {userData.last_name}
-                        </Heading>
-                        <Text fontSize="sm" color="gray.500">
+                        </Text>
+                        <Text color="gray.500" fontSize="sm">
                           {userData.email}
                         </Text>
-                      </VStack>
+                      </Flex>
                     </Flex>
                   </Flex>
                 ) : (
-                  <Heading size="md">Menu</Heading>
+                  <Box
+                    p="5%"
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    gap={4}
+                  >
+                    <Text fontSize="xl" fontWeight="bold" color="gray.800">
+                      Welcome to Lenskart
+                    </Text>
+                    <HStack spacing={4}>
+                      <Button
+                        bg="blue.500"
+                        color="white"
+                        _hover={{ bg: "blue.600" }}
+                        px={6}
+                        py={2}
+                        borderRadius="md"
+                        transition="all 0.2s"
+                        onClick={onClose}
+                      >
+                        <Login />
+                      </Button>
+                      <Button
+                        bg="white"
+                        color="blue.500"
+                        border="2px solid"
+                        borderColor="blue.500"
+                        _hover={{ bg: "blue.50" }}
+                        px={6}
+                        py={2}
+                        borderRadius="md"
+                        transition="all 0.2s"
+                        onClick={onClose}
+                      >
+                        <Signup />
+                      </Button>
+                    </HStack>
+                  </Box>
                 )}
               </DrawerHeader>
-              <DrawerBody>
-                {isAuth ? (
-                  <VStack spacing={4} align="stretch">
-                    <Button
-                      leftIcon={<FiPackage />}
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={() => {
-                        navigate("/orderhistory");
-                        onClose();
-                      }}
+              <DrawerBody borderBottomWidth="1px" bg="whiteAlpha.900">
+                <VStack spacing={4} align="stretch">
+                  <Heading size="sm" color="gray.600" px={2}>
+                    MY ACCOUNT
+                  </Heading>
+                  <Box display="flex" flexDirection="column" fontSize="16px">
+                    <Link 
+                      to={isAuth ? "/orderhistory" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your orders'))}
                     >
-                      My Orders
-                    </Button>
-                    <Button
-                      leftIcon={<FiLogOut />}
-                      variant="ghost"
-                      justifyContent="flex-start"
-                      onClick={handleLogout}
+                      <Flex
+                        align="center"
+                        p={3}
+                        _hover={{ 
+                          bg: "gray.50",
+                          color: "blue.500",
+                          transform: "translateX(4px)"
+                        }}
+                        transition="all 0.2s"
+                        borderRadius="md"
+                      >
+                        <Icon as={FiPackage} mr={3} />
+                        <Text>My Orders</Text>
+                      </Flex>
+                    </Link>
+                    <Link 
+                      to={isAuth ? "/cart" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your cart'))}
                     >
-                      Sign Out
-                    </Button>
+                      <Flex
+                        align="center"
+                        p={3}
+                        _hover={{ 
+                          bg: "gray.50",
+                          color: "blue.500",
+                          transform: "translateX(4px)"
+                        }}
+                        transition="all 0.2s"
+                        borderRadius="md"
+                      >
+                        <Icon as={CgShoppingCart} mr={3} />
+                        <Text>Cart</Text>
+                      </Flex>
+                    </Link>
+                    <Link 
+                      to={isAuth ? "/wishlist" : "#"} 
+                      onClick={(e) => !isAuth && (e.preventDefault(), handleProtectedAction('view your wishlist'))}
+                    >
+                      <Flex
+                        align="center"
+                        p={3}
+                        _hover={{ 
+                          bg: "gray.50",
+                          color: "blue.500",
+                          transform: "translateX(4px)"
+                        }}
+                        transition="all 0.2s"
+                        borderRadius="md"
+                      >
+                        <Icon as={CiHeart} mr={3} />
+                        <Text>Wishlist</Text>
+                      </Flex>
+                    </Link>
+                  </Box>
+
+                  <Divider my={2} />
+
+                  <Heading size="sm" color="gray.600" px={2}>
+                    SHOP BY CATEGORY
+                  </Heading>
+                  <Accordion defaultIndex={[0]} allowMultiple w="100%">
+                    {['Men', 'Women', 'Kids'].map((category) => (
+                      <AccordionItem key={category}>
+                        <h2>
+                          <AccordionButton
+                            _hover={{ bg: "gray.50" }}
+                            p={3}
+                            transition="all 0.2s"
+                          >
+                            <Box
+                              as="span"
+                              flex="1"
+                              textAlign="left"
+                              fontWeight="500"
+                            >
+                              {category}
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={4}>
+                          <VStack align="stretch" spacing={2} pl={4}>
+                            {['EYEGLASSES', 'COMPUTER GLASSES', 'CONTACT LENSES', 'SUN GLASSES'].map((item) => (
+                              <Link key={item} to="/products">
+                                <Text
+                                  p={2}
+                                  _hover={{ 
+                                    color: "blue.500",
+                                    transform: "translateX(4px)"
+                                  }}
+                                  transition="all 0.2s"
+                                >
+                                  {item}
+                                </Text>
+                              </Link>
+                            ))}
+                          </VStack>
+                        </AccordionPanel>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+
+                  <Divider my={2} />
+
+                  <Heading size="sm" color="gray.600" px={2}>
+                    HELP & SUPPORT
+                  </Heading>
+                  <VStack align="stretch" spacing={2}>
+                    {[
+                      'Free Home Trial',
+                      'Check Frame Size',
+                      'Gold Membership',
+                      'Try Frames in 3D',
+                      'Download Apps'
+                    ].map((item) => (
+                      <Link key={item}>
+                        <Flex
+                          align="center"
+                          p={3}
+                          _hover={{ 
+                            bg: "gray.50",
+                            color: "blue.500",
+                            transform: "translateX(4px)"
+                          }}
+                          transition="all 0.2s"
+                          borderRadius="md"
+                        >
+                          <Text>{item}</Text>
+                        </Flex>
+                      </Link>
+                    ))}
                   </VStack>
-                ) : (
-                  <VStack spacing={4}>
-                    <Login />
-                    <Signup />
-                  </VStack>
-                )}
+                </VStack>
               </DrawerBody>
+              {isAuth && (
+                <DrawerFooter bg="whiteAlpha.900" borderTop="1px solid" borderColor="gray.200">
+                  <Button
+                    w="100%"
+                    colorScheme="red"
+                    variant="ghost"
+                    leftIcon={<Icon as={FiLogOut} />}
+                    onClick={handleLogout}
+                    _hover={{ bg: "red.50" }}
+                    transition="all 0.2s"
+                  >
+                    Logout
+                  </Button>
+                </DrawerFooter>
+              )}
             </DrawerContent>
           </Drawer>
         </HStack>
@@ -365,4 +518,4 @@ function Nav() {
   );
 }
 
-export default React.memo(Nav);
+export default Nav;
