@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +7,7 @@ import {
   Text,
   Card,
   CardBody,
+  CardFooter,
   Image,
   Stack,
   Heading,
@@ -15,18 +17,22 @@ import {
   Tag,
   VStack,
   Container,
-  IconButton,
   Button,
   useToast,
   Tooltip,
   useDisclosure,
-  SimpleGrid,
-  useBreakpointValue,
+  Grid,
   Wrap,
-  Icon
+  Icon,
+  Divider,
+  TagLabel,
+  TagLeftIcon,
+  Fade,
+  ScaleFade,
+  Skeleton,
+  useColorModeValue
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiEye, FiTrendingUp } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
@@ -40,140 +46,189 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
     ? Math.round(((product.mPrice - product.price) / product.mPrice) * 100) 
     : 0;
 
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
   return (
-    <Card
-      transition="all 0.3s"
-      _hover={{
-        transform: 'translateY(-5px)',
-        boxShadow: 'xl',
-      }}
-      p={{ base: 2, sm: 4 }}
-      minH={{ base: '340px', sm: '380px' }}
-      m={{ base: 1, sm: 2 }}
-      boxShadow="md"
-      borderRadius="lg"
-    >
-      <CardBody p={{ base: 2, sm: 4 }}>
-        <Box position="relative">
-          <Image
-            src={product.imageTsrc}
-            alt={product.name}
-            borderRadius="lg"
-            objectFit="cover"
-            height={{ base: "120px", sm: "180px" }}
-            width="100%"
-          />
-        </Box>
-        <Stack mt={{ base: 2, sm: 4 }} spacing={{ base: 2, sm: 3 }}>
-          <VStack align="start" spacing={1} w="100%" minW={0}>
-            <Heading size="sm" noOfLines={1} fontSize={{ base: "sm", sm: "md" }} isTruncated>
-              {product.name}
-            </Heading>
-            <Wrap spacing={1} shouldWrapChildren>
-              <Tag size="sm" colorScheme="blue" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.productType}</Tag>
-              {product.trending && <Tag size="sm" colorScheme="green" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>Trending</Tag>}
-            </Wrap>
-          </VStack>
-          <Flex align="center" minW={0}>
-            <Box display="flex" alignItems="center" minW={0}>
-              {Array(5)
-                .fill('')
-                .map((_, i) => (
-                  <Box
-                    key={i}
-                    color={i < Math.floor(product.rating) ? 'yellow.400' : 'gray.300'}
-                    fontSize={{ base: "xs", sm: "sm" }}
-                  >
-                    ★
-                  </Box>
-                ))}
-              <Text ml={2} color="gray.600" fontSize={{ base: "xs", sm: "sm" }} isTruncated>
-                ({product.rating} • {product.userRated} reviews)
-              </Text>
-            </Box>
-          </Flex>
-          <Wrap spacing={1} shouldWrapChildren>
-            <Tag size="sm" colorScheme="purple" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.gender}</Tag>
-            <Tag size="sm" colorScheme="orange" fontSize={{ base: '2xs', sm: 'xs' }} px={{ base: 1, sm: 2 }}>{product.shape}</Tag>
-          </Wrap>
-          <Flex justify="space-between" align="center" minW={0}>
-            <VStack align="start" spacing={0} minW={0}>
-              <Text color="blue.600" fontSize={{ base: "md", sm: "xl" }} fontWeight="bold" noOfLines={1} isTruncated>
-                ₹{product.price}
-              </Text>
-              {product.mPrice > product.price && (
-                <Text color="gray.500" fontSize={{ base: "xs", sm: "sm" }} textDecoration="line-through" noOfLines={1} isTruncated>
-                  ₹{product.mPrice}
-                </Text>
-              )}
-            </VStack>
+    <ScaleFade initialScale={0.9} in={true}>
+      <Card
+        bg={bgColor}
+        borderWidth="1px"
+        borderColor={borderColor}
+        borderRadius="lg"
+        overflow="hidden"
+        transition="all 0.3s"
+        h="100%"
+        _hover={{
+          transform: 'translateY(-2px)',
+          shadow: 'lg'
+        }}
+      >
+        <CardBody p={{ base: 3, sm: 4 }}>
+          <Box position="relative">
+            <Image
+              src={product.imageTsrc}
+              alt={product.name}
+              height={{ base: "120px", sm: "150px", md: "180px" }}
+              width="100%"
+              objectFit="cover"
+              fallbackSrc="https://via.placeholder.com/200"
+              borderRadius="md"
+            />
             {discount > 0 && (
-              <Badge colorScheme="green" fontSize={{ base: "2xs", sm: "xs" }} px={{ base: 1, sm: 2 }}>
+              <Badge
+                position="absolute"
+                top={2}
+                right={2}
+                colorScheme="green"
+                borderRadius="full"
+                px={2}
+                fontSize={{ base: "xx-small", sm: "xs" }}
+              >
                 {discount}% OFF
               </Badge>
             )}
-          </Flex>
-          {product.quantity < 50 && (
-            <Text color="red.500" fontSize={{ base: "xs", sm: "sm" }}>
-              Only {product.quantity} left!
-            </Text>
-          )}
-          <Flex gap={2}>
-            <HStack spacing={{ base: 2, sm: 4 }} width="100%" justify="space-between">
+            {product.trending && (
+              <Badge
+                position="absolute"
+                top={2}
+                left={2}
+                colorScheme="purple"
+                borderRadius="full"
+                px={2}
+                fontSize={{ base: "xx-small", sm: "xs" }}
+              >
+                Trending
+              </Badge>
+            )}
+          </Box>
+
+          <VStack align="start" spacing={2} mt={3}>
+            <Heading 
+              size={{ base: "xs", sm: "sm" }} 
+              noOfLines={2}
+              lineHeight="1.2"
+              minH={{ base: "32px", sm: "40px" }}
+            >
+              {product.name}
+            </Heading>
+
+            {/* Rating */}
+            <Flex align="center" w="100%">
+              <Box display="flex" alignItems="center" minW={0}>
+                {Array(5)
+                  .fill('')
+                  .map((_, i) => (
+                    <Box
+                      key={i}
+                      color={i < Math.floor(product.rating) ? 'yellow.400' : 'gray.300'}
+                      fontSize={{ base: "xs", sm: "sm" }}
+                    >
+                      ★
+                    </Box>
+                  ))}
+                <Text ml={2} color="gray.600" fontSize={{ base: "2xs", sm: "xs" }} isTruncated>
+                  ({product.rating})
+                </Text>
+              </Box>
+            </Flex>
+
+            {/* Price */}
+            <Flex justify="space-between" align="center" w="100%">
+              <VStack align="start" spacing={0} minW={0}>
+                <Text color="blue.600" fontSize={{ base: "sm", sm: "md", md: "lg" }} fontWeight="bold">
+                  ₹{product.price}
+                </Text>
+                {product.mPrice > product.price && (
+                  <Text color="gray.500" fontSize={{ base: "xs", sm: "sm" }} textDecoration="line-through">
+                    ₹{product.mPrice}
+                  </Text>
+                )}
+              </VStack>
+            </Flex>
+
+            {/* Tags */}
+            <VStack spacing={1} align="start" w="100%">
+              <Wrap spacing={1} shouldWrapChildren>
+                <Badge colorScheme="blue" variant="subtle" fontSize="xx-small">
+                  {product.productType}
+                </Badge>
+                <Badge colorScheme="purple" variant="subtle" fontSize="xx-small">
+                  {product.gender}
+                </Badge>
+                {product.shape && (
+                  <Badge colorScheme="orange" variant="subtle" fontSize="xx-small">
+                    {product.shape}
+                  </Badge>
+                )}
+              </Wrap>
+              
+              {product.quantity < 50 && (
+                <Text color="red.500" fontSize={{ base: "xs", sm: "sm" }}>
+                  Only {product.quantity} left!
+                </Text>
+              )}
+            </VStack>
+          </VStack>
+        </CardBody>
+
+        <Divider />
+
+        <CardFooter p={{ base: 2, sm: 3 }}>
+          <VStack spacing={2} width="100%">
+            <HStack spacing={{ base: 1, sm: 2 }} width="100%" justify="space-around">
               <Tooltip label="Add to Cart">
                 <Button
-                  size="sm"
-                  leftIcon={<Icon as={FiShoppingCart} boxSize={4} />}
+                  size={{ base: "xs", sm: "sm" }}
+                  fontSize={{ base: "10px", sm: "12px" }}
+                  px={{ base: 2, sm: 3 }}
+                  leftIcon={<Icon as={FiShoppingCart} boxSize={{ base: 3, sm: 4 }} />}
                   colorScheme="blue"
                   variant="ghost"
                   onClick={() => onAddToCart(product)}
-                  fontSize={{ base: "xs", sm: "sm" }}
-                  px={{ base: 2, sm: 3 }}
-                  borderRadius="md"
+                  flex="1"
                 >
-                  Cart
+                  <Text display={{ base: "none", sm: "block" }}>Cart</Text>
                 </Button>
               </Tooltip>
-              <Tooltip label="Add to Wishlist">
+              
+              <Tooltip label={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
                 <Button
-                  size="sm"
-                  leftIcon={<Icon as={FiHeart} color={isInWishlist ? "red.500" : "gray.500"} boxSize={4} />}
+                  size={{ base: "xs", sm: "sm" }}
+                  fontSize={{ base: "10px", sm: "12px" }}
+                  px={{ base: 2, sm: 3 }}
+                  leftIcon={<Icon as={FiHeart} boxSize={{ base: 3, sm: 4 }} color={isInWishlist ? "red.500" : "gray.500"} />}
                   colorScheme="pink"
                   variant="ghost"
                   onClick={() => onWishlistToggle(product)}
-                  fontSize={{ base: "xs", sm: "sm" }}
-                  px={{ base: 2, sm: 3 }}
-                  borderRadius="md"
+                  flex="1"
                 >
-                  Wishlist
-                </Button>
-              </Tooltip>
-              <Tooltip label="View Details">
-                <Button
-                  size="sm"
-                  leftIcon={<Icon as={FiEye} boxSize={4} />}
-                  colorScheme="teal"
-                  variant="ghost"
-                  onClick={() => onViewDetails(product)}
-                  fontSize={{ base: "xs", sm: "sm" }}
-                  px={{ base: 2, sm: 3 }}
-                  borderRadius="md"
-                >
-                  View
+                  <Text display={{ base: "none", sm: "block" }}>Wishlist</Text>
                 </Button>
               </Tooltip>
             </HStack>
-          </Flex>
-        </Stack>
-      </CardBody>
-    </Card>
+            
+            <Tooltip label="View Details">
+              <Button
+                size={{ base: "xs", sm: "sm" }}
+                fontSize={{ base: "10px", sm: "12px" }}
+                leftIcon={<Icon as={FiEye} boxSize={{ base: 3, sm: 4 }} />}
+                colorScheme="teal"
+                variant="ghost"
+                onClick={() => onViewDetails(product)}
+                width="100%"
+              >
+                View Details
+              </Button>
+            </Tooltip>
+          </VStack>
+        </CardFooter>
+      </Card>
+    </ScaleFade>
   );
 };
 
-const ProductSection = ({ title, products }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = useBreakpointValue({ base: 2, sm: 2, md: 3, lg: 4 });
-  const totalPages = Math.ceil((products?.length || 0) / itemsPerPage);
+const ProductSection = ({ title, products, loading = false }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuth } = useContext(AuthContext);
@@ -238,17 +293,6 @@ const ProductSection = ({ title, products }) => {
 
       await dispatch(addToCart(cartItem));
 
-      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const updatedCart = existingItem
-        ? currentCart.map(item =>
-            item.productId === product._id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        : [...currentCart, cartItem];
-
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-
       toast({
         title: 'Added to cart',
         description: `${product.name} has been added to your cart`,
@@ -274,137 +318,82 @@ const ProductSection = ({ title, products }) => {
     navigate(`/products/${product._id}`);
   };
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
-  };
-
-  const arrowButtonStyles = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    zIndex: 2,
-    colorScheme: "blue",
-    size: "md",
-    borderRadius: "full",
-    boxShadow: "md",
-    bg: "white",
-    border: "2px solid",
-    borderColor: "blue.200",
-    _hover: {
-      bg: "blue.50",
-      transform: "translateY(-50%) scale(1.1)",
-      boxShadow: "lg",
-      borderColor: "blue.400"
-    },
-    _active: {
-      bg: "blue.100",
-      borderColor: "blue.500"
-    },
-    transition: "all 0.2s",
-    _disabled: {
-      opacity: 0.4,
-      cursor: "not-allowed",
-      borderColor: "gray.200",
-      _hover: {
-        bg: "white",
-        transform: "translateY(-50%)",
-        boxShadow: "md",
-        borderColor: "gray.200"
-      }
-    }
-  };
+  if (loading) {
+    return (
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50" mb={8}>
+        <Skeleton height="40px" mb={6} />
+        <Grid
+          templateColumns={{
+            base: "repeat(2, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+            lg: "repeat(4, 1fr)",
+          }}
+          gap={{ base: 3, sm: 4, md: 6 }}
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+            <Skeleton key={item} height={{ base: "320px", md: "400px" }} borderRadius="lg" />
+          ))}
+        </Grid>
+      </Box>
+    );
+  }
 
   return (
-    <Box mb={12} position="relative">
-      <Container maxW="container.xl" px={4}>
-        <Flex justify="space-between" align="center" mb={6}>
-          <Heading as="h2" size="lg" fontWeight="bold">
-            {title}
-          </Heading>
-        </Flex>
-
-        <Box position="relative" overflow="hidden" borderRadius="lg" bg="gray.50" p={4}>
-          <Box position="relative" px={1}>
-            <IconButton
-              icon={<ChevronLeftIcon boxSize={6} color="blue.600" />}
-              onClick={handlePrev}
-              aria-label="Previous"
-              left={-3}
-              isDisabled={currentIndex === 0}
-              opacity={currentIndex === 0 ? 0.4 : 1}
-              {...arrowButtonStyles}
-            />
-
-            <IconButton
-              icon={<ChevronRightIcon boxSize={6} color="blue.600" />}
-              onClick={handleNext}
-              aria-label="Next"
-              right={-3}
-              isDisabled={currentIndex === totalPages - 1}
-              opacity={currentIndex === totalPages - 1 ? 0.4 : 1}
-              {...arrowButtonStyles}
-            />
-
-            <Box
-              display="flex"
-              transition="transform 0.5s ease"
-              transform={`translateX(-${currentIndex * 100}%)`}
-              width={`${totalPages * 100}%`}
+    <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50" mb={8}>
+      <Container maxW="container.xl" px={0}>
+        <Fade in={true}>
+          <VStack spacing={{ base: 6, md: 8 }} align="stretch">
+            <Flex 
+              justify="space-between" 
+              align="center" 
+              direction={{ base: "column", sm: "row" }}
+              gap={{ base: 3, sm: 0 }}
             >
-              {Array.from({ length: totalPages }).map((_, pageIndex) => (
-                <Box key={pageIndex} width="100%" px={2}>
-                  <SimpleGrid columns={{ base: 2, sm: 2, md: 3, lg: 4 }} spacing={{ base: 3, sm: 4, md: 6 }}>
-                    {products
-                      ?.slice(
-                        pageIndex * itemsPerPage,
-                        (pageIndex + 1) * itemsPerPage
-                      )
-                      .map((product) => (
-                        <ProductCard
-                          key={product._id}
-                          product={product}
-                          onAddToCart={handleAddToCart}
-                          onViewDetails={handleViewDetails}
-                          onWishlistToggle={handleWishlistToggle}
-                          isInWishlist={wishlistItems.some(item => item._id === product._id)}
-                        />
-                      ))}
-                  </SimpleGrid>
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        </Box>
+              <Heading
+                size={{ base: "md", sm: "lg" }}
+                bgGradient="linear(to-r, blue.400, purple.500)"
+                bgClip="text"
+                textAlign={{ base: "center", sm: "left" }}
+                _hover={{
+                  bgGradient: "linear(to-r, blue.500, purple.600)",
+                }}
+              >
+                {title}
+              </Heading>
+              <Tag size={{ base: "md", sm: "lg" }} colorScheme="purple" borderRadius="full">
+                <TagLeftIcon as={FiTrendingUp} />
+                <TagLabel>Featured</TagLabel>
+              </Tag>
+            </Flex>
 
-        <Flex justify="center" mt={4} gap={3}>
-          {Array.from({ length: totalPages }).map((_, index) => (
-            <Box
-              key={index}
-              w={3}
-              h={3}
-              borderRadius="full"
-              bg={currentIndex === index ? "blue.500" : "gray.300"}
-              cursor="pointer"
-              onClick={() => setCurrentIndex(index)}
-              transition="all 0.3s"
-              _hover={{
-                bg: currentIndex === index ? "blue.600" : "gray.400",
-                transform: "scale(1.2)"
+            <Grid
+              templateColumns={{
+                base: "repeat(2, 1fr)",
+                sm: "repeat(2, 1fr)", 
+                md: "repeat(3, 1fr)",
+                lg: "repeat(4, 1fr)",
               }}
+              gap={{ base: 3, sm: 4, md: 6 }}
             >
-              <Tooltip label={`Slide ${index + 1}`} placement="top">
-                <Box position="absolute" w="100%" h="100%" />
-              </Tooltip>
-            </Box>
-          ))}
-        </Flex>
+              {products?.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onViewDetails={handleViewDetails}
+                  onWishlistToggle={handleWishlistToggle}
+                  isInWishlist={wishlistItems.some(item => item._id === product._id)}
+                />
+              ))}
+            </Grid>
+          </VStack>
+        </Fade>
       </Container>
 
-      {isOpen && <Login isOpen={isOpen} onClose={onClose} />}
+      <Box style={{ display: 'none' }}>
+        <Login isOpen={isOpen} onClose={onClose} />
+      </Box>
     </Box>
   );
 };
@@ -414,6 +403,7 @@ const SpecialProducts = () => {
   const [latest, setLatest] = useState([]);
   const [exclusive, setExclusive] = useState([]);
   const [offered, setOffered] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -431,6 +421,8 @@ const SpecialProducts = () => {
         setOffered(offeredRes.data);
       } catch (error) {
         console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -438,13 +430,14 @@ const SpecialProducts = () => {
   }, []);
 
   return (
-    <Box py={8} px={4}>
-      <ProductSection title="Top Rated Products" products={topRated} />
-      <ProductSection title="Latest Arrivals" products={latest} />
-      <ProductSection title="Exclusive Products" products={exclusive} />
-      <ProductSection title="Special Offers" products={offered} />
+    <Box py={8}>
+      <ProductSection title="Top Rated Products" products={topRated} loading={loading} />
+      <ProductSection title="Latest Arrivals" products={latest} loading={loading} />
+      <ProductSection title="Exclusive Products" products={exclusive} loading={loading} />
+      <ProductSection title="Special Offers" products={offered} loading={loading} />
     </Box>
   );
 };
 
-export default SpecialProducts; 
+export default SpecialProducts;
+
