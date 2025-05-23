@@ -22,7 +22,8 @@ import {
   useDisclosure,
   SimpleGrid,
   useBreakpointValue,
-  Wrap
+  Wrap,
+  Icon
 } from '@chakra-ui/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { FiShoppingCart, FiHeart, FiEye } from 'react-icons/fi';
@@ -122,7 +123,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
               <Tooltip label="Add to Cart">
                 <Button
                   size="sm"
-                  leftIcon={<Box as={FiShoppingCart} />}
+                  leftIcon={<Icon as={FiShoppingCart} boxSize={4} />}
                   colorScheme="blue"
                   variant="ghost"
                   onClick={() => onAddToCart(product)}
@@ -136,7 +137,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
               <Tooltip label="Add to Wishlist">
                 <Button
                   size="sm"
-                  leftIcon={<Box as={FiHeart} color={isInWishlist ? "red.500" : "gray.500"} />}
+                  leftIcon={<Icon as={FiHeart} color={isInWishlist ? "red.500" : "gray.500"} boxSize={4} />}
                   colorScheme="pink"
                   variant="ghost"
                   onClick={() => onWishlistToggle(product)}
@@ -150,7 +151,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
               <Tooltip label="View Details">
                 <Button
                   size="sm"
-                  leftIcon={<Box as={FiEye} />}
+                  leftIcon={<Icon as={FiEye} boxSize={4} />}
                   colorScheme="teal"
                   variant="ghost"
                   onClick={() => onViewDetails(product)}
