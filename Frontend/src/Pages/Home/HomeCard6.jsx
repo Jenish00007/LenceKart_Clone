@@ -22,16 +22,22 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
   };
   
   return (
-    <Container maxW="container.xl" py={4}>
+    <Container maxW="container.xl" py={{ base: 2, md: 4 }} px={{ base: 1, sm: 4 }}>
       <Box
         w="100%"
+        minW={0}
+        bg={{ base: "white", md: "transparent" }}
+        borderRadius={{ base: "lg", md: "xl" }}
+        boxShadow={{ base: "sm", md: "none" }}
+        px={{ base: 2, sm: 4, md: 0 }}
+        py={{ base: 2, sm: 3, md: 0 }}
         cursor="pointer"
-        fontSize={{ base: "18px", md: "22px" }}
-        fontWeight="400"
+        fontSize={{ base: "16px", sm: "18px", md: "22px" }}
+        fontWeight={{ base: "500", md: "600" }}
       >
-        <Box mb={2}>{heading}</Box>
-        <Box borderBottom="1px" borderColor="gray.200" mb={4} />
-        <Box position="relative">
+        <Box mb={{ base: 1, md: 2 }} minW={0}>{heading}</Box>
+        <Box borderBottom="1px" borderColor="gray.200" mb={{ base: 2, md: 4 }} />
+        <Box position="relative" minW={0}>
           <Swiper
             modules={[Navigation, Autoplay]}
             navigation
@@ -40,28 +46,28 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
             breakpoints={{
               0: {
                 slidesPerView: 2,
-                spaceBetween: 10
+                spaceBetween: 0
               },
               480: {
                 slidesPerView: 3,
-                spaceBetween: 10
+                spaceBetween: 0
               },
               768: {
                 slidesPerView: 4,
-                spaceBetween: 15
+                spaceBetween: 0
               },
               1024: {
                 slidesPerView: 5,
-                spaceBetween: 15
+                spaceBetween: 0
               },
               1280: {
                 slidesPerView: 6,
-                spaceBetween: 20
+                spaceBetween: 0
               }
             }}
             style={{
               padding: "10px 0",
-              "--swiper-navigation-size": "25px",
+              "--swiper-navigation-size": "20px",
             }}
           >
             {type?.map((item, index) => (
@@ -70,8 +76,16 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
                   onClick={() => handleImageClick(item)}
                   transition="transform 0.3s ease"
                   _hover={{ transform: "scale(1.05)" }}
+                  minW={0}
                 >
-                  <Square size={{ base: "120px", md: "160px" }} m="auto">
+                  <Square 
+                    size={{ base: "80px", sm: "100px", md: "140px", lg: "160px" }} 
+                    m="auto"
+                    bg="gray.50"
+                    borderRadius={{ base: "md", md: "lg" }}
+                    boxShadow={{ base: "xs", md: "sm" }}
+                    p={{ base: 1, sm: 2 }}
+                  >
                     <Image
                       src={item.imageTsrc}
                       alt={item.caption || 'Product image'}
