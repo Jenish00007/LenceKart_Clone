@@ -48,6 +48,7 @@ const Slider = ({ type }) => {
 
   return (
     <Box 
+    
       w="100%" 
       maxW="1200px"
       mx="auto"
@@ -55,9 +56,8 @@ const Slider = ({ type }) => {
       className="custom-swiper-container"
     >
       <Swiper
-        modules={[Navigation, Autoplay]}
-        navigation
-        autoplay={{ delay: 4000 }}
+        modules={[Autoplay]}
+        autoplay={{ delay: 1000 }}
         breakpoints={{
           0: {
             slidesPerView: 1,
@@ -80,25 +80,24 @@ const Slider = ({ type }) => {
       >
         {type?.map((item) => (
           <SwiperSlide key={item._id}>
-            <Box 
-              p={{ base: 1.5, sm: 2, md: 3}} 
+            <Box
+             
+              p={{ base: 1.5, sm: 2, md: 3 }} 
               bg="white" 
               borderRadius="lg" 
               boxShadow="sm"
               transition="all 0.3s ease"
-              _hover={{
-                transform: "translateY(-5px)",
-                boxShadow: "md",
-              }}
+            
+              // _hover={{
+              //   transform: "translateY(-5px)",
+              //   boxShadow: "md",
+              // }}
             >
-              <Square 
-                size={imageSize}
-                m="auto"
-                overflow="hidden"
-                borderRadius="md"
-                className="image-container"
-              >
-                <Image
+              
+              <VStack spacing={{ base: 1.5, md: 3 }} mt={{ base: 1.5, md: 3 }}>
+              <Image
+                  
+                
                   src={item.imageUrl}
                   alt={item.caption}
                   w="100%"
@@ -109,8 +108,6 @@ const Slider = ({ type }) => {
                     transform: "scale(1.1)",
                   }}
                 />
-              </Square>
-              <VStack spacing={{ base: 1.5, md: 3 }} mt={{ base: 1.5, md: 3 }}>
                 <Text
                   fontWeight="bold"
                   fontSize={textSize}
@@ -122,7 +119,7 @@ const Slider = ({ type }) => {
                   {item.caption}
                 </Text>
                 <Button 
-                  size="sm"
+                  size="md"
                   bg="#4fc3c6"
                   color="white"
                   _hover={{ 
@@ -130,9 +127,11 @@ const Slider = ({ type }) => {
                     transform: "scale(1.05)",
                   }}
                   transition="all 0.3s ease"
-                  fontSize={buttonSize}
-                  px={{ base: 3, md: 4 }}
-                  py={{ base: 2, md: 3 }}
+                  fontSize={{ base: "md", md: "lg" }}
+                  px={{ base: 4, md: 5 }}
+                  py={{ base: 2.5, md: 3.5 }}
+                  height={{ base: "30px", md: "38px" }}
+                  minWidth={{ base: "100px", md: "120px" }}
                   onClick={() => handleExplore(item.name)}
                 >
                   Explore
