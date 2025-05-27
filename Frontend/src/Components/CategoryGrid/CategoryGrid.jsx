@@ -144,26 +144,26 @@ const CategoryGrid = () => {
 
   const handleSectionClick = (section, parentCategory) => {
     const productType = section.productType || categoryToProductType[parentCategory.title] || parentCategory.title;
-    let gender = undefined;
+    let personCategory = undefined;
     let category = undefined;
 
-    // For Eyeglasses/Sunglasses, map Men/Women/Kids to gender
+    // For Eyeglasses/Sunglasses, map Men/Women/Kids to personCategory
     if (
       (parentCategory.title === "Eyeglasses" || parentCategory.title === "Sunglasses") &&
       ["men", "women", "kids"].includes((section.category || section.name || "").toLowerCase())
     ) {
-      gender = (section.category || section.name).toLowerCase();
+      personCategory = (section.category || section.name).toLowerCase();
     } else {
       category = section.category || sectionToCategory[section.name] || section.name;
     }
 
-    dispatch(setSelectedCategory(category || gender));
+    dispatch(setSelectedCategory(category || personCategory));
     dispatch(setProductType(productType));
 
     const queryParams = new URLSearchParams();
     queryParams.append('productType', productType);
-    if (gender) queryParams.append('gender', gender);
-    if (category && !gender) queryParams.append('category', category);
+    if (personCategory) queryParams.append('personCategory', personCategory);
+    if (category && !personCategory) queryParams.append('category', category);
 
     navigate(`/products?${queryParams.toString()}`);
   };

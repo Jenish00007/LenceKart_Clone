@@ -69,7 +69,7 @@ const NewProduct = () => {
       }
 
       // Construct URL with all parameters
-      let url = `${API_URL}/product?`;
+      let url = `${API_URL}/products?`;
       const params = new URLSearchParams();
       
       if (sort) params.append('sort', sort);
@@ -91,21 +91,9 @@ const NewProduct = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const postData = await response.json();
-      console.log("API Response:", {
-        data: postData,
-        isArray: Array.isArray(postData),
-        length: Array.isArray(postData) ? postData.length : 'not an array'
-      });
+      console.log("Response data:", postData);
       
-      // Handle both array and object responses
-      if (Array.isArray(postData)) {
-        setProducts(postData);
-      } else if (postData && Array.isArray(postData.products)) {
-        setProducts(postData.products);
-      } else {
-        setProducts([]);
-      }
-      
+      setProducts(postData);
       setIsLoaded(false);
     } catch (error) {
       console.error("Error fetching products:", error);
