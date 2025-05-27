@@ -8,7 +8,7 @@ import ProductCard from "./ProductCard";
 import ProdFilter from "./ProdFilter";
 import ProdFrame from "./ProdFrame";
 import { TbArrowsUpDown } from "react-icons/tb";
-import { Box, Flex, Select, Switch, Text, Image, Container, SimpleGrid, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Flex, Select, Switch, Text, Image, Container, SimpleGrid, useBreakpointValue, Button, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure } from "@chakra-ui/react";
 import {
   Gender,
   ProductTypes,
@@ -39,6 +39,8 @@ const NewProduct = () => {
     lg: 4,
     xl: 5
   });
+  
+  const { isOpen, onOpen, onClose } = useDisclosure();
   
   const fetchproduct = async () => {
     setIsLoaded(true);
@@ -123,6 +125,15 @@ const NewProduct = () => {
     setShape(shape === value ? "" : value);
   };
 
+  // Reset all filters
+  const handleResetFilters = () => {
+    setFrametype("");
+    setShape("");
+    setGender("");
+    setTypes("");
+    setColors("");
+  };
+
   return (
     <>
       <Navbar />
@@ -133,41 +144,61 @@ const NewProduct = () => {
         bg="gray.50"
       >
         <Container maxW="container.xl" py={8}>
-          {/* Filters above grid on mobile/tablet */}
-          <Box
-            display={{ base: "block", xl: "none" }}
-            mb={6}
-            bg="white"
-            borderRadius="lg"
-            boxShadow="sm"
-            p={4}
-          >
-            <ProdFrame
-              heading={"FRAME TYPE"}
-              type={Frame1}
-              filter={handleClick}
-              selectedValue={frametype}
-            />
-            <ProdFrame
-              heading={"FRAME SHAPE"}
-              type={Frame2}
-              filter={handleClick2}
-              selectedValue={shape}
-            />
-            <ProdFilter
-              type={Gender}
-              heading={"GENDER"}
-              handlechange={setGender}
-              val={gender}
-              type1={ProductTypes}
-              heading1={"PRODUCT TYPE"}
-              handlechange1={setTypes}
-              val1={types}
-              type2={FrameColor}
-              heading2={"FRAME COLOR"}
-              handlechange2={setColors}
-              val2={colors}
-            />
+          {/* Filter button and Drawer for mobile/tablet */}
+          <Box display={{ base: "block", xl: "none" }} mb={1} mt={{ base: 10, md: 14 }}>
+            <Button size="sm"
+                  bg="#4fc3c6"
+                  color="white"
+                  _hover={{ 
+                    bg: '#3bb3b6',
+                    transform: "scale(1.01)",
+                  }}
+                  transition="all 0.3s ease"
+                
+                   colorScheme="teal" w="100%" onClick={onOpen} mb={2}>
+              Filter
+            </Button>
+            {/* <Button colorScheme="gray" w="100%" onClick={handleResetFilters} mb={2}>
+              Reset
+            </Button> */}
+            <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="xs">
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerCloseButton />
+                <DrawerHeader borderBottomWidth="1px">Filters</DrawerHeader>
+                <DrawerBody>
+                  <Button colorScheme="gray" w="100%" mb={4} onClick={handleResetFilters}>
+                    Reset Filters
+                  </Button>
+                  <ProdFrame
+                    heading={"FRAME TYPE"}
+                    type={Frame1}
+                    filter={handleClick}
+                    selectedValue={frametype}
+                  />
+                  <ProdFrame
+                    heading={"FRAME SHAPE"}
+                    type={Frame2}
+                    filter={handleClick2}
+                    selectedValue={shape}
+                  />
+                  <ProdFilter
+                    type={Gender}
+                    heading={"GENDER"}
+                    handlechange={setGender}
+                    val={gender}
+                    type1={ProductTypes}
+                    heading1={"PRODUCT TYPE"}
+                    handlechange1={setTypes}
+                    val1={types}
+                    type2={FrameColor}
+                    heading2={"FRAME COLOR"}
+                    handlechange2={setColors}
+                    val2={colors}
+                  />
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </Box>
           <Flex 
             direction={{ base: "column", xl: "row" }} 
@@ -182,6 +213,9 @@ const NewProduct = () => {
               p={4}
               display={{ base: "none", xl: "block" }}
             >
+              <Button colorScheme="gray" w="100%" mb={4} onClick={handleResetFilters}>
+                Reset Filters
+              </Button>
               <ProdFrame
                 heading={"FRAME TYPE"}
                 type={Frame1}
