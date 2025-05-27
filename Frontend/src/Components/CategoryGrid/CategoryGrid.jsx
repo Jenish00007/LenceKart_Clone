@@ -123,20 +123,38 @@ const categories = [
   }
 ];
 
+const categoryToProductType = {
+  "Special Powers": "eyeglasses", // or the actual productType in your DB
+  "Contact Lenses & Accessories": "contact-lenses"
+};
+const sectionToCategory = {
+  "Zero Power": "zero-power", // or the actual value in your DB
+  "Progressive": "progressive",
+  "Reading": "reading",
+  "Power Sun": "power-sun",
+  "Clear": "clear",
+  "Color": "color",
+  "Trial Pack": "trial-pack",
+  "Cases & Cleaner": "cases-cleaner"
+};
+
 const CategoryGrid = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSectionClick = (section) => {
-    // Dispatch actions to update Redux state
-    dispatch(setSelectedCategory(section.category));
-    dispatch(setProductType(section.productType));
+  const handleSectionClick = (section, parentCategory) => {
+    // Map UI to real DB values
+    const productType = section.productType || categoryToProductType[parentCategory.title] || parentCategory.title;
+    const category = section.category || sectionToCategory[section.name] || section.name;
 
-    // Navigate to products page with query parameters
+    dispatch(setSelectedCategory(category));
+    dispatch(setProductType(productType));
+
+    // Build query params
     const queryParams = new URLSearchParams();
-    queryParams.append('productType', section.productType);
-    queryParams.append('category', section.category);
-    
+    queryParams.append('productType', productType);
+    queryParams.append('category', category);
+
     navigate(`/products?${queryParams.toString()}`);
   };
 
@@ -213,7 +231,7 @@ const CategoryGrid = () => {
                   <Box 
                     key={sectionIdx} 
                     style={{ flex: '1' }}
-                    onClick={() => handleSectionClick(section)}
+                    onClick={() => handleSectionClick(section, category)}
                     cursor="pointer"
                   >
                     <Box 

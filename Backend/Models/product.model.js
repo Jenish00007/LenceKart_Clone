@@ -252,7 +252,7 @@ const productSchema = new mongoose.Schema({
     type: String
   }],
 
-  // Price Range Category
+  // Price Range Category__________________________________
   priceRange: {
     type: String,
     enum: [
