@@ -169,6 +169,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
+        
         setContactLenses(response.data);
         setContactLensesLoading(false);
       } catch (err) {
@@ -185,6 +186,7 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
+       
         setColorContactLenses(response.data);
         setColorContactLensesLoading(false);
       } catch (err) {

@@ -20,7 +20,7 @@ import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCatego
 import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedSubCategory, setSelectedType,} from '../../redux/slices/filterSlice';
+import { setSelectedSubCategory, setSelectedType, setProductType } from '../../redux/slices/filterSlice';
 import { useNavigate } from 'react-router-dom';
 import KidsGlassesSelector from "../CategorySelector/KidsGlassesSelector";
 import DisposabilityFilter from '../Filters/DisposabilityFilter';
@@ -37,26 +37,23 @@ function NavbarCard5() {
   const frameType = useSelector((state) => state.filter.frameType);
   const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
   const handleSubCategorySelect = (subCategory, type = '', categoryType = '') => {
-    dispatch(setSelectedSubCategory(subCategory));
+    // Map subCategory to backend field if needed
+    // Example: "New Arrivals" => "new-arrivals"
+    const mappedCategory = subCategory.toLowerCase().replace(/ /g, '-');
+
+    // Set Redux state as needed
+    dispatch(setSelectedSubCategory(mappedCategory));
     if (type) {
-      dispatch(setSelectedType(type));
+      dispatch(setProductType(type));
     }
-   
-   
+
+    // Build query params for backend
     const queryParams = new URLSearchParams();
-    queryParams.append('topPicks', subCategory.toLowerCase().replace(/ /g, '-'));
-    if (type) {
-      queryParams.append('masterCategory', type);
-    }
-    if (personCategory) {
-      queryParams.append('personCategory', personCategory);
-    }
-    if (frameType) {
-      queryParams.append('frameType', frameType);
-    }
-    if (selectedCategoryPrice) {
-      queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
-    }
+    if (type) queryParams.append('productType', type);
+    if (personCategory) queryParams.append('personCategory', personCategory);
+    if (frameType) queryParams.append('frameType', frameType);
+    if (mappedCategory) queryParams.append('category', mappedCategory);
+
     navigate(`/products?${queryParams.toString()}`);
   };
 

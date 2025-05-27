@@ -91,7 +91,7 @@ const NewProduct = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const postData = await response.json();
-      console.log("Response data:", postData);
+      
       
       setProducts(postData);
       setIsLoaded(false);
