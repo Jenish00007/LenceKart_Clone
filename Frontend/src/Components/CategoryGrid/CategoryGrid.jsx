@@ -143,17 +143,27 @@ const CategoryGrid = () => {
   const navigate = useNavigate();
 
   const handleSectionClick = (section, parentCategory) => {
-    // Map UI to real DB values
     const productType = section.productType || categoryToProductType[parentCategory.title] || parentCategory.title;
-    const category = section.category || sectionToCategory[section.name] || section.name;
+    let gender = undefined;
+    let category = undefined;
 
-    dispatch(setSelectedCategory(category));
+    // For Eyeglasses/Sunglasses, map Men/Women/Kids to gender
+    if (
+      (parentCategory.title === "Eyeglasses" || parentCategory.title === "Sunglasses") &&
+      ["men", "women", "kids"].includes((section.category || section.name || "").toLowerCase())
+    ) {
+      gender = (section.category || section.name).toLowerCase();
+    } else {
+      category = section.category || sectionToCategory[section.name] || section.name;
+    }
+
+    dispatch(setSelectedCategory(category || gender));
     dispatch(setProductType(productType));
 
-    // Build query params
     const queryParams = new URLSearchParams();
     queryParams.append('productType', productType);
-    queryParams.append('category', category);
+    if (gender) queryParams.append('gender', gender);
+    if (category && !gender) queryParams.append('category', category);
 
     navigate(`/products?${queryParams.toString()}`);
   };

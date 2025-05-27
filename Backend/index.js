@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 }); 
 
 app.use("/user", userRouter);
-app.use("/product", productRouter);
+app.use("/products", productRouter);
 app.use("/cart", cartRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/search', searchRouter);
