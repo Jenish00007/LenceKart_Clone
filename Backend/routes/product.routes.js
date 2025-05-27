@@ -133,86 +133,63 @@ productRouter.post("/visit/:id", auth, async (req, res) => {
 productRouter.get("/", async (req, res) => {
   try {
     const query = {};
-    console.log("Received query params:", req.query);
-
-    // Log each parameter as it's being processed
-    if (req.query.sort) {
-      console.log("Sort parameter:", req.query.sort);
+    // Case-insensitive string filters
+    if (req.query.frameType && req.query.frameType !== "") {
+      query.frameType = { $regex: new RegExp(`^${req.query.frameType}$`, 'i') };
     }
-    if (req.query.frameType) {
-      console.log("Frame type parameter:", req.query.frameType);
-      query.frameType = req.query.frameType;
+    if (req.query.productType && req.query.productType !== "") {
+      query.productType = { $regex: new RegExp(`^${req.query.productType}$`, 'i') };
     }
-    if (req.query.productType) {
-      console.log("Product type parameter:", req.query.productType);
-      query.productType = req.query.productType;
+    if (req.query.gender && req.query.gender !== "") {
+      query.gender = { $regex: new RegExp(`^${req.query.gender}$`, 'i') };
     }
-    if (req.query.gender) {
-      console.log("Gender parameter:", req.query.gender);
-      query.gender = req.query.gender;
+    if (req.query.shape && req.query.shape !== "") {
+      query.shape = { $regex: new RegExp(`^${req.query.shape}$`, 'i') };
     }
-    if (req.query.shape) {
-      console.log("Shape parameter:", req.query.shape);
-      query.shape = req.query.shape;
+    if (req.query.style && req.query.style !== "") {
+      query.style = { $regex: new RegExp(`^${req.query.style}$`, 'i') };
     }
-    if (req.query.style) {
-      console.log("Style parameter:", req.query.style);
-      query.style = req.query.style;
+    // Array field filter (multi-select support)
+    if (req.query.colors && req.query.colors !== "") {
+      const colors = Array.isArray(req.query.colors) ? req.query.colors : [req.query.colors];
+      query.colors = { $in: colors };
     }
-    if (req.query.colors) {
-      console.log("Colors parameter:", req.query.colors);
-      query.colors = { $in: [req.query.colors] };
+    // Price range filter
+    if (req.query.priceRange && req.query.priceRange !== "") {
+      const match = req.query.priceRange.match(/(\d+)/g);
+      if (match && match.length >= 2) {
+        query.price = {
+          $gte: Number(match[0]),
+          $lte: Number(match[1])
+        };
+      }
     }
-    if (req.query.page) {
-      console.log("Page parameter:", req.query.page);
-    }
-    if (req.query.search) {
-      console.log("Search parameter:", req.query.search);
+    // Search filter
+    if (req.query.search && req.query.search !== "") {
       query.$or = [
         { name: { $regex: req.query.search, $options: "i" } },
         { productRefLink: { $regex: req.query.search, $options: "i" } },
         { productType: { $regex: req.query.search, $options: "i" } }
       ];
     }
-    if (req.query.topPicks) {
-      console.log("Top picks parameter:", req.query.topPicks);
-      query.topPicks = req.query.topPicks;
+    // Special filters
+    if (req.query.trending === "true") {
+      query.trending = true;
     }
-    if (req.query.masterCategory) {
-      console.log("Master category parameter:", req.query.masterCategory);
-      query.masterCategory = req.query.masterCategory;
+    if (req.query.recommended === "true") {
+      query.recommended = true;
     }
-    if (req.query.personCategory) {
-      console.log("Person category parameter:", req.query.personCategory);
-      query.personCategory = req.query.personCategory;
-    }
-    if (req.query.selectedCategoryPrice) {
-      console.log("Selected category price parameter:", req.query.selectedCategoryPrice);
-      // Map the selectedCategoryPrice to actual price ranges
-      const priceRanges = {
-        "classic-eyeglasses": { min: 500, max: 1499 },
-        "premium-eyeglasses": { min: 1500, max: 4999 },
-        "designer-eyeglasses": { min: 5000, max: 15000 }
-      };
-      
-      const range = priceRanges[req.query.selectedCategoryPrice];
-      if (range) {
-        query.price = {
-          $gte: range.min,
-          $lte: range.max
-        };
-      }
-    }
-
-    console.log("Final query object:", JSON.stringify(query, null, 2));
-
+    // Pagination
+    const page = Number(req.query.page) || 0;
+    const limit = Number(req.query.limit) || 12;
+    const skip = page * limit;
+    // Sorting
+    const sort = req.query.sort === "lowtohigh" ? 1 : -1;
+    // Query DB
     const products = await ProductModel.find(query)
-      .sort({ price: req.query.sort === "lowtohigh" ? 1 : -1 })
-      .skip(parseInt(req.query.page) * 12)
-      .limit(12);
-
-    console.log("Number of products found:", products.length);
-    
+      .sort({ price: sort })
+      .skip(skip)
+      .limit(limit);
     res.status(200).json(products);
   } catch (error) {
     console.error("Error in product filtering:", error);
