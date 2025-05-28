@@ -112,7 +112,7 @@ const SingleProduct = () => {
 
         console.log('Tracking product visit for:', id);
         
-        const response = await fetch(`${API_URL}/product/visit/${id}`, {
+        const response = await fetch(`${API_URL}/products/visit/${id}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -133,7 +133,7 @@ const SingleProduct = () => {
   };
 
   const fetchSingleProduct = () => {
-    axios(`${API_URL}/product/${id}`)
+    axios(`${API_URL}/products/${id}`)
       .then((res) => {
         setData(res.data.product);
         // Track visit after product data is loaded

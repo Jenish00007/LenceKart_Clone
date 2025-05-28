@@ -116,7 +116,7 @@ const Home = () => {
 
     const fetchSunglasses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=sunglasses', {
+        const response = await axios.get('http://localhost:8080/products?productType=sunglasses', {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -132,7 +132,7 @@ const Home = () => {
 
     const fetchEyeglasses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=eyeglasses', {
+        const response = await axios.get('http://localhost:8080/products?productType=eyeglasses', {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -148,7 +148,7 @@ const Home = () => {
 
     const fetchComputerBlueLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=COMPUTER_BLU_LENSES&powerType=ZERO_POWER', {
+        const response = await axios.get('http://localhost:8080/products?productType=COMPUTER_BLU_LENSES&powerType=ZERO_POWER', {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -164,11 +164,12 @@ const Home = () => {
 
     const fetchContactLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=CONTACT_LENSES', {
+        const response = await axios.get('http://localhost:8080/products?productType=CONTACT_LENSES', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
+        
         setContactLenses(response.data);
         setContactLensesLoading(false);
       } catch (err) {
@@ -180,11 +181,12 @@ const Home = () => {
 
     const fetchColorContactLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/product?productType=COLOR_CONTACT_LENSES', {
+        const response = await axios.get('http://localhost:8080/products?productType=COLOR_CONTACT_LENSES', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
+       
         setColorContactLenses(response.data);
         setColorContactLensesLoading(false);
       } catch (err) {

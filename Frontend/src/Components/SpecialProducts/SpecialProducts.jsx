@@ -419,10 +419,10 @@ const SpecialProducts = () => {
     const fetchProducts = async () => {
       try {
         const [topRatedRes, latestRes, exclusiveRes, offeredRes] = await Promise.all([
-          axios.get('http://localhost:8080/product/categories/top-rated'),
-          axios.get('http://localhost:8080/product/categories/latest'),
-          axios.get('http://localhost:8080/product/categories/exclusive'),
-          axios.get('http://localhost:8080/product/categories/offered'),
+          axios.get('http://localhost:8080/products/categories/top-rated'),
+          axios.get('http://localhost:8080/products/categories/latest'),
+          axios.get('http://localhost:8080/products/categories/exclusive'),
+          axios.get('http://localhost:8080/products/categories/offered'),
         ]);
 
         setTopRated(topRatedRes.data);

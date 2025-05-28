@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   // Basic Product Information
+  productId: {
+    type: String,
+    required: true,
+    unique: true
+  },
   name: {
     type: String,
     required: true
@@ -28,11 +33,7 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-  productId: {
-    type: String,
-    required: true,
-    unique: true
-  },
+
 
   // Product Type and Category
   productType: {
@@ -41,11 +42,17 @@ const productSchema = new mongoose.Schema({
     enum: [
       "EYEGLASSES",
       "SUNGLASSES",
+      "CONTACT_LENSES",
       "COMPUTER_BLU_LENSES",
       "ZERO_POWER_COMPUTER_BLU",
-      "CONTACT_LENSES",
       "COLOR_CONTACT_LENSES",
       "CONTACT_LENS_SOLUTION",
+      "CONTACT_LENS_CASES",
+      "CONTACT_LENS_ACCESSORIES",
+      "CONTACT_LENS_REMOVERS",
+      "CONTACT_LENS_WASHING_SOLUTION",
+      "CONTACT_LENS_MOISTURIZERS",
+      "CONTACT_LENS_CLEANING_KITS",
       "SUNGLASSES_WITH_POWER",
       "EYEGLASSES_WITH_POWER"
     ]
@@ -56,6 +63,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     enum: [
       "ZERO_POWER",
+      "WITH_POWER",
       "SINGLE_VISION",
       "BIFOCAL",
       "PROGRESSIVE",
@@ -125,6 +133,12 @@ const productSchema = new mongoose.Schema({
     type: String,
     enum: ["Casual", "Formal", "Sports", "Fashion", "Vintage", "Classic", "Modern"]
   },
+  contactLensColors: [{
+    type: String,
+    enum: [
+      "Black", "Brown", "Blue", "Green", "Grey", "Hazel", "Purple", "Red", "Silver", "White"
+    ]
+  }],
   colors: [{
     type: String
   }],
@@ -199,8 +213,27 @@ const productSchema = new mongoose.Schema({
   // Stock and Inventory
   quantity: {
     type: Number,
-    default: 1,
+    required: true,
     min: 0
+  },
+  essentials: {
+    type: Boolean,
+    default: false,
+    description: "Refers to a collection of lightweight and minimalist eyeglasses, specifically the Glasscart Air frames."
+  },
+ 
+  
+  reading: {
+    type: Boolean,
+    default: false
+  },
+  clear: {
+    type: Boolean,
+    default: false
+  },
+  trialPack: {
+    type: Boolean,
+    default: false
   },
 
   // Marketing and Display
@@ -210,7 +243,9 @@ const productSchema = new mongoose.Schema({
   },
   topPicks: {
     type: String,
-    enum: ["new-arrivals", "best-sellers", "trending", "exclusive"]
+    required: true,
+    enum: ["new-arrivals", "best-sellers", "trending", "exclusive", "essentials", "lenskart-blu-lenses", "tinted-eyeglasses", "computer-eyeglasses", "progressive-eyeglasses", "pilot-style", "power-sunglasses", "polarized-sunglasses"]
+  
   },
   masterCategory: {
     type: String,
@@ -236,10 +271,7 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  isExclusive: {
-    type: Boolean,
-    default: false
-  },
+
   discount: {
     type: Number,
     default: 0,
@@ -252,7 +284,7 @@ const productSchema = new mongoose.Schema({
     type: String
   }],
 
-  // Price Range Category
+  // Price Range Category__________________________________
   priceRange: {
     type: String,
     enum: [

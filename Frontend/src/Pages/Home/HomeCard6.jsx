@@ -18,7 +18,12 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
   }
 
   const handleImageClick = (item) => {
-    navigate(`/products?productType=${item.productType}`);
+    navigate(`/products/${item._id}`);
+  };
+
+  const handleViewRange = () => {
+    const typeToFilter = type?.[0]?.productType || "eyeglasses";
+    navigate(`/products?productType=${typeToFilter}`);
   };
 
   return (
@@ -30,7 +35,7 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
         </Text>
         <Box 
           as="button"
-          onClick={() => navigate('/products')}
+          onClick={handleViewRange}
           color="#19b3b3" 
           fontWeight="500" 
           fontSize={{ base: "sm", md: "md" }} 

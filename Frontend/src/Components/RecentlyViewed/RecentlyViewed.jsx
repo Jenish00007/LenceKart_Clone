@@ -152,7 +152,7 @@ const RecentlyViewed = () => {
           return;
         }
 
-        const response = await fetch(`${API_URL}/product/lastvisited`, {
+        const response = await fetch(`${API_URL}/products/lastvisited`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

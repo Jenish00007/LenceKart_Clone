@@ -123,20 +123,48 @@ const categories = [
   }
 ];
 
+const categoryToProductType = {
+  "Special Powers": "eyeglasses", // or the actual productType in your DB
+  "Contact Lenses & Accessories": "contact-lenses"
+};
+const sectionToCategory = {
+  "Zero Power": "zero-power", // or the actual value in your DB
+  "Progressive": "progressive",
+  "Reading": "reading",
+  "Power Sun": "power-sun",
+  "Clear": "clear",
+  "Color": "color",
+  "Trial Pack": "trial-pack",
+  "Cases & Cleaner": "cases-cleaner"
+};
+
 const CategoryGrid = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSectionClick = (section) => {
-    // Dispatch actions to update Redux state
-    dispatch(setSelectedCategory(section.category));
-    dispatch(setProductType(section.productType));
+  const handleSectionClick = (section, parentCategory) => {
+    const productType = section.productType || categoryToProductType[parentCategory.title] || parentCategory.title;
+    let personCategory = undefined;
+    let category = undefined;
 
-    // Navigate to products page with query parameters
+    // For Eyeglasses/Sunglasses, map Men/Women/Kids to personCategory
+    if (
+      (parentCategory.title === "Eyeglasses" || parentCategory.title === "Sunglasses") &&
+      ["men", "women", "kids"].includes((section.category || section.name || "").toLowerCase())
+    ) {
+      personCategory = (section.category || section.name).toLowerCase();
+    } else {
+      category = section.category || sectionToCategory[section.name] || section.name;
+    }
+
+    dispatch(setSelectedCategory(category || personCategory));
+    dispatch(setProductType(productType));
+
     const queryParams = new URLSearchParams();
-    queryParams.append('productType', section.productType);
-    queryParams.append('category', section.category);
-    
+    queryParams.append('productType', productType);
+    if (personCategory) queryParams.append('personCategory', personCategory);
+    if (category && !personCategory) queryParams.append('category', category);
+
     navigate(`/products?${queryParams.toString()}`);
   };
 
@@ -213,7 +241,7 @@ const CategoryGrid = () => {
                   <Box 
                     key={sectionIdx} 
                     style={{ flex: '1' }}
-                    onClick={() => handleSectionClick(section)}
+                    onClick={() => handleSectionClick(section, category)}
                     cursor="pointer"
                   >
                     <Box 
