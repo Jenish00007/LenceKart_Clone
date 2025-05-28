@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image, Flex, Container, Text } from "@chakra-ui/react";
+import { Box, Image, Flex, Container, Text, Spinner, Center } from "@chakra-ui/react";
 import { Navigation, Autoplay } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -7,14 +7,39 @@ import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { useNavigate } from "react-router-dom";
 
-const HomeCard6 = ({ type, heading, loading, error }) => {
+const HomeCard6 = ({ type = [], heading, loading, error }) => {
   const navigate = useNavigate();
+  
+  console.log('HomeCard6 Props:', { type, heading, loading, error });
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Container maxW="container.xl" py={{ base: 2, md: 4 }} px={{ base: 6, sm: 12, md: 16 }} mx="auto">
+        <Center minH="200px">
+          <Spinner size="xl" color="blue.500" />
+        </Center>
+      </Container>
+    );
   }
+
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Container maxW="container.xl" py={{ base: 2, md: 4 }} px={{ base: 6, sm: 12, md: 16 }} mx="auto">
+        <Center minH="200px">
+          <Text color="red.500">{error}</Text>
+        </Center>
+      </Container>
+    );
+  }
+
+  if (!Array.isArray(type) || type.length === 0) {
+    return (
+      <Container maxW="container.xl" py={{ base: 2, md: 4 }} px={{ base: 6, sm: 12, md: 16 }} mx="auto">
+        <Center minH="200px">
+          <Text>No products available</Text>
+        </Center>
+      </Container>
+    );
   }
 
   const handleImageClick = (item) => {
@@ -76,8 +101,8 @@ const HomeCard6 = ({ type, heading, loading, error }) => {
             "--swiper-navigation-size": "32px",
           }}
         >
-          {type?.map((item, index) => (
-            <SwiperSlide key={item._id || index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'white', boxShadow: 'none', padding: 0 }}>
+          {type.map((item, index) => (
+            <SwiperSlide key={item._id || index}>
               <Box
                 onClick={() => handleImageClick(item)}
                 transition="transform 0.3s ease"

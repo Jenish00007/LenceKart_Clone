@@ -120,7 +120,7 @@ const RecommendedCategories = () => {
       try {
         const response = await fetch(`${API_URL}/products/recommended`);
         const data = await response.json();
-        setRecommendedProducts(data);
+        setRecommendedProducts(data.products || []);
       } catch (error) {
         toast({
           title: "Error",

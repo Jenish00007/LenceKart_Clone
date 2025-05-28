@@ -2,6 +2,7 @@ const express = require("express");
 const ProductModel = require("../Models/product.model");
 const ProductVisit = require("../Models/productVisit.model");
 const auth = require("../middlwares/auth");
+const { productValidation } = require("../middlwares/validators");
 const productController = require('../controllers/product.controller');
 
 const productRouter = express.Router();
@@ -9,7 +10,7 @@ const productRouter = express.Router();
 productRouter.use(express.json());
 
 // Get trending products
-productRouter.get("/trending", async (req, res) => {
+productRouter.get("/trending", async (req, res, next) => {
   try {
     const trendingProducts = await ProductModel.find()
       .sort({ rating: -1, userRated: -1 })
@@ -20,16 +21,12 @@ productRouter.get("/trending", async (req, res) => {
       products: trendingProducts
     });
   } catch (error) {
-    console.error("Error fetching trending products:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch trending products"
-    });
+    next(error);
   }
 });
 
 // Get recommended products
-productRouter.get("/recommended", async (req, res) => {
+productRouter.get("/recommended", async (req, res, next) => {
   try {
     const recommendedProducts = await ProductModel.find({
       recommended: true
@@ -37,22 +34,19 @@ productRouter.get("/recommended", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(6);
 
-    res.status(200).json(recommendedProducts);
+    res.status(200).json({
+      success: true,
+      products: recommendedProducts
+    });
   } catch (error) {
-    console.error("Error fetching recommended products:", error);
-    res.status(500).json({ error: "Failed to fetch recommended products" });
+    next(error);
   }
 });
 
 // Get last visited products for authenticated user
-productRouter.get("/lastvisited", auth, async (req, res) => {
+productRouter.get("/lastvisited", auth, async (req, res, next) => {
   try {
-    console.log("1. Starting last-visited API call");
     const userId = req.user._id;
-    console.log("2. User ID from token:", userId);
-
-    // Get last visited products for the user with populated product details
-    console.log("3. Finding visits for user");
     const lastVisits = await ProductVisit.find({ userId })
       .sort({ visitedAt: -1 })
       .limit(8)
@@ -61,78 +55,55 @@ productRouter.get("/lastvisited", auth, async (req, res) => {
         model: 'product',
         select: 'name price image rating colors shape gender style dimension productType imageTsrc'
       });
-    console.log("4. Found visits:", lastVisits.length);
 
-    // Filter out any null products and map to get only product data
     const lastVisitedProducts = lastVisits
       .filter(visit => visit.productId)
       .map(visit => visit.productId);
-    console.log("5. Filtered products:", lastVisitedProducts.length);
 
-    console.log("6. Sending response");
     res.status(200).json({
       success: true,
       products: lastVisitedProducts
     });
   } catch (error) {
-    console.error("Error in last-visited API:", error);
-    res.status(500).json({ 
-      success: false,
-      error: "Failed to fetch last visited products",
-      details: error.message 
-    });
+    next(error);
   }
 });
 
 // Record product visit for authenticated user
-productRouter.post("/visit/:id", auth, async (req, res) => {
+productRouter.post("/visit/:id", auth, productValidation.getById, async (req, res, next) => {
   try {
-    console.log("1. Starting visit recording");
     const userId = req.user._id;
     const productId = req.params.id;
-    console.log("2. User ID:", userId, "Product ID:", productId);
 
-    // Check if product exists
-    console.log("3. Checking if product exists");
     const product = await ProductModel.findById(productId);
     if (!product) {
-      console.log("4. Product not found");
       return res.status(404).json({
         success: false,
         message: "Product not found"
       });
     }
-    console.log("4. Product found:", product.name);
 
-    // Update or create visit record
-    console.log("5. Updating visit record");
     const visitRecord = await ProductVisit.findOneAndUpdate(
       { userId, productId },
       { visitedAt: new Date() },
       { upsert: true, new: true }
     );
-    console.log("6. Visit record updated:", visitRecord);
 
-    console.log("7. Sending response");
     res.status(200).json({
       success: true,
       message: "Visit recorded successfully",
       product: product
     });
   } catch (error) {
-    console.error("Error in visit recording:", error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to record product visit",
-      details: error.message
-    });
+    next(error);
   }
 });
 
 // Get all products with filters
-productRouter.get("/", async (req, res) => {
+productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
+    
     // Case-insensitive string filters
     if (req.query.frameType && req.query.frameType !== "") {
       query.frameType = { $regex: new RegExp(`^${req.query.frameType}$`, 'i') };
@@ -149,11 +120,13 @@ productRouter.get("/", async (req, res) => {
     if (req.query.style && req.query.style !== "") {
       query.style = { $regex: new RegExp(`^${req.query.style}$`, 'i') };
     }
+
     // Array field filter (multi-select support)
     if (req.query.colors && req.query.colors !== "") {
       const colors = Array.isArray(req.query.colors) ? req.query.colors : [req.query.colors];
       query.colors = { $in: colors };
     }
+
     // Price range filter
     if (req.query.priceRange && req.query.priceRange !== "") {
       const match = req.query.priceRange.match(/(\d+)/g);
@@ -164,6 +137,7 @@ productRouter.get("/", async (req, res) => {
         };
       }
     }
+
     // Search filter
     if (req.query.search && req.query.search !== "") {
       query.$or = [
@@ -172,6 +146,7 @@ productRouter.get("/", async (req, res) => {
         { productType: { $regex: req.query.search, $options: "i" } }
       ];
     }
+
     // Special filters
     if (req.query.trending === "true") {
       query.trending = true;
@@ -179,21 +154,36 @@ productRouter.get("/", async (req, res) => {
     if (req.query.recommended === "true") {
       query.recommended = true;
     }
+
     // Pagination
     const page = Number(req.query.page) || 0;
     const limit = Number(req.query.limit) || 12;
     const skip = page * limit;
+
     // Sorting
     const sort = req.query.sort === "lowtohigh" ? 1 : -1;
+
     // Query DB
     const products = await ProductModel.find(query)
       .sort({ price: sort })
       .skip(skip)
       .limit(limit);
-    res.status(200).json(products);
+
+    // Get total count for pagination
+    const total = await ProductModel.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      products,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    console.error("Error in product filtering:", error);
-    res.status(500).json({ error: "Failed to fetch products", details: error.message });
+    next(error);
   }
 });
 
@@ -285,17 +275,17 @@ productRouter.get("/:id", async (req, res) => {
   }
 });
 
-productRouter.post("/", async (req, res) => {
-  const payload = req.body;
+// Create new product (protected route)
+productRouter.post("/", auth, productValidation.create, async (req, res, next) => {
   try {
-    const newProduct = new ProductModel(payload);
-    await newProduct.save();
-    res
-      .status(201)
-      .json({ newProduct, message: "New Products successfully Added" });
-  } catch (err) {
-    console.log("err :", err);
-    res.status(400).send({ msg: err });
+    const product = new ProductModel(req.body);
+    await product.save();
+    res.status(201).json({
+      success: true,
+      product
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -310,31 +300,49 @@ productRouter.post("/many", async (req, res) => {
   }
 });
 
-productRouter.patch("/:id", async (req, res) => {
-  const payload = req.body;
-  const id = req.params.id;
+// Update product (protected route)
+productRouter.put("/:id", auth, productValidation.update, async (req, res, next) => {
   try {
-    const product = await ProductModel.findByIdAndUpdate({ _id: id }, payload);
-    res.status(204).send({
+    const product = await ProductModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    res.status(200).json({
       success: true,
-      msg: "Successfully Updated the product",
-      products: product,
+      product
     });
-    await product.save();
-  } catch (err) {
-    console.log({ err: err, msg: " Product Update Error!" });
-    res.send({ success: false, msg: " Product Update Error!", err: err });
+  } catch (error) {
+    next(error);
   }
 });
 
-productRouter.delete("/:id", async (req, res) => {
-  const id = req.params.id;
+// Delete product (protected route)
+productRouter.delete("/:id", auth, productValidation.getById, async (req, res, next) => {
   try {
-    await ProductModel.findByIdAndDelete({ _id: id });
-    res.json({ status: 200, message: "Deleted The Product" });
-  } catch {
-    console.log("err :", err);
-    res.send({ msg: err });
+    const product = await ProductModel.findByIdAndDelete(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully"
+    });
+  } catch (error) {
+    next(error);
   }
 });
 

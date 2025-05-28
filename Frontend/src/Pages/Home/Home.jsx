@@ -121,7 +121,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setSunglasses(response.data);
+        console.log('Sunglasses API Response:', response.data);
+        setSunglasses(response.data.products || []);
         setSunglassesLoading(false);
       } catch (err) {
         console.error('Error fetching sunglasses:', err);
@@ -137,7 +138,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setEyeglasses(response.data);
+        console.log('Eyeglasses API Response:', response.data);
+        setEyeglasses(response.data.products || []);
         setEyeglassesLoading(false);
       } catch (err) {
         console.error('Error fetching eyeglasses:', err);
@@ -153,7 +155,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setZeroPowerComputerBlueLenses(response.data);
+        console.log('Computer Blue Lenses API Response:', response.data);
+        setZeroPowerComputerBlueLenses(response.data.products || []);
         setZeroPowerComputerBlueLensesLoading(false);
       } catch (err) {
         console.error('Error fetching computer blue lenses:', err);
@@ -169,8 +172,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        
-        setContactLenses(response.data);
+        console.log('Contact Lenses API Response:', response.data);
+        setContactLenses(response.data.products || []);
         setContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching contact lenses:', err);
@@ -186,8 +189,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-       
-        setColorContactLenses(response.data);
+        console.log('Color Contact Lenses API Response:', response.data);
+        setColorContactLenses(response.data.products || []);
         setColorContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching color contact lenses:', err);
@@ -293,7 +296,9 @@ const Home = () => {
       />
      
       <HomeCard6
-       type={sunglasses}
+        type={sunglasses}
+        loading={sunglassesLoading}
+        error={sunglassesError}
         heading="WITH POWER COMPUTER BLU LENSES" 
       />
 
