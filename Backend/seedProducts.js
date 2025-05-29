@@ -49,7 +49,7 @@ const generateProduct = (index) => {
   const mainCategory = isGlasses ? "GLASSES" : "CONTACT_LENSES";
   const subCategory = isGlasses 
     ? ["EYEGLASSES", "SUNGLASSES", "COMPUTER_GLASSES"][Math.floor(Math.random() * 3)]
-    : ["CONTACT_LENSES", "CONTACT_LENS_SOLUTION", "CONTACT_LENS_CASES"][Math.floor(Math.random() * 3)];
+    : ["CONTACT_LENSES", "CONTACT_LENS_SOLUTION", "CONTACT_LENS_CASES", "CONTACT_LENS_ACCESSORIES"][Math.floor(Math.random() * 4)];
 
   // Ensure some products are computer blue lenses
   const isComputerBlueLens = subCategory === "COMPUTER_GLASSES" && Math.random() > 0.5;
@@ -58,23 +58,30 @@ const generateProduct = (index) => {
     ? glassesImages[Math.floor(Math.random() * glassesImages.length)]
     : subCategory === "CONTACT_LENSES" 
       ? contactLensImages[Math.floor(Math.random() * contactLensImages.length)]
-      : colorContactLensImages[Math.floor(Math.random() * colorContactLensImages.length)];
+      : subCategory === "CONTACT_LENS_ACCESSORIES"
+        ? "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//a/i/aqualens-contact-lens-accessories_csvfile-1706625948211-artboard_12.jpg"
+        : colorContactLensImages[Math.floor(Math.random() * colorContactLensImages.length)];
 
   // Determine price category first
   const priceCategory = ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"][Math.floor(Math.random() * 3)];
   
   // Generate price based on category
   let price;
-  switch(priceCategory) {
-    case 'classic-eyeglasses':
-      price = Math.floor(Math.random() * (4998 - 1499) + 1499);
-      break;
-    case 'premium-eyeglasses':
-      price = Math.floor(Math.random() * (14999 - 4999) + 4999);
-      break;
-    case 'designer-eyeglasses':
-      price = Math.floor(Math.random() * (30000 - 15000) + 15000);
-      break;
+  if (subCategory === "CONTACT_LENS_ACCESSORIES") {
+    // Lower price range for accessories
+    price = Math.floor(Math.random() * (999 - 199) + 199);
+  } else {
+    switch(priceCategory) {
+      case 'classic-eyeglasses':
+        price = Math.floor(Math.random() * (4998 - 1499) + 1499);
+        break;
+      case 'premium-eyeglasses':
+        price = Math.floor(Math.random() * (14999 - 4999) + 4999);
+        break;
+      case 'designer-eyeglasses':
+        price = Math.floor(Math.random() * (30000 - 15000) + 15000);
+        break;
+    }
   }
 
   const mPrice = Math.floor(price * (1 + Math.random() * 0.3));
@@ -83,12 +90,16 @@ const generateProduct = (index) => {
     productId: `PROD${String(index).padStart(6, '0')}`,
     name: isComputerBlueLens 
       ? `${brands[Math.floor(Math.random() * brands.length)]} Computer Blue Lens ${index}`
-      : `${brands[Math.floor(Math.random() * brands.length)]} ${mainCategory === "GLASSES" ? "Eyewear" : "Contact Lens"} ${index}`,
+      : subCategory === "CONTACT_LENS_ACCESSORIES"
+        ? `${brands[Math.floor(Math.random() * brands.length)]} Contact Lens ${["Case", "Solution", "Cleaner", "Multi-Purpose Kit"][Math.floor(Math.random() * 4)]} ${index}`
+        : `${brands[Math.floor(Math.random() * brands.length)]} ${mainCategory === "GLASSES" ? "Eyewear" : "Contact Lens"} ${index}`,
     imageTsrc,
     additionalImages: [imageTsrc],
     caption: isComputerBlueLens 
       ? "Computer Blue Lens for Digital Eye Strain Protection"
-      : `${mainCategory === "GLASSES" ? "Stylish" : "Comfortable"} ${subCategory.toLowerCase()} for everyday use`,
+      : subCategory === "CONTACT_LENS_ACCESSORIES"
+        ? "Essential accessories for contact lens care and maintenance"
+        : `${mainCategory === "GLASSES" ? "Stylish" : "Comfortable"} ${subCategory.toLowerCase()} for everyday use`,
     productRefLink: `/product/${index}`,
     price,
     mPrice,
@@ -118,6 +129,9 @@ const generateProduct = (index) => {
     contactLensColors: ["Black", "Brown", "Blue", "Green", "Grey", "Hazel"][Math.floor(Math.random() * 6)],
     contactLensType: ["Daily", "Weekly", "Monthly", "Yearly"][Math.floor(Math.random() * 4)],
     contactLensMaterial: ["Silicone Hydrogel", "Hydrogel", "Gas Permeable", "Hybrid"][Math.floor(Math.random() * 4)],
+    contactLensSolutionSize: subCategory === "CONTACT_LENS_SOLUTION" 
+      ? ["Extra Small (10-25 ml)", "Small (30-45 ml)", "Medium (50-65 ml)", "Large (70-85 ml)", "Extra Large (90-100 ml)"][Math.floor(Math.random() * 5)]
+      : [],
     lensFeatures: isComputerBlueLens ? ["Blue Light Block"] : ["Anti Glare", "UV Protection", "Anti Scratch"][Math.floor(Math.random() * 3)],
     isRecommended: Math.random() > 0.4,
     isTrending: Math.random() > 0.7,
@@ -129,7 +143,16 @@ const generateProduct = (index) => {
     rating: Math.floor(Math.random() * 5),
     reviewCount: Math.floor(Math.random() * 1000),
     quantity: Math.floor(Math.random() * 100) + 10,
-    discount: Math.floor(Math.random() * 30)
+    discount: Math.floor(Math.random() * 30),
+    accessoryType: subCategory === "CONTACT_LENS_ACCESSORIES" 
+      ? ["CASE", "SOLUTION", "CLEANER", "MULTI_PURPOSE"][Math.floor(Math.random() * 4)]
+      : "Not Applicable",
+    accessorySize: subCategory === "CONTACT_LENS_ACCESSORIES"
+      ? ["SMALL", "MEDIUM", "LARGE"][Math.floor(Math.random() * 3)]
+      : "Not Applicable",
+    accessoryMaterial: subCategory === "CONTACT_LENS_ACCESSORIES"
+      ? ["PLASTIC", "SILICONE", "METAL"][Math.floor(Math.random() * 3)]
+      : "Not Applicable"
   };
 
   return product;

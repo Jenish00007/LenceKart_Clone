@@ -201,6 +201,66 @@ productRouter.get("/filter", async (req, res, next) => {
       query.powerType = req.query.powerType.toLowerCase();
     }
 
+    // Contact lens colors filter
+    if (req.query.contactLensColors) {
+      // Convert to title case (first letter uppercase, rest lowercase)
+      const color = req.query.contactLensColors.toLowerCase();
+      query.contactLensColors = { $in: [color.charAt(0).toUpperCase() + color.slice(1)] };
+    }
+
+    // Contact lens solution size filter
+    if (req.query.contactLensSolutionSize) {
+      // Convert to title case and handle special cases
+      const size = req.query.contactLensSolutionSize.toLowerCase();
+      let formattedSize;
+      
+      switch(size) {
+        case 'extra small':
+          formattedSize = 'Extra Small (10-25 ml)';
+          break;
+        case 'small':
+          formattedSize = 'Small (30-45 ml)';
+          break;
+        case 'medium':
+          formattedSize = 'Medium (50-65 ml)';
+          break;
+        case 'large':
+          formattedSize = 'Large (70-85 ml)';
+          break;
+        case 'extra large':
+          formattedSize = 'Extra Large (90-100 ml)';
+          break;
+        default:
+          formattedSize = 'Not Applicable';
+      }
+      
+      query.contactLensSolutionSize = { $in: [formattedSize] };
+    }
+
+    // Contact lens type filter
+    if (req.query.contactLensType) {
+      // Convert to title case (first letter uppercase, rest lowercase)
+      const lensType = req.query.contactLensType.toLowerCase();
+      query.contactLensType = lensType.charAt(0).toUpperCase() + lensType.slice(1);
+    }
+
+    // Contact lens accessories filter
+    if (req.query.subCategory === "CONTACT_LENS_ACCESSORIES") {
+      // Add name search for accessories
+      if (req.query.name) {
+        const searchTerms = req.query.name.toLowerCase().split(' ');
+        query.$or = searchTerms.map(term => ({
+          name: { $regex: term, $options: "i" }
+        }));
+      }
+
+      // Add accessory type filter
+      if (req.query.accessoryType) {
+        const accessoryType = req.query.accessoryType.toUpperCase();
+        query.accessoryType = accessoryType;
+      }
+    }
+
     // Top picks filter
     if (req.query.topPicks) {
       query.topPicks = req.query.topPicks.toLowerCase();

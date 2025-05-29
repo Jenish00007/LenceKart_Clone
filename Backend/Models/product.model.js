@@ -351,6 +351,20 @@ const productSchema = new mongoose.Schema(
       ],
     },
 
+    // Contact Lens Accessories
+    accessoryType: {
+      type: String,
+      enum: ["CASE", "SOLUTION", "CLEANER", "MULTI_PURPOSE", "Not Applicable"],
+    },
+    accessorySize: {
+      type: String,
+      enum: ["SMALL", "MEDIUM", "LARGE", "Not Applicable"],
+    },
+    accessoryMaterial: {
+      type: String,
+      enum: ["PLASTIC", "SILICONE", "METAL", "Not Applicable"],
+    },
+
     // Product Status and Ratings
     isRecommended: {
       type: Boolean,
