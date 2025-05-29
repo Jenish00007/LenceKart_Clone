@@ -27,7 +27,7 @@ import DisposabilityFilter from '../Filters/DisposabilityFilter';
 import PowerFilter from '../Filters/PowerFilter';
 import ColorFilter from '../Filters/ColorFilter';
 import SolutionFilter from '../Filters/SolutionFilter';
-import CollectionFilter from '../Filters/CollectionFilter';
+import BrandsFilter from '../Filters/BrandsFilter';
 
 function NavbarCard5() {
   const dispatch = useDispatch();
@@ -307,6 +307,9 @@ function NavbarCard5() {
         >
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
+            <Box>
+                <BrandsFilter />
+              </Box>
               <Box>
                 <DisposabilityFilter />
               </Box>
@@ -323,9 +326,7 @@ function NavbarCard5() {
                 <SolutionFilter />
               </Box>
 
-              <Box>
-                <CollectionFilter />
-              </Box>
+             
             </Grid>
           </Box>
         </MenuList>

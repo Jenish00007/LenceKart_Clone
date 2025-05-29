@@ -147,7 +147,7 @@ productRouter.get("/filter", async (req, res, next) => {
     if (req.query.selectedCategoryPrice) {
       query.selectedCategoryPrice = req.query.selectedCategoryPrice.toLowerCase();
       
-      // Add price range based on category
+      // Add price range based on category with exact ranges
       switch(req.query.selectedCategoryPrice.toLowerCase()) {
         case 'classic-eyeglasses':
           query.price = { $gte: 1499, $lte: 4998 };
@@ -199,6 +199,11 @@ productRouter.get("/filter", async (req, res, next) => {
     // Power type filter
     if (req.query.powerType) {
       query.powerType = req.query.powerType.toLowerCase();
+    }
+
+    // Top picks filter
+    if (req.query.topPicks) {
+      query.topPicks = req.query.topPicks.toLowerCase();
     }
 
     console.log('Filter Query:', query);

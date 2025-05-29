@@ -60,7 +60,23 @@ const generateProduct = (index) => {
       ? contactLensImages[Math.floor(Math.random() * contactLensImages.length)]
       : colorContactLensImages[Math.floor(Math.random() * colorContactLensImages.length)];
 
-  const price = Math.floor(Math.random() * (15000 - 500) + 500);
+  // Determine price category first
+  const priceCategory = ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"][Math.floor(Math.random() * 3)];
+  
+  // Generate price based on category
+  let price;
+  switch(priceCategory) {
+    case 'classic-eyeglasses':
+      price = Math.floor(Math.random() * (4998 - 1499) + 1499);
+      break;
+    case 'premium-eyeglasses':
+      price = Math.floor(Math.random() * (14999 - 4999) + 4999);
+      break;
+    case 'designer-eyeglasses':
+      price = Math.floor(Math.random() * (30000 - 15000) + 15000);
+      break;
+  }
+
   const mPrice = Math.floor(price * (1 + Math.random() * 0.3));
 
   const product = {
@@ -81,7 +97,7 @@ const generateProduct = (index) => {
     personCategory: ["men", "women", "kids", "unisex"][Math.floor(Math.random() * 4)],
     gender: ["Men", "Women", "Unisex", "Kids", "Not Applicable"][Math.floor(Math.random() * 5)],
     ageGroup: ["Kids", "Teens", "Adults", "Seniors", "Youth", "Not Applicable"][Math.floor(Math.random() * 6)],
-    selectedCategoryPrice: ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"][Math.floor(Math.random() * 3)],
+    selectedCategoryPrice: priceCategory,
     brands: [brands[Math.floor(Math.random() * brands.length)]],
     topPicks: ["new-arrivals", "best-sellers", "trending", "exclusive", "essentials"][Math.floor(Math.random() * 5)],
     powerType: isComputerBlueLens 
