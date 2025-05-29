@@ -1,8 +1,8 @@
 const express = require("express");
 const { connection } = require("./Configs/db");
-const { userRouter } = require("./routes/user.routes");
-const { productRouter } = require("./routes/product.routes");
-const { cartRouter } = require("./routes/cart.routes");
+const userRouter = require("./routes/user.routes");
+const productRouter = require("./routes/product.routes");
+const cartRouter = require("./routes/cart.routes");
 const paymentRouter = require("./routes/payment.routes");
 const searchRouter = require("./routes/search.routes");
 const bannerRouter = require("./routes/banner.route");
@@ -10,9 +10,9 @@ const adBannerRouter = require("./routes/adBannerRoutes");
 const sectionBannerRoutes = require('./routes/sectionBannerRoutes');
 const orderRouter = require('./routes/order.routes');
 const shapeRoutes = require('./routes/shapeRoutes');
+const glassProductRoutes = require('./component/glassFilter/routes');
 
 //Routes from component 
-const glassProductRoutes = require('./component/glassFilter/routes');
 require("dotenv").config();
 const cors = require("cors");
 
@@ -60,15 +60,22 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.port || 8080;
-app.listen(PORT, async () => {
+const PORT = process.env.PORT || 8080;
+
+// Connect to database and start server
+const startServer = async () => {
   try {
     await connection;
-    console.log("Connected to the DB");
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`API available at http://192.168.2.10:${PORT}`);
+    console.log("Connected to MongoDB successfully");
+    
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`API available at http://localhost:${PORT}`);
+    });
   } catch (err) {
-    console.error("Trouble connecting to the DB:", err);
+    console.error("Failed to connect to MongoDB:", err);
     process.exit(1);
   }
-});
+};
+
+startServer();

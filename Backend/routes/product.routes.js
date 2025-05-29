@@ -650,6 +650,4 @@ productRouter.get('/latest', productController.getLatestProducts);
 productRouter.get('/exclusive', productController.getExclusiveProducts);
 productRouter.get('/offered', productController.getOfferedProducts);
 
-module.exports = {
-  productRouter,
-};
+module.exports = productRouter;

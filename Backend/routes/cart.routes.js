@@ -6,9 +6,17 @@ const cartRouter = express.Router();
 // Get user's cart
 cartRouter.get("/", auth, async (req, res) => {
   try {
+    console.log('Fetching cart for user:', req.user._id);
+    
     const carts = await CartModel.find({ userId: req.user._id })
-      .populate('productId', 'name price image')
+      .populate({
+        path: 'productId',
+        model: 'Product',
+        select: 'name price imageTsrc rating shape gender style productType'
+      })
       .sort({ createdAt: -1 });
+    
+    console.log('Found cart items:', carts.length);
     
     res.status(200).json({
       success: true,
@@ -45,6 +53,8 @@ cartRouter.post("/", auth, async (req, res) => {
       });
     }
 
+    console.log('Adding to cart:', { userId: req.user._id, productId, quantity });
+
     // Check if item already exists in cart
     let cartItem = await CartModel.findOne({
       userId: req.user._id,
@@ -55,6 +65,7 @@ cartRouter.post("/", auth, async (req, res) => {
       // Update quantity if item exists
       cartItem.quantity += quantity;
       await cartItem.save();
+      console.log('Updated existing cart item:', cartItem._id);
     } else {
       // Create new cart item
       cartItem = new CartModel({
@@ -70,6 +81,7 @@ cartRouter.post("/", auth, async (req, res) => {
         style: req.body.style
       });
       await cartItem.save();
+      console.log('Created new cart item:', cartItem._id);
     }
 
     res.status(201).json({
@@ -99,6 +111,8 @@ cartRouter.patch("/:id", auth, async (req, res) => {
         message: "Invalid quantity"
       });
     }
+
+    console.log('Updating cart item:', { cartId, userId: req.user._id, quantity });
 
     const cartItem = await CartModel.findOneAndUpdate(
       { _id: cartId, userId: req.user._id },
@@ -132,6 +146,8 @@ cartRouter.patch("/:id", auth, async (req, res) => {
 cartRouter.delete("/:id", auth, async (req, res) => {
   try {
     const cartId = req.params.id;
+    console.log('Removing cart item:', { cartId, userId: req.user._id });
+
     const cartItem = await CartModel.findOneAndDelete({
       _id: cartId,
       userId: req.user._id
@@ -161,7 +177,11 @@ cartRouter.delete("/:id", auth, async (req, res) => {
 // Clear cart
 cartRouter.delete("/", auth, async (req, res) => {
   try {
-    await CartModel.deleteMany({ userId: req.user._id });
+    console.log('Clearing cart for user:', req.user._id);
+    
+    const result = await CartModel.deleteMany({ userId: req.user._id });
+    console.log('Deleted cart items:', result.deletedCount);
+    
     res.status(200).json({
       success: true,
       message: "Cart cleared successfully"
@@ -176,4 +196,4 @@ cartRouter.delete("/", auth, async (req, res) => {
   }
 });
 
-module.exports = { cartRouter };
+module.exports = cartRouter;
