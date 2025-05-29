@@ -130,6 +130,126 @@ productRouter.post("/visit/:id", auth, productValidation.getById, async (req, re
   }
 });
 
+// Filter products
+productRouter.get("/filter", async (req, res, next) => {
+  try {
+    const query = {};
+    
+    // Category filters
+    if (req.query.mainCategory) {
+      query.mainCategory = req.query.mainCategory.toUpperCase();
+    }
+    if (req.query.subCategory) {
+      query.subCategory = req.query.subCategory.toUpperCase();
+    }
+    
+    // Selected Category Price filter
+    if (req.query.selectedCategoryPrice) {
+      query.selectedCategoryPrice = req.query.selectedCategoryPrice.toLowerCase();
+      
+      // Add price range based on category
+      switch(req.query.selectedCategoryPrice.toLowerCase()) {
+        case 'classic-eyeglasses':
+          query.price = { $gte: 1499, $lte: 4998 };
+          break;
+        case 'premium-eyeglasses':
+          query.price = { $gte: 4999, $lte: 14999 };
+          break;
+        case 'designer-eyeglasses':
+          query.price = { $gte: 15000 };
+          break;
+      }
+    }
+    
+    // Person and gender filters
+    if (req.query.personCategory) {
+      query.personCategory = req.query.personCategory.toLowerCase();
+    }
+    if (req.query.gender) {
+      query.gender = req.query.gender;
+    }
+    
+    // Frame and shape filters
+    if (req.query.frameType) {
+      query.frameType = req.query.frameType;
+    }
+    if (req.query.shape) {
+      query.shape = req.query.shape;
+    }
+    
+    // Style and features
+    if (req.query.style) {
+      query.style = req.query.style.toUpperCase();
+    }
+    if (req.query.lensFeatures) {
+      query.lensFeatures = { $in: [req.query.lensFeatures.toUpperCase()] };
+    }
+    
+    // Brand filter
+    if (req.query.brands) {
+      query.brands = { $in: [req.query.brands] };
+    }
+    
+    // Price range filter (only if not using selectedCategoryPrice)
+    if (req.query.priceRange && !req.query.selectedCategoryPrice) {
+      const [min, max] = req.query.priceRange.split('-').map(Number);
+      query.price = { $gte: min, $lte: max };
+    }
+    
+    // Power type filter
+    if (req.query.powerType) {
+      query.powerType = req.query.powerType.toLowerCase();
+    }
+
+    console.log('Filter Query:', query);
+    
+    // Pagination
+    const limit = parseInt(req.query.limit) || 12;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    // Get total count for pagination
+    const total = await ProductModel.countDocuments(query);
+    
+    // Get filtered products
+    const products = await ProductModel.find(query)
+      .sort({ rating: -1 })
+      .skip(offset)
+      .limit(limit)
+      .select('name imageTsrc price mPrice rating discount mainCategory subCategory gender frameType shape style brands lensFeatures selectedCategoryPrice');
+    
+    console.log('Found Products:', products.length);
+    
+    res.status(200).json({
+      success: true,
+      total,
+      limit,
+      offset,
+      count: products.length,
+      products
+    });
+  } catch (error) {
+    console.error('Filter Error:', error);
+    next(error);
+  }
+});
+
+// Get product by ID
+productRouter.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const product = await ProductModel.findById({ _id: id });
+    if (product) {
+      res.status(200).json({
+        success: true,
+        product: product,
+      });
+    }
+  } catch (err) {
+    console.log({ err: err });
+    res.status(400).send({ success: false, err: err });
+  }
+});
+
 // Get all products with filters
 productRouter.get("/", async (req, res, next) => {
   try {
@@ -601,23 +721,6 @@ productRouter.get('/color-contact-lenses', async (req, res) => {
   }
 });
 
-// Get product by ID
-productRouter.get("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const product = await ProductModel.findById({ _id: id });
-    if (product) {
-      res.status(200).json({
-        success: true,
-        product: product,
-      });
-    }
-  } catch (err) {
-    console.log({ err: err });
-    res.status(400).send({ success: false, err: err });
-  }
-});
-
 // Create new product (protected route)
 productRouter.post("/", auth, productValidation.create, async (req, res, next) => {
   try {
@@ -686,114 +789,6 @@ productRouter.delete("/:id", auth, productValidation.getById, async (req, res, n
     });
   } catch (error) {
     next(error);
-  }
-});
-
-productRouter.get("/filter", async (req, res) => {
-  try {
-    const {
-      mainCategory,
-      subCategory,
-      personCategory,
-      gender,
-      ageGroup,
-      selectedCategoryPrice,
-      brands,
-      topPicks,
-      powerType,
-      prescriptionType,
-      supportedPowers,
-      frameType,
-      shape,
-      frameSize,
-      frameWidth,
-      weightGroup,
-      style,
-      lensFeatures,
-      priceRange,
-      search,
-      limit = 10,
-      offset = 0
-    } = req.query;
-
-    const query = {};
-
-    // Category filters
-    if (mainCategory) query.mainCategory = mainCategory;
-    if (subCategory) query.subCategory = subCategory;
-    if (personCategory) query.personCategory = personCategory;
-    if (gender) query.gender = gender;
-    if (ageGroup) query.ageGroup = ageGroup;
-    if (selectedCategoryPrice) query.selectedCategoryPrice = selectedCategoryPrice;
-
-    // Brand and top picks
-    if (brands) {
-      const brandArray = Array.isArray(brands) ? brands : [brands];
-      query.brands = { $in: brandArray };
-    }
-    if (topPicks) query.topPicks = topPicks;
-
-    // Power and prescription
-    if (powerType) query.powerType = powerType;
-    if (prescriptionType) query.prescriptionType = prescriptionType;
-    if (supportedPowers) query.supportedPowers = supportedPowers;
-
-    // Frame details
-    if (frameType) query.frameType = frameType;
-    if (shape) query.shape = shape;
-    if (frameSize) query.frameSize = frameSize;
-    if (frameWidth) query.frameWidth = frameWidth;
-    if (weightGroup) query.weightGroup = weightGroup;
-    if (style) query.style = style;
-
-    // Lens features
-    if (lensFeatures) {
-      const features = Array.isArray(lensFeatures) ? lensFeatures : [lensFeatures];
-      query.lensFeatures = { $in: features };
-    }
-
-    // Search
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { caption: { $regex: search, $options: "i" } }
-      ];
-    }
-
-    // Price range
-    if (priceRange) {
-      const [min, max] = priceRange.split(',').map(Number);
-      query.price = {};
-      if (!isNaN(min)) query.price.$gte = min;
-      if (!isNaN(max)) query.price.$lte = max;
-    }
-
-    const parsedLimit = Math.max(1, parseInt(limit));
-    const parsedOffset = Math.max(0, parseInt(offset));
-
-    const [products, total] = await Promise.all([
-      ProductModel.find(query)
-        .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount')
-        .skip(parsedOffset)
-        .limit(parsedLimit),
-      ProductModel.countDocuments(query)
-    ]);
-
-    return res.status(200).json({
-      success: true,
-      total,
-      limit: parsedLimit,
-      offset: parsedOffset,
-      count: products.length,
-      products
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message
-    });
   }
 });
 
