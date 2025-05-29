@@ -73,7 +73,7 @@ const HomeCard6 = ({ type = [], heading, loading, error }) => {
         </Box>
       </Flex>
       <Box borderBottom="1px" borderColor="gray.200" mb={4} />
-      <Box position="relative" minW={0} bg="transparent" boxShadow="none" px={0}>
+      <Box position="relative" minW={0} bg="white" boxShadow="none" px={0}>
         <Swiper
           modules={[Autoplay]}
           autoplay={{ delay: 2000, disableOnInteraction: false }}
