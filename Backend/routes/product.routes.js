@@ -47,26 +47,48 @@ productRouter.get("/recommended", async (req, res, next) => {
 // Get last visited products for authenticated user
 productRouter.get("/lastvisited", auth, async (req, res, next) => {
   try {
+    console.log('Fetching last visited products for user:', req.user._id);
+    
     const userId = req.user._id;
+    if (!userId) {
+      console.error('No user ID found in request');
+      return res.status(400).json({
+        success: false,
+        message: "User ID not found"
+      });
+    }
+
+    console.log('Finding visits for user:', userId);
     const lastVisits = await ProductVisit.find({ userId })
       .sort({ visitedAt: -1 })
       .limit(8)
       .populate({
         path: 'productId',
+        model: 'Product',
         select: 'name price imageTsrc rating shape gender style productType'
       });
+
+    console.log('Found visits:', lastVisits);
 
     // Extract just the product data from the populated visits
     const lastVisitedProducts = lastVisits
       .filter(visit => visit.productId) // Filter out any null products
       .map(visit => visit.productId);
 
+    console.log('Processed products:', lastVisitedProducts);
+
+    // Return empty array if no products found
     res.status(200).json({
       success: true,
-      products: lastVisitedProducts
+      products: lastVisitedProducts || []
     });
   } catch (error) {
-    next(error);
+    console.error('Error in /lastvisited route:', error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
   }
 });
 
@@ -76,13 +98,18 @@ productRouter.post("/visit/:id", auth, productValidation.getById, async (req, re
     const userId = req.user._id;
     const productId = req.params.id;
 
+    console.log('Recording product visit:', { userId, productId });
+
     const product = await ProductModel.findById(productId);
     if (!product) {
+      console.log('Product not found:', productId);
       return res.status(404).json({
         success: false,
         message: "Product not found"
       });
     }
+
+    console.log('Found product:', product._id);
 
     const visitRecord = await ProductVisit.findOneAndUpdate(
       { userId, productId },
@@ -90,12 +117,15 @@ productRouter.post("/visit/:id", auth, productValidation.getById, async (req, re
       { upsert: true, new: true }
     );
 
+    console.log('Visit record created/updated:', visitRecord);
+
     res.status(200).json({
       success: true,
       message: "Visit recorded successfully",
       product: product
     });
   } catch (error) {
+    console.error('Error recording product visit:', error);
     next(error);
   }
 });

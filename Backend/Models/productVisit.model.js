@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ProductModel = require("./product.model");
 
 const productVisitSchema = new mongoose.Schema({
   userId: {
@@ -9,7 +10,7 @@ const productVisitSchema = new mongoose.Schema({
   },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'product',
+    ref: 'Product',
     required: true,
     index: true
   },
@@ -27,6 +28,6 @@ productVisitSchema.index({ userId: 1, productId: 1 }, { unique: true });
 // Create index for sorting by visitedAt
 productVisitSchema.index({ visitedAt: -1 });
 
-const ProductVisit = mongoose.model("productVisit", productVisitSchema);
+const ProductVisit = mongoose.model("ProductVisit", productVisitSchema);
 
 module.exports = ProductVisit; 

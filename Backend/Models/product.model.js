@@ -376,10 +376,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    isRecentlyViewed: {
-      type: Boolean,
-      default: false,
-    },
     isTrialPack: {
       type: Boolean,
       default: false,
