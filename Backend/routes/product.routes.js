@@ -134,6 +134,126 @@ productRouter.post("/visit/:id", auth, productValidation.getById, async (req, re
 productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
+    let searchTerm = "";
+    
+    // Enhanced fuzzy search functionality
+    if (req.query.search) {
+      searchTerm = req.query.search.toLowerCase();
+      
+      // Create an array of search terms with common variations
+      const searchTerms = [searchTerm];
+      
+      // Add common misspellings and variations
+      const misspellings = {
+        'conact': 'contact',
+        'eyeglass': 'eyeglasses',
+        'sunglass': 'sunglasses',
+        'lense': 'lens',
+        'lenses': 'lens',
+        'glasses': 'glass',
+        'frame': 'frames',
+        'spectacle': 'spectacles',
+        'spectacles': 'spectacle',
+        'len': 'lens',
+        'contct': 'contact',
+        'gls': 'glasses',
+        'specs': 'spectacles',
+        'sun': 'sunglasses',
+        'eye': 'eyeglasses',
+        'comp': 'computer',
+        'blu': 'blue',
+        'blck': 'black',
+        'wht': 'white',
+        'rd': 'red',
+        'grn': 'green',
+        'ylw': 'yellow',
+        'prpl': 'purple',
+        'pink': 'pink',
+        'brwn': 'brown',
+        'gry': 'gray',
+        'slvr': 'silver',
+        'gld': 'gold',
+        'matal': 'metal',
+        'plastc': 'plastic',
+        'woodn': 'wooden',
+        'titan': 'titanium',
+        'acct': 'acetate',
+        'trnd': 'trendy',
+        'clas': 'classic',
+        'modrn': 'modern',
+        'vntg': 'vintage',
+        'sport': 'sports',
+        'casl': 'casual',
+        'forml': 'formal',
+        'kids': 'children',
+        'wmn': 'women',
+        'mn': 'men',
+        'unisex': 'unisex',
+        'child': 'children',
+        'adult': 'adults',
+        'senior': 'seniors',
+        'youth': 'youth',
+        'teen': 'teenager',
+        'teenager': 'teen',
+        'presc': 'prescription',
+        'prescr': 'prescription',
+        'prescrptn': 'prescription',
+        'power': 'powered',
+        'powrd': 'powered',
+        'zero': 'zero power',
+        'zerop': 'zero power',
+        'zeropwr': 'zero power',
+        'withp': 'with power',
+        'withpwr': 'with power',
+        'withpower': 'with power',
+        'bluelight': 'blue light',
+        'bluelite': 'blue light',
+        'blulite': 'blue light',
+        'blulight': 'blue light',
+        'compglass': 'computer glasses',
+        'compgls': 'computer glasses',
+        'compglasses': 'computer glasses',
+        'sungls': 'sunglasses',
+        'sunglass': 'sunglasses',
+        'eyegls': 'eyeglasses',
+        'eyeglass': 'eyeglasses',
+        'contlens': 'contact lenses',
+        'contlenses': 'contact lenses',
+        'contlense': 'contact lenses',
+        'contlen': 'contact lenses',
+        'contl': 'contact lenses',
+        'clens': 'contact lenses',
+        'clense': 'contact lenses',
+        'clense': 'contact lenses',
+        'cl': 'contact lenses'
+      };
+
+      // Add misspelling variations
+      if (misspellings[searchTerm]) {
+        searchTerms.push(misspellings[searchTerm]);
+      }
+
+      // Add partial matches
+      const words = searchTerm.split(/\s+/);
+      words.forEach(word => {
+        if (word.length > 2) {
+          searchTerms.push(word);
+        }
+      });
+
+      // Create the search query with similarity scoring
+      query.$or = searchTerms.map(term => ({
+        $or: [
+          { name: { $regex: term, $options: "i" } },
+          { caption: { $regex: term, $options: "i" } },
+          { productType: { $regex: term, $options: "i" } },
+          { brands: { $regex: term, $options: "i" } },
+          { mainCategory: { $regex: term, $options: "i" } },
+          { subCategory: { $regex: term, $options: "i" } },
+          { productRefLink: { $regex: term, $options: "i" } }
+        ]
+      }));
+    }
     
     // Case-insensitive string filters
     if (req.query.frameType && req.query.frameType !== "") {
@@ -169,15 +289,6 @@ productRouter.get("/", async (req, res, next) => {
       }
     }
 
-    // Search filter
-    if (req.query.search && req.query.search !== "") {
-      query.$or = [
-        { name: { $regex: req.query.search, $options: "i" } },
-        { productRefLink: { $regex: req.query.search, $options: "i" } },
-        { productType: { $regex: req.query.search, $options: "i" } }
-      ];
-    }
-
     // Special filters
     if (req.query.trending === "true") {
       query.trending = true;
@@ -194,11 +305,48 @@ productRouter.get("/", async (req, res, next) => {
     // Sorting
     const sort = req.query.sort === "lowtohigh" ? 1 : -1;
 
-    // Query DB
-    const products = await ProductModel.find(query)
-      .sort({ price: sort })
-      .skip(skip)
-      .limit(limit);
+    // Query DB with aggregation for better search results
+    const aggregationPipeline = [
+      { $match: query }
+    ];
+
+    // Add scoring only if there's a search term
+    if (searchTerm) {
+      aggregationPipeline.push({
+        $addFields: {
+          searchScore: {
+            $add: [
+              // Name score
+              { $cond: [{ $regexMatch: { input: "$name", regex: searchTerm, options: "i" } }, 10, 0] },
+              // Caption score
+              { $cond: [{ $regexMatch: { input: "$caption", regex: searchTerm, options: "i" } }, 8, 0] },
+              // Product type score
+              { $cond: [{ $regexMatch: { input: "$productType", regex: searchTerm, options: "i" } }, 6, 0] },
+              // Main category score
+              { $cond: [{ $regexMatch: { input: "$mainCategory", regex: searchTerm, options: "i" } }, 5, 0] },
+              // Sub category score
+              { $cond: [{ $regexMatch: { input: "$subCategory", regex: searchTerm, options: "i" } }, 4, 0] },
+              // Brands score
+              { $cond: [{ $in: [searchTerm, { $map: { input: "$brands", as: "brand", in: { $toLower: "$$brand" } } }] }, 3, 0] }
+            ]
+          }
+        }
+      });
+
+      // Sort by search score first if searching
+      aggregationPipeline.push({ $sort: { searchScore: -1, price: sort } });
+    } else {
+      // Sort by price only if not searching
+      aggregationPipeline.push({ $sort: { price: sort } });
+    }
+
+    // Add pagination
+    aggregationPipeline.push(
+      { $skip: skip },
+      { $limit: limit }
+    );
+
+    const products = await ProductModel.aggregate(aggregationPipeline);
 
     // Get total count for pagination
     const total = await ProductModel.countDocuments(query);
@@ -214,7 +362,12 @@ productRouter.get("/", async (req, res, next) => {
       }
     });
   } catch (error) {
-    next(error);
+    console.error('Error in products route:', error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
   }
 });
 

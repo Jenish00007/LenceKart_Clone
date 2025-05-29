@@ -73,7 +73,6 @@ const NewProduct = () => {
       const params = new URLSearchParams();
       
       if (sort) params.append('sort', sort);
-      //if (types) params.append('productType', types);
       if (gender) params.append('gender', gender);
       if (shape) params.append('shape', shape);
       if (style) params.append('style', style);
@@ -90,13 +89,22 @@ const NewProduct = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const postData = await response.json();
+      const data = await response.json();
       
+      // Check if the response has the expected structure
+      if (data.success && Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else if (Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        console.error("Unexpected response format:", data);
+        setProducts([]);
+      }
       
-      setProducts(postData);
       setIsLoaded(false);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
       setIsLoaded(false);
     }
   };
@@ -296,7 +304,9 @@ const NewProduct = () => {
                   color="gray.500"
                   py={10}
                 >
-                  No Products Found
+                  {searchParams.get('search') 
+                    ? `No products found for "${searchParams.get('search')}"`
+                    : 'No Products Found'}
                 </Text>
               )}
 
