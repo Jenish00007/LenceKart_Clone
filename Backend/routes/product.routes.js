@@ -29,10 +29,11 @@ productRouter.get("/trending", async (req, res, next) => {
 productRouter.get("/recommended", async (req, res, next) => {
   try {
     const recommendedProducts = await ProductModel.find({
-      recommended: true
+      isRecommended: true
     })
-      .sort({ createdAt: -1 })
-      .limit(6);
+      .sort({ rating: -1 })
+      .limit(6)
+      .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
 
     res.status(200).json({
       success: true,
@@ -52,12 +53,12 @@ productRouter.get("/lastvisited", auth, async (req, res, next) => {
       .limit(8)
       .populate({
         path: 'productId',
-        model: 'product',
-        select: 'name price image rating colors shape gender style dimension productType imageTsrc'
+        select: 'name price imageTsrc rating shape gender style productType'
       });
 
+    // Extract just the product data from the populated visits
     const lastVisitedProducts = lastVisits
-      .filter(visit => visit.productId)
+      .filter(visit => visit.productId) // Filter out any null products
       .map(visit => visit.productId);
 
     res.status(200).json({
@@ -258,6 +259,165 @@ productRouter.get('/categories/offered', async (req, res) => {
   }
 });
 
+// Get computer blue lenses products with power
+productRouter.get('/computer-blu-lenses/with-power', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "COMPUTER_GLASSES",
+      powerType: "with_power",
+      lensFeatures: { $in: ["Blue Light Block"] }
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching computer blue lenses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get computer blue lenses products with zero power
+productRouter.get('/computer-blu-lenses/zero-power', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "COMPUTER_GLASSES",
+      powerType: "zero_power",
+      lensFeatures: { $in: ["Blue Light Block"] }
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching computer blue lenses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get eyeglasses products
+productRouter.get('/eyeglasses', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "EYEGLASSES"
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching eyeglasses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get sunglasses products
+productRouter.get('/sunglasses', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "SUNGLASSES"
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching sunglasses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get computer glasses products
+productRouter.get('/computer-glasses', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "COMPUTER_GLASSES"
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching computer glasses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get contact lenses products
+productRouter.get('/contact-lenses', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "CONTACT_LENSES"
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching contact lenses products', 
+      error: error.message 
+    });
+  }
+});
+
+// Get color contact lenses products
+productRouter.get('/color-contact-lenses', async (req, res) => {
+  try {
+    const products = await ProductModel.find({
+      subCategory: "CONTACT_LENSES",
+      contactLensColors: { $exists: true, $ne: [] }
+    })
+    .sort({ rating: -1 })
+    .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount contactLensColors contactLensType contactLensMaterial');
+
+    res.status(200).json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching color contact lenses products', 
+      error: error.message 
+    });
+  }
+});
+
 // Get product by ID
 productRouter.get("/:id", async (req, res) => {
   try {
@@ -349,17 +509,25 @@ productRouter.delete("/:id", auth, productValidation.getById, async (req, res, n
 productRouter.get("/filter", async (req, res) => {
   try {
     const {
-      productType,
-      frameWidth,
+      mainCategory,
+      subCategory,
+      personCategory,
       gender,
-      frameSize,
-      frameShape,
-      supportedPowers,
+      ageGroup,
+      selectedCategoryPrice,
+      brands,
+      topPicks,
+      powerType,
       prescriptionType,
-      weightGroup,
-      priceRange,
-      frameColors,
+      supportedPowers,
       frameType,
+      shape,
+      frameSize,
+      frameWidth,
+      weightGroup,
+      style,
+      lensFeatures,
+      priceRange,
       search,
       limit = 10,
       offset = 0
@@ -367,18 +535,49 @@ productRouter.get("/filter", async (req, res) => {
 
     const query = {};
 
-    if (productType) query.productType = productType;
-    if (frameWidth) query.frameWidth = frameWidth;
+    // Category filters
+    if (mainCategory) query.mainCategory = mainCategory;
+    if (subCategory) query.subCategory = subCategory;
+    if (personCategory) query.personCategory = personCategory;
     if (gender) query.gender = gender;
-    if (frameShape) query.frameShape = frameShape;
-    if (prescriptionType) query.prescriptionType = prescriptionType;
-    if (weightGroup) query.weightGroup = weightGroup;
-    if (frameType) query.frameType = frameType;
+    if (ageGroup) query.ageGroup = ageGroup;
+    if (selectedCategoryPrice) query.selectedCategoryPrice = selectedCategoryPrice;
 
-    if (search) {
-      query.name = { $regex: search, $options: "i" };
+    // Brand and top picks
+    if (brands) {
+      const brandArray = Array.isArray(brands) ? brands : [brands];
+      query.brands = { $in: brandArray };
+    }
+    if (topPicks) query.topPicks = topPicks;
+
+    // Power and prescription
+    if (powerType) query.powerType = powerType;
+    if (prescriptionType) query.prescriptionType = prescriptionType;
+    if (supportedPowers) query.supportedPowers = supportedPowers;
+
+    // Frame details
+    if (frameType) query.frameType = frameType;
+    if (shape) query.shape = shape;
+    if (frameSize) query.frameSize = frameSize;
+    if (frameWidth) query.frameWidth = frameWidth;
+    if (weightGroup) query.weightGroup = weightGroup;
+    if (style) query.style = style;
+
+    // Lens features
+    if (lensFeatures) {
+      const features = Array.isArray(lensFeatures) ? lensFeatures : [lensFeatures];
+      query.lensFeatures = { $in: features };
     }
 
+    // Search
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { caption: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // Price range
     if (priceRange) {
       const [min, max] = priceRange.split(',').map(Number);
       query.price = {};
@@ -386,41 +585,29 @@ productRouter.get("/filter", async (req, res) => {
       if (!isNaN(max)) query.price.$lte = max;
     }
 
-    if (supportedPowers) {
-      const powers = supportedPowers.split(',');
-      query.supportedPowers = { $in: powers };
-    }
-
-    if (frameSize) {
-      const sizes = frameSize.split(',');
-      query.frameSize = { $in: sizes };
-    }
-
-    if (frameColors) {
-      const colors = frameColors.split(',');
-      query.frameColors = { $in: colors };
-    }
-
     const parsedLimit = Math.max(1, parseInt(limit));
     const parsedOffset = Math.max(0, parseInt(offset));
 
     const [products, total] = await Promise.all([
-      ProductModel.find(query).skip(parsedOffset).limit(parsedLimit),
+      ProductModel.find(query)
+        .select('productId name imageTsrc additionalImages caption productRefLink price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style lensFeatures isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount')
+        .skip(parsedOffset)
+        .limit(parsedLimit),
       ProductModel.countDocuments(query)
     ]);
 
     return res.status(200).json({
-      status: true,
+      success: true,
       total,
       limit: parsedLimit,
       offset: parsedOffset,
       count: products.length,
-      data: products
+      products
     });
 
   } catch (error) {
     return res.status(500).json({
-      status: false,
+      success: false,
       message: "Internal server error",
       error: error.message
     });

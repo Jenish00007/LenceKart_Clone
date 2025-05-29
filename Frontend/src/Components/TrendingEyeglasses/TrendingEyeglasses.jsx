@@ -122,7 +122,7 @@ const TrendingEyeglasses = () => {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/product/trending`);
+        const response = await fetch(`${API_URL}/products/trending`);
         const data = await response.json();
         if (data.success) {
           setTrendingProducts(data.products);

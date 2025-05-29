@@ -51,6 +51,9 @@ const generateProduct = (index) => {
     ? ["EYEGLASSES", "SUNGLASSES", "COMPUTER_GLASSES"][Math.floor(Math.random() * 3)]
     : ["CONTACT_LENSES", "CONTACT_LENS_SOLUTION", "CONTACT_LENS_CASES"][Math.floor(Math.random() * 3)];
 
+  // Ensure some products are computer blue lenses
+  const isComputerBlueLens = subCategory === "COMPUTER_GLASSES" && Math.random() > 0.5;
+
   const imageTsrc = isGlasses 
     ? glassesImages[Math.floor(Math.random() * glassesImages.length)]
     : subCategory === "CONTACT_LENSES" 
@@ -60,12 +63,16 @@ const generateProduct = (index) => {
   const price = Math.floor(Math.random() * (15000 - 500) + 500);
   const mPrice = Math.floor(price * (1 + Math.random() * 0.3));
 
-  return {
+  const product = {
     productId: `PROD${String(index).padStart(6, '0')}`,
-    name: `${brands[Math.floor(Math.random() * brands.length)]} ${mainCategory === "GLASSES" ? "Eyewear" : "Contact Lens"} ${index}`,
+    name: isComputerBlueLens 
+      ? `${brands[Math.floor(Math.random() * brands.length)]} Computer Blue Lens ${index}`
+      : `${brands[Math.floor(Math.random() * brands.length)]} ${mainCategory === "GLASSES" ? "Eyewear" : "Contact Lens"} ${index}`,
     imageTsrc,
     additionalImages: [imageTsrc],
-    caption: `${mainCategory === "GLASSES" ? "Stylish" : "Comfortable"} ${subCategory.toLowerCase()} for everyday use`,
+    caption: isComputerBlueLens 
+      ? "Computer Blue Lens for Digital Eye Strain Protection"
+      : `${mainCategory === "GLASSES" ? "Stylish" : "Comfortable"} ${subCategory.toLowerCase()} for everyday use`,
     productRefLink: `/product/${index}`,
     price,
     mPrice,
@@ -77,7 +84,9 @@ const generateProduct = (index) => {
     selectedCategoryPrice: ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"][Math.floor(Math.random() * 3)],
     brands: [brands[Math.floor(Math.random() * brands.length)]],
     topPicks: ["new-arrivals", "best-sellers", "trending", "exclusive", "essentials"][Math.floor(Math.random() * 5)],
-    powerType: ["zero_power", "with_power", "single_vision", "bifocal", "progressive"][Math.floor(Math.random() * 5)],
+    powerType: isComputerBlueLens 
+      ? (Math.random() > 0.5 ? "with_power" : "zero_power")
+      : ["zero_power", "with_power", "single_vision", "bifocal", "progressive"][Math.floor(Math.random() * 5)],
     powerRange: {
       min: -6,
       max: 6
@@ -93,7 +102,8 @@ const generateProduct = (index) => {
     contactLensColors: ["Black", "Brown", "Blue", "Green", "Grey", "Hazel"][Math.floor(Math.random() * 6)],
     contactLensType: ["Daily", "Weekly", "Monthly", "Yearly"][Math.floor(Math.random() * 4)],
     contactLensMaterial: ["Silicone Hydrogel", "Hydrogel", "Gas Permeable", "Hybrid"][Math.floor(Math.random() * 4)],
-    isRecommended: Math.random() > 0.7,
+    lensFeatures: isComputerBlueLens ? ["Blue Light Block"] : ["Anti Glare", "UV Protection", "Anti Scratch"][Math.floor(Math.random() * 3)],
+    isRecommended: Math.random() > 0.4,
     isTrending: Math.random() > 0.7,
     isLatest: Math.random() > 0.7,
     isExclusive: Math.random() > 0.8,
@@ -105,6 +115,8 @@ const generateProduct = (index) => {
     quantity: Math.floor(Math.random() * 100) + 10,
     discount: Math.floor(Math.random() * 30)
   };
+
+  return product;
 };
 
 const seedProducts = async () => {

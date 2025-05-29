@@ -147,7 +147,11 @@ const RecentlyViewed = () => {
     const fetchRecentlyViewed = async () => {
       try {
         const token = localStorage.getItem('token');
+        console.log('Token:', token); // Debug log
+        console.log('isAuth:', isAuth); // Debug log
+        
         if (!token || !isAuth) {
+          console.log('No token or not authenticated'); // Debug log
           setLoading(false);
           return;
         }
@@ -161,6 +165,7 @@ const RecentlyViewed = () => {
         });
 
         const data = await response.json();
+        console.log('Response data:', data); // Debug log
 
         if (data.success) {
           setProducts(data.products || []);
@@ -175,6 +180,7 @@ const RecentlyViewed = () => {
           });
         }
       } catch (error) {
+        console.error('Error fetching recently viewed:', error); // Debug log
         toast({
           title: "Error",
           description: "Something went wrong while fetching recently viewed products",
@@ -191,10 +197,6 @@ const RecentlyViewed = () => {
     fetchRecentlyViewed();
   }, [isAuth, toast]);
 
-  if (!isAuth) {
-    return null;
-  }
-
   if (loading) {
     return (
       <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
@@ -209,15 +211,53 @@ const RecentlyViewed = () => {
           gap={{ base: 3, sm: 4, md: 6 }}
         >
           {[1, 2, 3, 4].map((item) => (
-            <Skeleton key={item} height={{ base: "320px", md: "400px" }} borderRadius="lg" />
+            <Skeleton key={item} height={{ base: "350px", md: "450px" }} borderRadius="lg" />
           ))}
         </Grid>
       </Box>
     );
   }
 
-  if (!products || products.length === 0) {
-    return null;
+  if (!isAuth) {
+    return (
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
+        <Heading
+          textAlign="center"
+          mb={{ base: 6, md: 8 }}
+          size={{ base: "md", sm: "lg" }}
+          bgGradient="linear(to-r, blue.400, purple.500)"
+          bgClip="text"
+        >
+          Recently Viewed Products
+        </Heading>
+        <Box textAlign="center" p={8}>
+          <Text fontSize="lg" color="gray.600">
+            Please login to see your recently viewed products
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <Box p={{ base: 4, sm: 6, md: 8 }} bg="gray.50">
+        <Heading
+          textAlign="center"
+          mb={{ base: 6, md: 8 }}
+          size={{ base: "md", sm: "lg" }}
+          bgGradient="linear(to-r, blue.400, purple.500)"
+          bgClip="text"
+        >
+          Recently Viewed Products
+        </Heading>
+        <Box textAlign="center" p={8}>
+          <Text fontSize="lg" color="gray.600">
+            You haven't viewed any products yet
+          </Text>
+        </Box>
+      </Box>
+    );
   }
 
   return (
