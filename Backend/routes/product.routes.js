@@ -131,7 +131,7 @@ productRouter.post("/visit/:id", auth, productValidation.getById, async (req, re
 });
 
 // Filter products
-productRouter.get("/filter", async (req, res, next) => {
+productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
     

@@ -69,7 +69,7 @@ const NewProduct = () => {
       }
 
       // Construct URL with all parameters
-      let url = `${API_URL}/products?`;
+      let url = `${API_URL}/products`;
       const params = new URLSearchParams();
       
       if (sort) params.append('sort', sort);
