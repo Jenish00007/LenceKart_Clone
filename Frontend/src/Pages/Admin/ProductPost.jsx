@@ -119,7 +119,10 @@ const ProductPost = () => {
     if (isEditing && productData) {
       setFormData({
         ...productData,
-        powerRange: productData.powerRange || { min: "", max: "" }
+        powerRange: productData.powerRange || { min: "", max: "" },
+        additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
+        brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : []
       });
     }
   }, [isEditing, productData]);
@@ -369,7 +372,7 @@ const ProductPost = () => {
                   <Textarea
                     name="additionalImages"
                     placeholder="Enter additional image URLs"
-                    value={formData.additionalImages.join(', ')}
+                    value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
                     onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
                     size="lg"
                     borderRadius="md"
