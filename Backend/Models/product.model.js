@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema(
     },
     productRefLink: {
       type: String,
-      required: true,
+      required: false,
     },
     price: {
       type: Number,
