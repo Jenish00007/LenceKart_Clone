@@ -1,14 +1,33 @@
+import React from 'react';
 import { Link } from "react-router-dom";
-import { Box, Flex, Grid, Text, Image, Badge } from "@chakra-ui/react";
+import { Box, Flex, Grid, Text, Image, Badge, Spinner, Center } from "@chakra-ui/react";
 import { AiFillStar } from "react-icons/ai";
 import PropTypes from 'prop-types';
 
-const ProductCard = ({ type = [] }) => {
+const ProductCard = ({ type = [], loading }) => {
   // If type is not an array or is empty, show a message
   if (!Array.isArray(type) || type.length === 0) {
     return (
       <Box textAlign="center" p={4}>
         <Text>No products available</Text>
+      </Box>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        overflow="hidden"
+        bg="white"
+        h="100%"
+        display="flex"
+        flexDirection="column"
+      >
+        <Center h="250px">
+          <Spinner size="xl" color="teal.500" />
+        </Center>
       </Box>
     );
   }
@@ -51,13 +70,18 @@ const ProductCard = ({ type = [] }) => {
               bg="gray.50"
             >
               <Image
-                src={ele.imageTsrc}
-                alt={ele.name}
+                src={ele.imageTsrc || ele.image || '/placeholder-image.png'}
+                alt={ele.name || "Product Image"}
                 maxH={{ base: "180px", md: "220px", lg: "250px" }}
                 w="auto"
                 objectFit="contain"
                 transition="transform 0.3s ease"
                 _hover={{ transform: "scale(1.05)" }}
+                fallbackSrc="/placeholder-image.png"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/placeholder-image.png';
+                }}
               />
             </Box>
             <Box p={4} flex="0">
@@ -68,7 +92,7 @@ const ProductCard = ({ type = [] }) => {
                 mb={2}
                 color="gray.700"
               >
-                {ele.name}
+                {ele.name || "Product Name"}
               </Text>
               <Flex align="center" mb={2}>
                 <AiFillStar color="gold" />
@@ -82,7 +106,7 @@ const ProductCard = ({ type = [] }) => {
                   color="blue.600"
                   fontSize={{ base: "sm", md: "md" }}
                 >
-                  ₹{ele.price}
+                  ₹{ele.price || 0}
                 </Text>
                 {ele.discount > 0 && (
                   <Badge 

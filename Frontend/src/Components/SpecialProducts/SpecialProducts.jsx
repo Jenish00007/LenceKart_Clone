@@ -29,7 +29,9 @@ import {
   Fade,
   ScaleFade,
   Skeleton,
-  useColorModeValue
+  useColorModeValue,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
 import { FiShoppingCart, FiHeart, FiEye, FiTrendingUp } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +49,26 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
 
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  if (product.loading) {
+    return (
+      <Card
+        bg={bgColor}
+        borderWidth="1px"
+        borderColor={borderColor}
+        borderRadius="lg"
+        overflow="hidden"
+        transition="all 0.3s"
+        h="100%"
+      >
+        <CardBody p={{ base: 3, sm: 4 }}>
+          <Center h="200px">
+            <Spinner size="xl" color="teal.500" />
+          </Center>
+        </CardBody>
+      </Card>
+    );
+  }
 
   return (
     <ScaleFade initialScale={0.9} in={true}>
@@ -66,13 +88,17 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
         <CardBody p={{ base: 3, sm: 4 }}>
           <Box position="relative">
             <Image
-              src={product.imageTsrc}
-              alt={product.name}
+              src={product.imageTsrc || product.image || '/placeholder-image.png'}
+              alt={product.name || "Product Image"}
               height={{ base: "120px", sm: "150px", md: "180px" }}
               width="100%"
               objectFit="cover"
-              fallbackSrc="https://via.placeholder.com/200"
+              fallbackSrc="/placeholder-image.png"
               borderRadius="md"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/placeholder-image.png';
+              }}
             />
             {discount > 0 && (
               <Badge
@@ -109,7 +135,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
               lineHeight="1.2"
               minH={{ base: "32px", sm: "40px" }}
             >
-              {product.name}
+              {product.name || "Product Name"}
             </Heading>
 
             {/* Rating */}

@@ -53,7 +53,9 @@ import {
   TagLabel,
   TagCloseButton,
   Wrap,
-  WrapItem
+  WrapItem,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import './AdminPages.css';
@@ -164,6 +166,16 @@ const Products = () => {
       }
     });
   };
+
+  if (loading) {
+    return (
+      <Box p={4}>
+        <Center h="400px">
+          <Spinner size="xl" color="teal.500" />
+        </Center>
+      </Box>
+    );
+  }
 
   return (
     <Box p={6} bg="gray.50" minH="100vh">
@@ -315,17 +327,22 @@ const Products = () => {
                   <Tr key={product._id}>
                     <Td>
                       <Image
-                        src={product.imageTsrc}
-                        alt={product.name}
+                        src={product.imageTsrc || product.image || '/placeholder-image.png'}
+                        alt={product.name || "Product Image"}
                         boxSize="50px"
                         objectFit="cover"
                         borderRadius="md"
+                        fallbackSrc="/placeholder-image.png"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/placeholder-image.png';
+                        }}
                       />
                     </Td>
                     <Td>
                       <VStack align="start" spacing={1}>
-                        <Text fontWeight="medium">{product.name}</Text>
-                        <Text fontSize="sm" color="gray.500">{product.productRefLink}</Text>
+                        <Text fontWeight="medium">{product.name || "Product Name"}</Text>
+                        <Text fontSize="sm" color="gray.500">{product.productRefLink || "No Reference"}</Text>
                       </VStack>
                     </Td>
                     <Td>
@@ -333,14 +350,14 @@ const Products = () => {
                         product.productType === 'eyeglasses' ? 'blue' :
                         product.productType === 'sunglasses' ? 'orange' : 'purple'
                       }>
-                        {product.productType}
+                        {product.productType || "Unknown"}
                       </Badge>
                     </Td>
                     <Td>
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight="bold">₹{product.price}</Text>
+                        <Text fontWeight="bold">₹{product.price || 0}</Text>
                         <Text fontSize="sm" textDecoration="line-through" color="gray.500">
-                          ₹{product.mPrice}
+                          ₹{product.mPrice || 0}
                         </Text>
                       </VStack>
                     </Td>

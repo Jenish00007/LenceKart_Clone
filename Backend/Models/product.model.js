@@ -420,20 +420,6 @@ const productSchema = new mongoose.Schema(
       max: 100,
     },
 
-    // Price Range Category__________________________________
-    // priceRange: {
-    //   type: String,
-    //   enum: [
-    //     "Rs. 500-999",
-    //     "Rs. 1000-1499",
-    //     "Rs. 1500-1999",
-    //     "Rs. 2000-2499",
-    //     "Rs. 2500-4999",
-    //     "Rs. 5000-9999",
-    //     "Rs. 10000-14999",
-    //     "Rs. 15000+"
-    //   ]
-    // },
 
     // Timestamps
     createdAt: {
