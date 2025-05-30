@@ -101,7 +101,7 @@ const Products = () => {
         search: searchQuery
       }).toString();
 
-      const response = await fetch(`${API_URL}/product?${queryParams}`);
+      const response = await fetch(`${API_URL}/products?${queryParams}`);
       const data = await response.json();
       setProducts(data.products || data);
       setTotalProducts(data.totalCount || data.length);
@@ -134,22 +134,33 @@ const Products = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        const response = await fetch(`${API_URL}/product/${id}`, {
-          method: "DELETE"
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/products/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
         });
-        if (response.status === 200) {
+        
+        const data = await response.json();
+        
+        if (response.ok) {
           toast({
-            title: "Product deleted successfully",
+            title: "Success",
+            description: data.message || "Product deleted successfully",
             status: "success",
             duration: 2000,
             isClosable: true,
           });
           fetchData();
+        } else {
+          throw new Error(data.message || "Failed to delete product");
         }
       } catch (error) {
+        console.error("Delete error:", error);
         toast({
-          title: "Error deleting product",
-          description: error.message,
+          title: "Error",
+          description: error.message || "Error deleting product",
           status: "error",
           duration: 3000,
           isClosable: true,

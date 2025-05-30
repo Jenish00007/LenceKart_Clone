@@ -47,4 +47,31 @@ exports.getOfferedProducts = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error fetching offered products', error: error.message });
     }
+};
+
+// Delete a product
+exports.deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findByIdAndDelete(productId);
+        
+        if (!product) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Product not found' 
+            });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            message: 'Product deleted successfully' 
+        });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error deleting product',
+            error: error.message 
+        });
+    }
 }; 

@@ -9,6 +9,33 @@ const productRouter = express.Router();
 
 productRouter.use(express.json());
 
+// Delete a product
+productRouter.delete("/:id", auth, async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await ProductModel.findByIdAndDelete(productId);
+        
+        if (!product) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Product not found' 
+            });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            message: 'Product deleted successfully' 
+        });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error deleting product',
+            error: error.message 
+        });
+    }
+});
+
 // Get trending products
 productRouter.get("/trending", async (req, res, next) => {
   try {
@@ -830,27 +857,6 @@ productRouter.put("/:id", auth, productValidation.update, async (req, res, next)
     res.status(200).json({
       success: true,
       product
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Delete product (protected route)
-productRouter.delete("/:id", auth, productValidation.getById, async (req, res, next) => {
-  try {
-    const product = await ProductModel.findByIdAndDelete(req.params.id);
-    
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found"
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Product deleted successfully"
     });
   } catch (error) {
     next(error);
