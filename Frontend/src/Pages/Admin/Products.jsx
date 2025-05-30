@@ -200,9 +200,28 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
   const cardBg = useColorModeValue("gray.50", "gray.700");
   const [searchInput, setSearchInput] = useState(filters.basic.searchQuery || '');
 
-  const handleSearch = () => {
-    onFilterChange('basic', 'searchQuery', searchInput);
+  // Create a debounced search function with a longer delay
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      if (value !== filters.basic.searchQuery) {
+        onFilterChange('basic', 'searchQuery', value);
+      }
+    }, 800), // Increased to 800ms delay
+    [filters.basic.searchQuery]
+  );
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    debouncedSearch(value);
   };
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   return (
     <Card bg={cardBg} p={4}>
@@ -214,8 +233,7 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
                 <Input
                   placeholder="Search products..."
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  onChange={handleSearchChange}
                 />
                 <InputRightElement>
                   <IconButton
@@ -223,7 +241,11 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
                     icon={<SearchIcon />}
                     size="sm"
                     variant="ghost"
-                    onClick={handleSearch}
+                    onClick={() => {
+                      if (searchInput !== filters.basic.searchQuery) {
+                        onFilterChange('basic', 'searchQuery', searchInput);
+                      }
+                    }}
                   />
                 </InputRightElement>
               </InputGroup>
@@ -571,21 +593,29 @@ const Products = () => {
   }, [productState.products]);
 
   // Update handleFilterChange to handle search
-  const handleFilterChange = (category, name, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [name]: value
+  const handleFilterChange = useCallback((category, name, value) => {
+    setFilters(prev => {
+      // Only update if the value has actually changed
+      if (prev[category][name] === value) {
+        return prev;
       }
-    }));
+      return {
+        ...prev,
+        [category]: {
+          ...prev[category],
+          [name]: value
+        }
+      };
+    });
+    
     // Reset to first page when filters change
     setProductState(prev => ({ ...prev, page: 1 }));
+    
     // Trigger fetch immediately for search
     if (category === 'basic' && name === 'searchQuery') {
       fetchData();
     }
-  };
+  }, []);
 
   // Fetch data
   const fetchData = async () => {
