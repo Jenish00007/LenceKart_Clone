@@ -67,6 +67,7 @@ import {
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import './AdminPages.css';
 import { API_URL } from '../../config';
+import { MdRefresh } from 'react-icons/md';
 
 // Constants
 const ITEMS_PER_PAGE = 10;
@@ -79,6 +80,102 @@ const PRICE_RANGES = [
   { label: "Rs. 5000-9999", value: "5000-9999" },
   { label: "Rs. 10000-14999", value: "10000-14999" },
   { label: "Rs. 15000+", value: "15000+" }
+];
+
+// Update BRANDS to match backend model
+const BRANDS = [
+  "Ray-Ban",
+  "Aqualens",
+  "Bausch Lomb",
+  "Soflens",
+  "Acuvue",
+  "Iconnect",
+  "Alcon",
+  "Oakley",
+  "Prada",
+  "Gucci",
+  "Dior",
+  "Cartier",
+  "Versace",
+  "Fendi",
+  "Burberry",
+  "Dolce & Gabbana",
+  "Louis Vuitton",
+  "Hermes",
+  "Chanel",
+  "Not Applicable"
+];
+
+// Update SHAPES to match backend model
+const SHAPES = [
+  "Round",
+  "Square",
+  "Rectangle",
+  "Aviator",
+  "Cat Eye",
+  "Oval",
+  "Geometric",
+  "Wayfarer",
+  "Clubmaster",
+  "Butterfly",
+  "Wrap",
+  "Sports",
+  "Spherical Contact Lense",
+  "Not Applicable"
+];
+
+// Update STYLES to match backend model
+const STYLES = [
+  "Casual",
+  "Formal",
+  "Sports",
+  "Fashion",
+  "Vintage",
+  "Classic",
+  "Day Night",
+  "Modern",
+  "Not Applicable"
+];
+
+// Update POWER_TYPES to match backend model
+const POWER_TYPES = [
+  "zero_power",
+  "with_power",
+  "single_vision",
+  "bifocal",
+  "progressive",
+  "reading",
+  "contact_lens_power",
+  "spherical_minus_cyl",
+  "spherical_plus_cyl",
+  "cylindrical_power",
+  "toric_power",
+  "Not Applicable"
+];
+
+const DISCOUNT_RANGES = [
+  { label: "10% and above", value: "10" },
+  { label: "20% and above", value: "20" },
+  { label: "30% and above", value: "30" },
+  { label: "40% and above", value: "40" },
+  { label: "50% and above", value: "50" }
+];
+
+// Update TOP_PICKS to match backend model
+const TOP_PICKS = [
+  "new-arrivals",
+  "best-sellers",
+  "trending",
+  "exclusive",
+  "essentials",
+  "lenskart-blu-lenses",
+  "tinted-eyeglasses",
+  "computer-eyeglasses",
+  "progressive-eyeglasses",
+  "pilot-style",
+  "power-sunglasses",
+  "polarized-sunglasses",
+  "Not Applicable"
 ];
 
 // API Service
@@ -98,115 +195,173 @@ const productService = {
 };
 
 // Sub-components
-const ProductFilters = ({ filters, onFilterChange }) => {
+const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
   const cardBg = useColorModeValue("gray.50", "gray.700");
 
   return (
     <Card bg={cardBg} p={4}>
       <CardBody>
-        <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
-          <GridItem>
-            <InputGroup>
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.300" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search products..."
-                value={filters.basic.searchQuery}
-                onChange={(e) => onFilterChange('basic', 'searchQuery', e.target.value)}
-              />
-            </InputGroup>
-          </GridItem>
+        <VStack spacing={4}>
+          <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} width="100%">
+            <GridItem>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <SearchIcon color="gray.300" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Search products..."
+                  value={filters.basic.searchQuery}
+                  onChange={(e) => onFilterChange('basic', 'searchQuery', e.target.value)}
+                />
+              </InputGroup>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Product Type"
-              value={filters.basic.filter}
-              onChange={(e) => onFilterChange('basic', 'filter', e.target.value)}
-            >
-              <option value="eyeglasses">Eye Glasses</option>
-              <option value="sunglasses">Sun Glasses</option>
-              <option value="contact-lenses">Contact Lenses</option>
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Product Type"
+                value={filters.basic.filter}
+                onChange={(e) => onFilterChange('basic', 'filter', e.target.value)}
+              >
+                <option value="eyeglasses">Eye Glasses</option>
+                <option value="sunglasses">Sun Glasses</option>
+                <option value="contact-lenses">Contact Lenses</option>
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Gender"
-              value={filters.product.gender}
-              onChange={(e) => onFilterChange('product', 'gender', e.target.value)}
-            >
-              <option value="Men">Men</option>
-              <option value="Women">Women</option>
-              <option value="Unisex">Unisex</option>
-              <option value="Kids">Kids</option>
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Person Category"
+                value={filters.product.gender}
+                onChange={(e) => onFilterChange('product', 'gender', e.target.value)}
+              >
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Unisex">Unisex</option>
+                <option value="Kids">Kids</option>
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Frame Type"
-              value={filters.product.frameType}
-              onChange={(e) => onFilterChange('product', 'frameType', e.target.value)}
-            >
-              <option value="Full Rim">Full Rim</option>
-              <option value="Half Rim">Half Rim</option>
-              <option value="Rimless">Rimless</option>
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Frame Type"
+                value={filters.product.frameType}
+                onChange={(e) => onFilterChange('product', 'frameType', e.target.value)}
+              >
+                <option value="Full Rim">Full Rim</option>
+                <option value="Half Rim">Half Rim</option>
+                <option value="Rimless">Rimless</option>
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Frame Size"
-              value={filters.product.frameSize}
-              onChange={(e) => onFilterChange('product', 'frameSize', e.target.value)}
-            >
-              <option value="Extra Narrow">Extra Narrow</option>
-              <option value="Narrow">Narrow</option>
-              <option value="Medium">Medium</option>
-              <option value="Wide">Wide</option>
-              <option value="Extra Wide">Extra Wide</option>
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Brand"
+                value={filters.product.brand}
+                onChange={(e) => onFilterChange('product', 'brand', e.target.value)}
+              >
+                {BRANDS.map(brand => (
+                  <option key={brand} value={brand}>{brand}</option>
+                ))}
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Weight Group"
-              value={filters.product.weightGroup}
-              onChange={(e) => onFilterChange('product', 'weightGroup', e.target.value)}
-            >
-              <option value="Light">Light</option>
-              <option value="Average">Average</option>
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Shape"
+                value={filters.product.shape}
+                onChange={(e) => onFilterChange('product', 'shape', e.target.value)}
+              >
+                {SHAPES.map(shape => (
+                  <option key={shape} value={shape}>{shape}</option>
+                ))}
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Price Range"
-              value={filters.technical.priceRange}
-              onChange={(e) => onFilterChange('technical', 'priceRange', e.target.value)}
-            >
-              {PRICE_RANGES.map(range => (
-                <option key={range.value} value={range.value}>
-                  {range.label}
-                </option>
-              ))}
-            </Select>
-          </GridItem>
+            <GridItem>
+              <Select
+                placeholder="Style"
+                value={filters.product.style}
+                onChange={(e) => onFilterChange('product', 'style', e.target.value)}
+              >
+                {STYLES.map(style => (
+                  <option key={style} value={style}>{style}</option>
+                ))}
+              </Select>
+            </GridItem>
 
-          <GridItem>
-            <Select
-              placeholder="Sort By"
-              value={filters.basic.sort}
-              onChange={(e) => onFilterChange('basic', 'sort', e.target.value)}
-            >
-              <option value="lowtohigh">Price: Low to High</option>
-              <option value="hightolow">Price: High to Low</option>
-              <option value="newest">Newest First</option>
-              <option value="rating">Highest Rated</option>
-            </Select>
-          </GridItem>
-        </Grid>
+            <GridItem>
+              <Select
+                placeholder="Power Type"
+                value={filters.product.powerType}
+                onChange={(e) => onFilterChange('product', 'powerType', e.target.value)}
+              >
+                {POWER_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </Select>
+            </GridItem>
+
+            <GridItem>
+              <Select
+                placeholder="Discount"
+                value={filters.product.discount}
+                onChange={(e) => onFilterChange('product', 'discount', e.target.value)}
+              >
+                {DISCOUNT_RANGES.map(range => (
+                  <option key={range.value} value={range.value}>{range.label}</option>
+                ))}
+              </Select>
+            </GridItem>
+
+            <GridItem>
+              <Select
+                placeholder="Price Range"
+                value={filters.technical.priceRange}
+                onChange={(e) => onFilterChange('technical', 'priceRange', e.target.value)}
+              >
+                {PRICE_RANGES.map(range => (
+                  <option key={range.value} value={range.value}>{range.label}</option>
+                ))}
+              </Select>
+            </GridItem>
+
+            <GridItem>
+              <Select
+                placeholder="Sort By"
+                value={filters.basic.sort}
+                onChange={(e) => onFilterChange('basic', 'sort', e.target.value)}
+              >
+                <option value="lowtohigh">Price: Low to High</option>
+                <option value="hightolow">Price: High to Low</option>
+                <option value="newest">Newest First</option>
+                <option value="rating">Highest Rated</option>
+              </Select>
+            </GridItem>
+
+            <GridItem>
+              <Select
+                placeholder="Top Pick"
+                value={filters.features.topPick}
+                onChange={(e) => onFilterChange('features', 'topPick', e.target.value)}
+              >
+                {TOP_PICKS.map(pick => (
+                  <option key={pick} value={pick}>
+                    {pick.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </option>
+                ))}
+              </Select>
+            </GridItem>
+          </Grid>
+          <Button
+            leftIcon={<MdRefresh />}
+            colorScheme="gray"
+            variant="outline"
+            onClick={onResetFilters}
+            width="200px"
+          >
+            Reset Filters
+          </Button>
+        </VStack>
       </CardBody>
     </Card>
   );
@@ -365,8 +520,9 @@ const Products = () => {
       shape: "",
       style: "",
       frameType: "",
-      frameSize: "",
-      weightGroup: ""
+      brand: "",
+      powerType: "",
+      discount: ""
     },
     technical: {
       prescriptionType: "",
@@ -375,6 +531,9 @@ const Products = () => {
     },
     appearance: {
       frameColors: []
+    },
+    features: {
+      topPick: ""
     }
   });
 
@@ -519,6 +678,39 @@ const Products = () => {
     });
   };
 
+  // Add reset filters function
+  const handleResetFilters = () => {
+    setFilters({
+      basic: {
+        sort: "",
+        filter: "",
+        searchQuery: ""
+      },
+      product: {
+        gender: "",
+        shape: "",
+        style: "",
+        frameType: "",
+        brand: "",
+        powerType: "",
+        discount: ""
+      },
+      technical: {
+        prescriptionType: "",
+        supportedPowers: "",
+        priceRange: ""
+      },
+      appearance: {
+        frameColors: []
+      },
+      features: {
+        topPick: ""
+      }
+    });
+    // Reset to first page when filters are reset
+    setProductState(prev => ({ ...prev, page: 1 }));
+  };
+
   // Effects
   useEffect(() => {
     fetchData();
@@ -571,6 +763,7 @@ const Products = () => {
         <ProductFilters 
           filters={filters}
           onFilterChange={handleFilterChange}
+          onResetFilters={handleResetFilters}
         />
 
         {/* Products Table */}
