@@ -302,12 +302,31 @@ productRouter.get("/", async (req, res, next) => {
     // Get total count for pagination
     const total = await ProductModel.countDocuments(query);
     
-    // Get filtered products
+    // Handle sorting
+    let sortOption = {};
+    switch(req.query.sort) {
+      case 'newest':
+        sortOption = { createdAt: -1 };
+        break;
+      case 'hightolow':
+        sortOption = { price: -1 };
+        break;
+      case 'lowtohigh':
+        sortOption = { price: 1 };
+        break;
+      case 'rating':
+        sortOption = { rating: -1 };
+        break;
+      default:
+        sortOption = { createdAt: -1 }; // Default to newest first
+    }
+    
+    // Get filtered products with sorting
     const products = await ProductModel.find(query)
-      .sort({ rating: -1 })
+      .sort(sortOption)
       .skip(offset)
       .limit(limit)
-      .select('name imageTsrc price mPrice rating discount mainCategory subCategory gender frameType shape style brands lensFeatures selectedCategoryPrice');
+      .select('name imageTsrc price mPrice rating discount mainCategory subCategory gender frameType shape style brands lensFeatures selectedCategoryPrice createdAt');
     
     console.log('Found Products:', products.length);
     

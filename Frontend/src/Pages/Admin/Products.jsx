@@ -98,14 +98,25 @@ const Products = () => {
       const queryParams = new URLSearchParams({
         ...filters,
         page,
-        search: searchQuery
+        search: searchQuery,
+        sort: filters.sort || 'newest' // Default to newest first if no sort is selected
       }).toString();
 
       const response = await fetch(`${API_URL}/products?${queryParams}`);
       const data = await response.json();
-      setProducts(data.products || data);
-      setTotalProducts(data.totalCount || data.length);
-      setTotalPages(data.totalPages || Math.ceil(data.totalCount / 10));
+      
+      // Sort products by createdAt in descending order if not already sorted by backend
+      const sortedProducts = Array.isArray(data.products || data) 
+        ? (data.products || data).sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0);
+            const dateB = new Date(b.createdAt || 0);
+            return dateB - dateA;
+          })
+        : [];
+
+      setProducts(sortedProducts);
+      setTotalProducts(data.totalCount || sortedProducts.length);
+      setTotalPages(data.totalPages || Math.ceil(sortedProducts.length / 10));
     } catch (error) {
       toast({
         title: "Error fetching products",
