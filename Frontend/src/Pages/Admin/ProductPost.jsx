@@ -37,12 +37,10 @@ const ProductPost = () => {
   const headingColor = useColorModeValue("blue.600", "blue.300");
 
   const [formData, setFormData] = useState({
-    productId: "",
     name: "",
     imageTsrc: "",
     additionalImages: [],
     caption: "",
-    productRefLink: "",
     price: "",
     mPrice: "",
     mainCategory: "",
@@ -125,7 +123,7 @@ const ProductPost = () => {
       
       // Validate required fields
       const requiredFields = [
-        'productId', 'name', 'imageTsrc', 'caption', 'productRefLink',
+        'name', 'imageTsrc', 'caption',
         'price', 'mPrice', 'mainCategory', 'subCategory'
       ];
       const missingFields = requiredFields.filter(field => !formData[field]);
@@ -151,7 +149,6 @@ const ProductPost = () => {
         rating: isEditing ? formData.rating : 0,
         reviewCount: isEditing ? formData.reviewCount : 0,
         quantity: isEditing ? formData.quantity : 1,
-        productId: isEditing ? formData.productId : `PROD${Date.now()}`,
         createdAt: isEditing ? formData.createdAt : new Date()
       };
 
@@ -238,19 +235,6 @@ const ProductPost = () => {
                 <Divider />
 
                 <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Product ID</Text>
-                  <Input
-                    name="productId"
-                    placeholder="Enter product ID"
-                    value={formData.productId}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                    isDisabled={isEditing}
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
                   <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
                   <Input
                     name="name"
@@ -303,18 +287,6 @@ const ProductPost = () => {
                     placeholder="Enter additional image URLs"
                     value={formData.additionalImages.join(', ')}
                     onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
-                    size="lg"
-                    borderRadius="md"
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Product Reference</Text>
-                  <Input
-                    name="productRefLink"
-                    placeholder="Enter product reference"
-                    value={formData.productRefLink}
-                    onChange={handleChange}
                     size="lg"
                     borderRadius="md"
                   />
@@ -392,11 +364,12 @@ const ProductPost = () => {
                     borderRadius="md"
                   >
                     <option value="">Select Gender</option>
-                    <option value="Men">Men</option>
-                    <option value="Women">Women</option>
-                    <option value="Unisex">Unisex</option>
-                    <option value="Kids">Kids</option>
-                    <option value="Not Applicable">Not Applicable</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Transgender">Transgender</option>
+                    <option value="Other">Other</option>
+                    <option value="All">All</option>
+                    
                   </Select>
                 </FormControl>
 

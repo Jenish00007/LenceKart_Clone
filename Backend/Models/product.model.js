@@ -70,7 +70,7 @@ const productSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["Men", "Women", "Unisex", "Kids", "Not Applicable"],
+      enum: ["Male", "Female", "Transgender","Other","All"],
     },
     ageGroup: {
       type: String,
