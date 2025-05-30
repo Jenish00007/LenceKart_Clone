@@ -271,16 +271,16 @@ productRouter.get("/", async (req, res, next) => {
       query.contactLensType = lensType.charAt(0).toUpperCase() + lensType.slice(1);
     }
 
+    // Add name search for all products
+    if (req.query.name) {
+      const searchTerms = req.query.name.toLowerCase().split(' ');
+      query.$or = searchTerms.map(term => ({
+        name: { $regex: term, $options: "i" }
+      }));
+    }
+
     // Contact lens accessories filter
     if (req.query.subCategory === "CONTACT_LENS_ACCESSORIES") {
-      // Add name search for accessories
-      if (req.query.name) {
-        const searchTerms = req.query.name.toLowerCase().split(' ');
-        query.$or = searchTerms.map(term => ({
-          name: { $regex: term, $options: "i" }
-        }));
-      }
-
       // Add accessory type filter
       if (req.query.accessoryType) {
         const accessoryType = req.query.accessoryType.toUpperCase();

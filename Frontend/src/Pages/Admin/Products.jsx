@@ -31,6 +31,7 @@ import {
   Divider,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
   Menu,
   MenuButton,
   MenuList,
@@ -197,6 +198,11 @@ const productService = {
 // Sub-components
 const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
   const cardBg = useColorModeValue("gray.50", "gray.700");
+  const [searchInput, setSearchInput] = useState(filters.basic.searchQuery || '');
+
+  const handleSearch = () => {
+    onFilterChange('basic', 'searchQuery', searchInput);
+  };
 
   return (
     <Card bg={cardBg} p={4}>
@@ -205,14 +211,21 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
           <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} width="100%">
             <GridItem>
               <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <SearchIcon color="gray.300" />
-                </InputLeftElement>
                 <Input
                   placeholder="Search products..."
-                  value={filters.basic.searchQuery}
-                  onChange={(e) => onFilterChange('basic', 'searchQuery', e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Search"
+                    icon={<SearchIcon />}
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSearch}
+                  />
+                </InputRightElement>
               </InputGroup>
             </GridItem>
 
@@ -557,39 +570,71 @@ const Products = () => {
     });
   }, [productState.products]);
 
-  // Debounced search
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      setProductState(prev => ({ ...prev, searchQuery: query }));
-    }, 300),
-    []
-  );
+  // Update handleFilterChange to handle search
+  const handleFilterChange = (category, name, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [name]: value
+      }
+    }));
+    // Reset to first page when filters change
+    setProductState(prev => ({ ...prev, page: 1 }));
+    // Trigger fetch immediately for search
+    if (category === 'basic' && name === 'searchQuery') {
+      fetchData();
+    }
+  };
 
   // Fetch data
   const fetchData = async () => {
     setLoadingStates(prev => ({ ...prev, fetching: true }));
     try {
-      const queryParams = new URLSearchParams({
-        ...filters,
-        page: productState.page,
-        search: productState.searchQuery,
-        sort: filters.basic.sort || 'newest',
-        limit: 10 // Number of items per page
-      }).toString();
-
-      const data = await productService.fetchProducts(queryParams);
+      const queryParams = new URLSearchParams();
       
-      // Log the response to debug
+      // Add search query if it exists
+      if (filters.basic.searchQuery) {
+        queryParams.append('name', filters.basic.searchQuery);
+      }
+
+      // Add other filters
+      Object.entries(filters.basic).forEach(([key, value]) => {
+        if (value && key !== 'searchQuery') {
+          queryParams.append(key, value);
+        }
+      });
+
+      Object.entries(filters.product).forEach(([key, value]) => {
+        if (value) {
+          queryParams.append(key, value);
+        }
+      });
+
+      Object.entries(filters.technical).forEach(([key, value]) => {
+        if (value) {
+          queryParams.append(key, value);
+        }
+      });
+
+      Object.entries(filters.features).forEach(([key, value]) => {
+        if (value) {
+          queryParams.append(key, value);
+        }
+      });
+
+      // Add pagination
+      queryParams.append('page', productState.page);
+      queryParams.append('limit', ITEMS_PER_PAGE);
+
+      console.log('Query Parameters:', queryParams.toString());
+
+      const data = await productService.fetchProducts(queryParams.toString());
+      
       console.log('API Response:', data);
       
-      // Ensure we have the correct total count
       const totalCount = data.totalCount || data.total || data.products?.length || 0;
-      
-      // Calculate total pages (10 items per page)
-      const totalPages = Math.ceil(totalCount / 10);
-      
-      console.log('Total Count:', totalCount);
-      console.log('Total Pages:', totalPages);
+      const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
       
       setProductState(prev => ({
         ...prev,
@@ -614,18 +659,6 @@ const Products = () => {
   };
 
   // Event handlers
-  const handleFilterChange = (category, name, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [name]: value
-      }
-    }));
-    // Reset to first page when filters change
-    setProductState(prev => ({ ...prev, page: 1 }));
-  };
-
   const handlePageChange = (newPage) => {
     setProductState(prev => ({ ...prev, page: newPage }));
   };
