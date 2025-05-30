@@ -29,7 +29,7 @@ const SingleProduct = () => {
       try {
         setLoading(true);
         const response = await axios.get(`${API_URL}/products/${id}`);
-        setData(response.data);
+        setData(response.data.product);
       } catch (error) {
         console.error("Error fetching product:", error);
         toast({
@@ -178,6 +178,12 @@ const SingleProduct = () => {
     );
   }
 
+  // Fallback helpers
+  const getImage = () => data.imageTsrc || data.image || '/placeholder-image.png';
+  const getPrice = () => (typeof data.price === 'number' && !isNaN(data.price) ? data.price : 'N/A');
+  const getMPrice = () => (typeof data.mPrice === 'number' && !isNaN(data.mPrice) ? data.mPrice : 'N/A');
+  const getField = (field) => data[field] || 'N/A';
+
   return (
     <Box>
       <Navbar />
@@ -212,12 +218,13 @@ const SingleProduct = () => {
               _hover={{ transform: "scale(1.1)" }}
             >
               <Image 
-                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                src={getImage()} 
                 maxH="200px" 
                 maxW="200px" 
                 objectFit="contain" 
                 mx="auto"
                 fallbackSrc="/placeholder-image.png"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
               />
             </GridItem>
             <GridItem
@@ -230,12 +237,13 @@ const SingleProduct = () => {
             >
               <Image 
                 _hover={{ transform: "scale(1.1)" }} 
-                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                src={getImage()} 
                 maxH="200px" 
                 maxW="200px" 
                 objectFit="contain" 
                 mx="auto"
                 fallbackSrc="/placeholder-image.png"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
               />
             </GridItem>
             <GridItem
@@ -246,7 +254,17 @@ const SingleProduct = () => {
               justifyContent="center"
             >
               <ProdCard
-                type={data}
+                type={{
+                  ...data,
+                  image: getImage(),
+                  price: getPrice(),
+                  mPrice: getMPrice(),
+                  modelNo: getField('modelNo'),
+                  frameSize: getField('frameSize'),
+                  frameWidth: getField('frameWidth'),
+                  frameDimensions: getField('frameDimensions'),
+                  frameColour: getField('frameColour'),
+                }}
                 handleCart={handleAddToCart}
                 handleWishlist={handleAddToWishlist}
               />
@@ -275,12 +293,13 @@ const SingleProduct = () => {
               borderColor="gray.300"
             >
               <Image 
-                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                src={getImage()} 
                 maxH="200px" 
                 maxW="200px" 
                 objectFit="contain" 
                 mx="auto"
                 fallbackSrc="/placeholder-image.png"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
               />
             </GridItem>
             <GridItem
@@ -292,12 +311,13 @@ const SingleProduct = () => {
               borderColor="gray.300"
             >
               <Image 
-                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                src={getImage()} 
                 maxH="200px" 
                 maxW="200px" 
                 objectFit="contain" 
                 mx="auto"
                 fallbackSrc="/placeholder-image.png"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
               />
             </GridItem>
           </Grid>
