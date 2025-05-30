@@ -78,7 +78,7 @@ const productSchema = new mongoose.Schema(
     },
     selectedCategoryPrice: {
       type: String,
-      enum: ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses"],
+      enum: ["classic-eyeglasses", "premium-eyeglasses", "designer-eyeglasses", "Not Applicable"],
     },
 
     brands: [
@@ -104,6 +104,7 @@ const productSchema = new mongoose.Schema(
           "Louis Vuitton",
           "Hermes",
           "Chanel",
+          "Not Applicable"
         ],
       },
     ],
@@ -123,6 +124,7 @@ const productSchema = new mongoose.Schema(
         "pilot-style",
         "power-sunglasses",
         "polarized-sunglasses",
+        "Not Applicable"
       ],
     },
     // Power and Lens Details
@@ -141,7 +143,7 @@ const productSchema = new mongoose.Schema(
         "spherical_plus_cyl",
         "cylindrical_power",
         "toric_power",
-        "not_applicable"
+        "Not Applicable"
       ],
     },
     powerRange: {
@@ -154,6 +156,7 @@ const productSchema = new mongoose.Schema(
         "Bifocal/Progressive Supported",
         "Single Vision Only",
         "Non-Prescription",
+        "Not Applicable",
       ],
     },
     supportedPowers: {
@@ -170,7 +173,7 @@ const productSchema = new mongoose.Schema(
     // Frame Details
     frameType: {
       type: String,
-      enum: ["Full Rim", "Half Rim", "Rimless"],
+      enum: ["Full Rim", "Half Rim", "Rimless", "Not Applicable"],
     },
     shape: {
       type: String,
@@ -193,7 +196,7 @@ const productSchema = new mongoose.Schema(
     },
     frameSize: {
       type: String,
-      enum: ["Extra Narrow", "Narrow", "Medium", "Wide", "Extra Wide"],
+      enum: ["Extra Narrow", "Narrow", "Medium", "Wide", "Extra Wide", "Not Applicable"],
     },
     frameWidth: {
       type: String,
@@ -225,6 +228,7 @@ const productSchema = new mongoose.Schema(
         "148 mm",
         "149 mm",
         "150 mm",
+        "Not Applicable",
       ],
     },
     weightGroup: {
@@ -311,6 +315,7 @@ const productSchema = new mongoose.Schema(
           "Multicolor",
           "Not Applicable",
           "Gradient",
+          "Not Applicable",
         ],
       },
     ],
@@ -328,8 +333,8 @@ const productSchema = new mongoose.Schema(
           "Water Resistant",
           "Photochromic",
           "High Index",
-          "Not Applicable",
           "Day Night",
+          "Not Applicable",
         ],
       },
     ],
