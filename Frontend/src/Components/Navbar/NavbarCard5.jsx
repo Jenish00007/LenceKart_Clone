@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -20,14 +20,20 @@ import SunglassesSelectCategory from "../CategorySelector/SunglassesSelectCatego
 import FrameTypeSelector from "../CategorySelector/FrameTypeSelector";
 import "../../App.css";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedSubCategory, setSelectedType, setProductType } from '../../redux/slices/filterSlice';
+import {
+  setSelectedSubCategory,
+  setPersonCategory,
+  setFrameType,
+  setSelectedCategoryType,
+  setMasterCategory
+} from '../../redux/slices/filterSlice';
 import { useNavigate } from 'react-router-dom';
 import KidsGlassesSelector from "../CategorySelector/KidsGlassesSelector";
 import DisposabilityFilter from '../Filters/DisposabilityFilter';
 import PowerFilter from '../Filters/PowerFilter';
 import ColorFilter from '../Filters/ColorFilter';
 import SolutionFilter from '../Filters/SolutionFilter';
-import CollectionFilter from '../Filters/CollectionFilter';
+import BrandsFilter from '../Filters/BrandsFilter';
 
 function NavbarCard5() {
   const dispatch = useDispatch();
@@ -36,25 +42,29 @@ function NavbarCard5() {
   const personCategory = useSelector((state) => state.filter.selectedCategory);
   const frameType = useSelector((state) => state.filter.frameType);
   const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
-  const handleSubCategorySelect = (subCategory, type = '', categoryType = '') => {
-    // Map subCategory to backend field if needed
-    // Example: "New Arrivals" => "new-arrivals"
-    const mappedCategory = subCategory.toLowerCase().replace(/ /g, '-');
+  const subCategory = useSelector((state) => state.filter.selectedSubCategory);
 
-    // Set Redux state as needed
-    dispatch(setSelectedSubCategory(mappedCategory));
-    if (type) {
-      dispatch(setProductType(type));
+  const handleSubCategorySelect = (subCategory, isSubFilter = false) => {
+    dispatch(setSelectedSubCategory(subCategory));
+    
+    // Only update URL if it's a sub-filter click
+    if (isSubFilter) {
+      const queryParams = new URLSearchParams();
+      queryParams.append('subCategory', 'EYEGLASSES'); // Always use EYEGLASSES as main category
+      queryParams.append('topPicks', subCategory.toLowerCase().replace(/\s+/g, '-')); // Convert to kebab-case
+      
+      if (personCategory) {
+        queryParams.append('personCategory', personCategory);
+      }
+      if (frameType) {
+        queryParams.append('frameType', frameType);
+      }
+      if (selectedCategoryPrice) {
+        queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
+      }
+      
+      navigate(`/products?${queryParams.toString()}`);
     }
-
-    // Build query params for backend
-    const queryParams = new URLSearchParams();
-    if (type) queryParams.append('productType', type);
-    if (personCategory) queryParams.append('personCategory', personCategory);
-    if (frameType) queryParams.append('frameType', frameType);
-    if (mappedCategory) queryParams.append('category', mappedCategory);
-
-    navigate(`/products?${queryParams.toString()}`);
   };
 
   // Common component for Top Picks section
@@ -74,20 +84,20 @@ function NavbarCard5() {
         <Flex direction="column" fontSize="md" gap="2">
           {items.map((item, index) => (
             <Box
-            key={index}
-            _hover={{ 
-              bg: "gray.100",
-              color: "teal.500",
-              transform: "translateX(5px)",
-              transition: "all 0.2s ease-in-out"
-            }}
-            cursor="pointer"
-            p="2"
-            borderRadius="md"
-            onClick={() => handleSubCategorySelect(item, type, selectedCategoryType)}
-          >
-            {item}
-          </Box>
+              key={index}
+              _hover={{ 
+                bg: "gray.100",
+                color: "teal.500",
+                transform: "translateX(5px)",
+                transition: "all 0.2s ease-in-out"
+              }}
+              cursor="pointer"
+              p="2"
+              borderRadius="md"
+              onClick={() => handleSubCategorySelect(item, true)}
+            >
+              {item}
+            </Box>
           ))}
         </Flex>
       </Flex>
@@ -125,6 +135,10 @@ function NavbarCard5() {
           fontWeight="600"
           _hover={{
             borderBottom: "4px solid teal"
+          }}
+          onClick={() => {
+            dispatch(setMasterCategory('EYEGLASSES'));
+            handleSubCategorySelect('EYEGLASSES');
           }}
         >
           EYEGLASSES
@@ -307,6 +321,9 @@ function NavbarCard5() {
         >
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
+            <Box>
+                <BrandsFilter />
+              </Box>
               <Box>
                 <DisposabilityFilter />
               </Box>
@@ -323,9 +340,7 @@ function NavbarCard5() {
                 <SolutionFilter />
               </Box>
 
-              <Box>
-                <CollectionFilter />
-              </Box>
+             
             </Grid>
           </Box>
         </MenuList>

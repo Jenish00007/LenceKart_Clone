@@ -8,20 +8,44 @@ import Footer from "../../Components/Footer/Footer";
 import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
-import { Grid, GridItem, Image, useToast, Box, useDisclosure, Container } from "@chakra-ui/react";
+import { Grid, GridItem, Image, useToast, Box, useDisclosure, Container, Spinner, Center, Text } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import Login from "../../Pages/Login/Login";
 
 const SingleProduct = () => {
   const { id } = useParams();
-  const [data, setData] = useState({});
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart?.cart || []);
   const { isAuth } = useContext(AuthContext);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/products/${id}`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load product details",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, toast]);
 
   const handleAddToCart = async () => {
     if (!isAuth) {
@@ -132,19 +156,27 @@ const SingleProduct = () => {
     }
   };
 
-  const fetchSingleProduct = () => {
-    axios(`${API_URL}/products/${id}`)
-      .then((res) => {
-        setData(res.data.product);
-        // Track visit after product data is loaded
-        trackProductVisit();
-      })
-      .catch((err) => console.log(err));
-  };
+  if (loading) {
+    return (
+      <Box>
+        <Navbar />
+        <Center minH="calc(100vh - 140px)" pt="150px">
+          <Spinner size="xl" color="teal.500" />
+        </Center>
+      </Box>
+    );
+  }
 
-  useEffect(() => {
-    fetchSingleProduct();
-  }, [id]);
+  if (!data) {
+    return (
+      <Box>
+        <Navbar />
+        <Center minH="calc(100vh - 140px)" pt="150px">
+          <Text>Product not found</Text>
+        </Center>
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -155,92 +187,121 @@ const SingleProduct = () => {
         minH="calc(100vh - 140px)"
       >
         <Container maxW="container.xl" py={8}>
-      <Box style={{ display: 'none' }}>
-        <Login isOpen={isOpen} onClose={onClose} />
-      </Box>
-   
-      <Grid
-        gap={5}
-        m="auto"
-        w="95%"
-        justifyContent="space-around"
-        templateColumns={{
-          base: "repeat(1,1fr)",
-          sm: "repeat(1,1fr)",
-          md: "repeat(2,1fr)",
-          lg: "repeat(3,1fr)"
-        }}
-      >
-        <GridItem
-          borderRadius={10}
-          p="40px 5px"
-          border="1px solid"
-          borderColor="gray.300"
-          display={{ lg: "inherit", base: "none" }}
-          _hover={{ transform: "scale(1.1)" }}
-        >
-          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
-        </GridItem>
-        <GridItem
-          borderRadius={10}
-          p="40px 5px"
-          border="1px solid"
-          borderColor="gray.300"
-          w={{ lg: "100%", sm: "80%", base: "80%" }}
-          m="auto"
-        >
-          <Image _hover={{ transform: "scale(1.1)" }} src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
-        </GridItem>
-        <GridItem
-          p={5}
-          colSpan={1}
-          rowSpan={10}
-          m="auto"
-          justifyContent="center"
-        >
-          <ProdCard
-            type={data}
-            handleCart={handleAddToCart}
-            handleWishlist={handleAddToWishlist}
-          />
-        </GridItem>
-
-        {/* {ProdImage.map((ele, i) => (
-          <GridItem
-            _hover={{ transform: "scale(1.1)" }}
-            display={{ lg: "inherit", base: "none" }}
-            borderRadius={10}
-            p="80px 5px"
-            border="1px solid"
-            borderColor="gray.300"
-            key={i}
+          <Box style={{ display: 'none' }}>
+            <Login isOpen={isOpen} onClose={onClose} />
+          </Box>
+     
+          <Grid
+            gap={5}
+            m="auto"
+            w="95%"
+            justifyContent="space-around"
+            templateColumns={{
+              base: "repeat(1,1fr)",
+              sm: "repeat(1,1fr)",
+              md: "repeat(2,1fr)",
+              lg: "repeat(3,1fr)"
+            }}
           >
-            <Image src={ele.src} />
-          </GridItem>
-        ))} */}
+            <GridItem
+              borderRadius={10}
+              p="40px 5px"
+              border="1px solid"
+              borderColor="gray.300"
+              display={{ lg: "inherit", base: "none" }}
+              _hover={{ transform: "scale(1.1)" }}
+            >
+              <Image 
+                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                maxH="200px" 
+                maxW="200px" 
+                objectFit="contain" 
+                mx="auto"
+                fallbackSrc="/placeholder-image.png"
+              />
+            </GridItem>
+            <GridItem
+              borderRadius={10}
+              p="40px 5px"
+              border="1px solid"
+              borderColor="gray.300"
+              w={{ lg: "100%", sm: "80%", base: "80%" }}
+              m="auto"
+            >
+              <Image 
+                _hover={{ transform: "scale(1.1)" }} 
+                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                maxH="200px" 
+                maxW="200px" 
+                objectFit="contain" 
+                mx="auto"
+                fallbackSrc="/placeholder-image.png"
+              />
+            </GridItem>
+            <GridItem
+              p={5}
+              colSpan={1}
+              rowSpan={10}
+              m="auto"
+              justifyContent="center"
+            >
+              <ProdCard
+                type={data}
+                handleCart={handleAddToCart}
+                handleWishlist={handleAddToWishlist}
+              />
+            </GridItem>
 
-        <GridItem
-          _hover={{ transform: "scale(1.1)" }}
-          display={{ lg: "inherit", base: "none" }}
-          borderRadius={10}
-          p="40px 5px"
-          border="1px solid"
-          borderColor="gray.300"
-        >
-          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
-        </GridItem>
-        <GridItem
-          _hover={{ transform: "scale(1.1)" }}
-          display={{ lg: "inherit", base: "none" }}
-          borderRadius={10}
-          p="40px 5px"
-          border="1px solid"
-          borderColor="gray.300"
-        >
-          <Image src={data.imageTsrc} maxH="200px" maxW="200px" objectFit="contain" mx="auto" />
-        </GridItem>
-      </Grid>
-      </Container>
+            {/* {ProdImage.map((ele, i) => (
+              <GridItem
+                _hover={{ transform: "scale(1.1)" }}
+                display={{ lg: "inherit", base: "none" }}
+                borderRadius={10}
+                p="80px 5px"
+                border="1px solid"
+                borderColor="gray.300"
+                key={i}
+              >
+                <Image src={ele.src} />
+              </GridItem>
+            ))} */}
+
+            <GridItem
+              _hover={{ transform: "scale(1.1)" }}
+              display={{ lg: "inherit", base: "none" }}
+              borderRadius={10}
+              p="40px 5px"
+              border="1px solid"
+              borderColor="gray.300"
+            >
+              <Image 
+                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                maxH="200px" 
+                maxW="200px" 
+                objectFit="contain" 
+                mx="auto"
+                fallbackSrc="/placeholder-image.png"
+              />
+            </GridItem>
+            <GridItem
+              _hover={{ transform: "scale(1.1)" }}
+              display={{ lg: "inherit", base: "none" }}
+              borderRadius={10}
+              p="40px 5px"
+              border="1px solid"
+              borderColor="gray.300"
+            >
+              <Image 
+                src={data.imageTsrc || data.image || '/placeholder-image.png'} 
+                maxH="200px" 
+                maxW="200px" 
+                objectFit="contain" 
+                mx="auto"
+                fallbackSrc="/placeholder-image.png"
+              />
+            </GridItem>
+          </Grid>
+        </Container>
       </Box>
       <Footer />
     </Box>

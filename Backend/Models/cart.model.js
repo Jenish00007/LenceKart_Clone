@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const cartSchema = mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
     required: true
   },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'product',
+    ref: 'Product',
     required: true
   },
   quantity: {
@@ -40,7 +40,7 @@ const cartSchema = mongoose.Schema({
 // Compound index to ensure unique product per user
 cartSchema.index({ userId: 1, productId: 1 }, { unique: true });
 
-const CartModel = mongoose.model("cart", cartSchema);
+const CartModel = mongoose.model("Cart", cartSchema);
 
 module.exports = {
   CartModel,

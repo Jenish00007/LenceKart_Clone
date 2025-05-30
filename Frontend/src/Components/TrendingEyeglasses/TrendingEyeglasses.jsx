@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, VStack, Tooltip, Icon, useToast, useDisclosure, Skeleton } from "@chakra-ui/react";
+import { Box, Grid, Image, Text, Heading, Button, Flex, Badge, Card, CardBody, CardFooter, Divider, HStack, VStack, Tooltip, Icon, useToast, useDisclosure, Skeleton, Spinner, Center } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 import { FiShoppingCart, FiHeart, FiEye } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
@@ -122,7 +122,7 @@ const TrendingEyeglasses = () => {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const response = await fetch(`${API_URL}/product/trending`);
+        const response = await fetch(`${API_URL}/products/trending`);
         const data = await response.json();
         if (data.success) {
           setTrendingProducts(data.products);
@@ -217,14 +217,19 @@ const TrendingEyeglasses = () => {
                 }}
               >
                 <Image
-                  src={product.imageTsrc}
-                  alt={product.name}
+                  src={product.imageTsrc || product.image || '/placeholder-image.png'}
+                  alt={product.name || "Product Image"}
                   height={{ base: "120px", sm: "150px", md: "180px" }}
                   width="100%"
                   objectFit="cover"
                   borderRadius="md"
                   transition="transform 0.3s ease"
                   _hover={{ transform: 'scale(1.1)' }}
+                  fallbackSrc="/placeholder-image.png"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/placeholder-image.png';
+                  }}
                 />
                 <Badge
                   position="absolute"
@@ -268,7 +273,7 @@ const TrendingEyeglasses = () => {
                   lineHeight="1.2"
                   minH={{ base: "32px", sm: "40px" }}
                 >
-                  {product.name}
+                  {product.name || "Product Name"}
                 </Text>
                 
                 <Text 

@@ -1,9 +1,10 @@
+import React from 'react';
 import { Link } from "react-router-dom";
-import { Box, Flex, Grid, GridItem, Text, Image } from "@chakra-ui/react";
+import { Box, Flex, Grid, Text, Image, Badge, Spinner, Center } from "@chakra-ui/react";
 import { AiFillStar } from "react-icons/ai";
 import PropTypes from 'prop-types';
 
-const ProductCard = ({ type = [] }) => {
+const ProductCard = ({ type = [], loading }) => {
   // If type is not an array or is empty, show a message
   if (!Array.isArray(type) || type.length === 0) {
     return (
@@ -13,141 +14,114 @@ const ProductCard = ({ type = [] }) => {
     );
   }
 
+  if (loading) {
+    return (
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        overflow="hidden"
+        bg="white"
+        h="100%"
+        display="flex"
+        flexDirection="column"
+      >
+        <Center h="250px">
+          <Spinner size="xl" color="teal.500" />
+        </Center>
+      </Box>
+    );
+  }
+
   return (
     <Grid
-      m={{ base: '10px 0', md: '20px 10px' }}
       templateColumns={{
-        base: "repeat(2,1fr)",
-        sm: "repeat(2,1fr)",
-        md: "repeat(3,1fr)",
-        lg: "repeat(4,1fr)",
-        xl: "repeat(5,1fr)"
+        base: "repeat(2, 1fr)",
+        sm: "repeat(2, 1fr)",
+        md: "repeat(3, 1fr)",
+        lg: "repeat(4, 1fr)",
+        xl: "repeat(4, 1fr)"
       }}
-      gap={{ base: 3, md: 6 }}
+      gap={{ base: 3, md: 4, lg: 6 }}
+      p={{ base: 2, md: 4 }}
     >
       {type.map((ele) => (
-        <GridItem key={ele._id}>
-          <Link to={`/products/${ele._id}`}>
-            <Box
-              position="relative"
-              border="1px solid"
-              borderColor="gray.200"
-              borderRadius="3%"
-              p={{ base: '6px', md: '10px' }}
-              _hover={{
-                boxShadow: "rgba(0, 0, 0, 0.15) 0px 2px 8px"
-              }}
-              mb={{ base: 3, md: 7 }}
-              minH={{ base: '260px', md: '340px' }}
-              maxW="100%"
-              bg="white"
+        <Link to={`/products/${ele._id}`} key={ele._id}>
+          <Box
+            borderWidth="1px"
+            borderRadius="lg"
+            overflow="hidden"
+            transition="all 0.3s ease"
+            _hover={{ 
+              transform: "translateY(-5px)",
+              boxShadow: "lg",
+              borderColor: "blue.200"
+            }}
+            bg="white"
+            h="100%"
+            display="flex"
+            flexDirection="column"
+          >
+            <Box 
+              p={4} 
+              flex="1" 
+              display="flex" 
+              alignItems="center" 
+              justifyContent="center"
+              bg="gray.50"
             >
-              <Box>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  h={{ base: '90px', md: '140px' }}
-                  w="100%"
-                >
-                  <Image
-                    src={ele.imageTsrc}
-                    alt={ele.name || "product image"}
-                    maxH="100%"
-                    maxW="100%"
-                    objectFit="contain"
-                    _hover={{ transform: "scale(1.07)" }}
-                    transition="transform 0.2s"
-                  />
-                </Box>
-                <Box p={{ base: '6px', md: '10px' }}>
-                  <Flex justifyContent="space-between" alignItems="center">
-                    <Flex
-                      w={{ base: '40%', md: '25%' }}
-                      borderRadius="20px"
-                      alignItems="center"
-                      gap="5px"
-                      p={{ base: '2px 6px', md: '5px 10px' }}
-                      bgColor="#eeeef5"
-                      fontSize={{ base: '12px', md: '15px' }}
-                    >
-                      <Text>{ele.rating ? ele.rating : (Math.random() * (5 - 1) + 1).toFixed(1)}</Text>
-                      <AiFillStar size={"13px"} color="#0fbd95" />
-                      <Text>{ele.userRated ? ele.userRated : Math.floor(Math.random() * 999 + 1)}</Text>
-                    </Flex>
-                  </Flex>
-                  <Text
-                    mt="5px"
-                    fontWeight="700"
-                    color="#000042"
-                    fontSize={{ base: '13px', md: '15px' }}
-                    textTransform="capitalize"
-                    noOfLines={1}
-                  >
-                    {ele.productRefLink} {" "}
-                  </Text>
-                  <Text
-                    mt="5px"
-                    fontWeight="400"
-                    color="gray.400"
-                    fontSize={{ base: '12px', md: '14px' }}
-                    noOfLines={1}
-                  >
-                    {ele.name} {" "}
-                  </Text>
-                  <Text
-                    mt="5px"
-                    fontWeight="400"
-                    color="#000042"
-                    fontSize={{ base: '12px', md: '14px' }}
-                    noOfLines={1}
-                  >
-                    Shape : {ele.shape}
-                  </Text>
-                  <Text
-                    mt="5px"
-                    fontWeight="bold"
-                    color="#gray.700"
-                    fontSize={{ base: '13px', md: '15px' }}
-                  >
-                    ₹{ele.price} {" "}
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "lighter",
-                        color: "#727297",
-                        textDecoration: "line-through"
-                      }}
-                    >
-                      {"  "}₹{ele.mPrice}
-                    </span>
-                    <span
-                      style={{
-                        color: "#727297",
-                        fontSize: "12px",
-                        fontWeight: "lighter"
-                      }}
-                    >
-                      {"  "}(+tax)
-                    </span>
-                  </Text>
-                </Box>
-              </Box>
-              <Box
-                fontSize={{ base: '12px', md: '15px' }}
-                color="#cbb881"
-                w="100%"
-                padding={{ base: 1, md: 2 }}
-                fontWeight="bold"
-                bgGradient="linear(to-r,  #f8f2e0, yellow.50)"
-                textAlign="center"
-                mt={{ base: 1, md: 2 }}
-              >
-                BUY1 GET1 +10% OFF
-              </Box>
+              <Image
+                src={ele.imageTsrc || ele.image || '/placeholder-image.png'}
+                alt={ele.name || "Product Image"}
+                maxH={{ base: "180px", md: "220px", lg: "250px" }}
+                w="auto"
+                objectFit="contain"
+                transition="transform 0.3s ease"
+                _hover={{ transform: "scale(1.05)" }}
+                fallbackSrc="/placeholder-image.png"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/placeholder-image.png';
+                }}
+              />
             </Box>
-          </Link>
-        </GridItem>
+            <Box p={4} flex="0">
+              <Text
+                fontSize={{ base: "sm", md: "md" }}
+                fontWeight="semibold"
+                noOfLines={2}
+                mb={2}
+                color="gray.700"
+              >
+                {ele.name || "Product Name"}
+              </Text>
+              <Flex align="center" mb={2}>
+                <AiFillStar color="gold" />
+                <Text ml={1} fontSize={{ base: "xs", md: "sm" }} color="gray.600">
+                  {ele.rating || "New"}
+                </Text>
+              </Flex>
+              <Flex justify="space-between" align="center">
+                <Text 
+                  fontWeight="bold" 
+                  color="blue.600"
+                  fontSize={{ base: "sm", md: "md" }}
+                >
+                  ₹{ele.price || 0}
+                </Text>
+                {ele.discount > 0 && (
+                  <Badge 
+                    colorScheme="green" 
+                    borderRadius="full" 
+                    px={2}
+                    fontSize={{ base: "xs", md: "sm" }}
+                  >
+                    {ele.discount}% OFF
+                  </Badge>
+                )}
+              </Flex>
+            </Box>
+          </Box>
+        </Link>
       ))}
     </Grid>
   );
@@ -158,13 +132,10 @@ ProductCard.propTypes = {
     PropTypes.shape({
       _id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      mPrice: PropTypes.number.isRequired,
       imageTsrc: PropTypes.string.isRequired,
-      productRefLink: PropTypes.string.isRequired,
-      shape: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
       rating: PropTypes.number,
-      userRated: PropTypes.number
+      discount: PropTypes.number
     })
   )
 };

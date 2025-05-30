@@ -37,54 +37,121 @@ const ProductPost = () => {
   const headingColor = useColorModeValue("blue.600", "blue.300");
 
   const [formData, setFormData] = useState({
-    imageTsrc: "",
-    productRefLink: "",
     name: "",
+    imageTsrc: "",
+    additionalImages: [],
+    caption: "",
     price: "",
     mPrice: "",
-    shape: "",
+    mainCategory: "",
+    subCategory: "",
+    personCategory: "",
     gender: "",
-    style: "",
-    dimension: "",
-    productType: "",
-    colors: "",
+    ageGroup: "",
+    selectedCategoryPrice: "",
+    brands: [],
+    topPicks: "",
+    powerType: "",
+    powerRange: {
+      min: "",
+      max: ""
+    },
+    prescriptionType: "",
+    supportedPowers: "",
     frameType: "",
-    trending: false,
-    recommended: false
+    shape: "",
+    frameSize: "",
+    frameWidth: "",
+    weightGroup: "",
+    style: "",
+    lensFeatures: [],
+    isRecommended: false,
+    isTrending: false,
+    isLatest: false,
+    isExclusive: false,
+    isSpecialOffer: false,
+    isBestSeller: false,
+    isTrialPack: false,
+    rating: 0,
+    reviewCount: 0,
+    quantity: 1,
+    discount: 0
   });
   const [loading, setLoading] = useState(false);
 
+  const validBrands = [
+    "Ray-Ban",
+    "Aqualens",
+    "Bausch Lomb",
+    "Soflens",
+    "Acuvue",
+    "Iconnect",
+    "Alcon",
+    "Oakley",
+    "Prada",
+    "Gucci",
+    "Dior",
+    "Cartier",
+    "Versace",
+    "Fendi",
+    "Burberry",
+    "Dolce & Gabbana",
+    "Louis Vuitton",
+    "Hermes",
+    "Chanel",
+    "Not Applicable"
+  ];
+
+  const validLensFeatures = [
+    "Anti Glare",
+    "Blue Light Block",
+    "Polarized",
+    "UV Protection",
+    "Anti Scratch",
+    "Water Resistant",
+    "Photochromic",
+    "High Index",
+    "Day Night",
+    "Not Applicable"
+  ];
+
   useEffect(() => {
     if (isEditing && productData) {
-      // Convert colors array to string for textarea
-      const colorsString = Array.isArray(productData.colors) 
-        ? productData.colors.join(', ') 
-        : productData.colors;
-
       setFormData({
-        imageTsrc: productData.imageTsrc || "",
-        productRefLink: productData.productRefLink || "",
-        name: productData.name || "",
-        price: productData.price || "",
-        mPrice: productData.mPrice || "",
-        shape: productData.shape || "",
-        gender: productData.gender || "",
-        style: productData.style || "",
-        dimension: productData.dimension || "",
-        productType: productData.productType || "",
-        colors: colorsString || "",
-        frameType: productData.frameType || "",
-        trending: productData.trending || false,
-        recommended: productData.recommended || false
+        ...productData,
+        powerRange: productData.powerRange || { min: "", max: "" },
+        additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
+        brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : []
       });
     }
   }, [isEditing, productData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+  };
+
+  const handleArrayChange = (name, value) => {
+    const values = value.split(',').map(item => item.trim()).filter(Boolean);
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: values
     }));
   };
 
@@ -94,7 +161,10 @@ const ProductPost = () => {
       setLoading(true);
       
       // Validate required fields
-      const requiredFields = ['imageTsrc', 'productRefLink', 'name', 'price', 'mPrice', 'productType'];
+      const requiredFields = [
+        'name', 'imageTsrc', 'caption',
+        'price', 'mPrice', 'mainCategory', 'subCategory', 'topPicks'
+      ];
       const missingFields = requiredFields.filter(field => !formData[field]);
       
       if (missingFields.length > 0) {
@@ -110,34 +180,79 @@ const ProductPost = () => {
         return;
       }
 
-      // Convert colors string to array
-      const colorsArray = formData.colors.split(',').map(color => color.trim()).filter(Boolean);
+      // Validate numeric fields
+      if (isNaN(formData.price) || isNaN(formData.mPrice)) {
+        toast({
+          title: "Invalid Price",
+          description: "Price and Market Price must be numbers",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setLoading(false);
+        return;
+      }
 
+      // Format the data before sending
       const payload = {
         ...formData,
-        colors: colorsArray,
+        // Convert string numbers to actual numbers
         price: Number(formData.price),
         mPrice: Number(formData.mPrice),
-        rating: isEditing ? productData.rating : 0,
-        userRated: isEditing ? productData.userRated : 0,
-        quantity: isEditing ? productData.quantity : 1,
-        productId: isEditing ? productData.productId : `PROD${Date.now()}`,
-        createdAt: isEditing ? productData.createdAt : new Date()
+        discount: Number(formData.discount) || 0,
+        quantity: Number(formData.quantity) || 1,
+        // Ensure arrays are properly formatted
+        additionalImages: Array.isArray(formData.additionalImages) ? formData.additionalImages : [],
+        brands: Array.isArray(formData.brands) ? formData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(formData.lensFeatures) ? formData.lensFeatures : [],
+        // Ensure powerRange is properly formatted
+        powerRange: {
+          min: formData.powerRange?.min ? Number(formData.powerRange.min) : undefined,
+          max: formData.powerRange?.max ? Number(formData.powerRange.max) : undefined
+        },
+        // Set default values for required fields
+        rating: isEditing ? formData.rating : 0,
+        reviewCount: isEditing ? formData.reviewCount : 0,
+        createdAt: isEditing ? formData.createdAt : new Date(),
+        // Ensure topPicks is set
+        topPicks: formData.topPicks || 'Not Applicable'
       };
 
+      console.log('Sending payload:', payload);
+
       const url = isEditing 
-        ? `${API_URL}/product/${productData._id}`
-        : `${API_URL}/product`;
+        ? `${API_URL}/products/${productData._id}`
+        : `${API_URL}/products`;
 
       const method = isEditing ? "PUT" : "POST";
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to continue",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setLoading(false);
+        return;
+      }
 
       const response = await fetch(url, {
         method,
         body: JSON.stringify(payload),
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
       });
 
-      if (response.status === 201 || response.status === 200) {
+      const data = await response.json();
+
+      if (response.ok) {
         toast({
           title: isEditing ? "Product Updated Successfully" : "Product Added Successfully",
           status: "success",
@@ -149,8 +264,12 @@ const ProductPost = () => {
           navigate("/admin/products");
         }, 2000);
       } else {
-        const { message } = await response.json();
-        throw new Error(message || `Failed to ${isEditing ? 'update' : 'add'} product`);
+        // Handle validation errors from the server
+        if (data.errors) {
+          const errorMessages = data.errors.map(err => `${err.field}: ${err.message}`).join('\n');
+          throw new Error(errorMessages);
+        }
+        throw new Error(data.message || `Failed to ${isEditing ? 'update' : 'add'} product`);
       }
     } catch (error) {
       toast({
@@ -171,7 +290,7 @@ const ProductPost = () => {
       <Navbar />
       <Center py={8}>
         <VStack
-          w={{ lg: "1000px", md: "90%", sm: "95%", base: "95%" }}
+          w={{ lg: "1200px", md: "95%", sm: "95%", base: "95%" }}
           spacing={6}
           borderRadius="xl"
           boxShadow="2xl"
@@ -191,260 +310,507 @@ const ProductPost = () => {
 
           <Grid
             templateColumns={{ lg: "repeat(2, 1fr)", base: "1fr" }}
-            gap={6}
+            gap={8}
             w="100%"
           >
             {/* Left Column - Basic Info */}
             <GridItem>
-              <VStack spacing={4} align="stretch">
-                <Text fontSize="lg" fontWeight="bold" color="gray.600">
-                  Basic Information
-                </Text>
-                <Divider />
+              <VStack spacing={8} align="stretch">
+                <Box>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                    Basic Information
+                  </Text>
+                  <Divider mb={6} />
 
-                <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
-                  <Input
-                    name="name"
-                    placeholder="Enter product name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                    _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px blue.400" }}
-                  />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
-                  <Input
-                    name="imageTsrc"
-                    placeholder="Enter image URL"
-                    value={formData.imageTsrc}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  />
-                  {formData.imageTsrc && (
-                    <Box mt={2} borderRadius="md" overflow="hidden">
-                      <Image 
-                        src={formData.imageTsrc} 
-                        alt="Product preview" 
-                        maxH="200px"
-                        objectFit="contain"
+                  <VStack spacing={5}>
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
+                      <Input
+                        name="name"
+                        placeholder="Enter product name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        h="48px"
                       />
-                    </Box>
-                  )}
-                </FormControl>
+                    </FormControl>
 
-                <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Product Reference</Text>
-                  <Input
-                    name="productRefLink"
-                    placeholder="Enter product reference"
-                    value={formData.productRefLink}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  />
-                </FormControl>
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+                      <Textarea
+                        name="caption"
+                        placeholder="Enter product caption"
+                        value={formData.caption}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        minH="100px"
+                      />
+                    </FormControl>
 
-                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                  <FormControl isRequired>
-                    <Text mb={2} fontSize="sm" color="gray.600">Price</Text>
-                    <Input
-                      name="price"
-                      type="number"
-                      placeholder="Enter price"
-                      value={formData.price}
-                      onChange={handleChange}
-                      size="lg"
-                      borderRadius="md"
-                    />
-                  </FormControl>
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+                      <Input
+                        name="imageTsrc"
+                        placeholder="Enter image URL"
+                        value={formData.imageTsrc}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        h="48px"
+                      />
+                      {formData.imageTsrc && (
+                        <Box mt={3} borderRadius="md" overflow="hidden" border="1px solid" borderColor="gray.200">
+                          <Image 
+                            src={formData.imageTsrc} 
+                            alt="Product preview" 
+                            maxH="200px"
+                            objectFit="contain"
+                          />
+                        </Box>
+                      )}
+                    </FormControl>
 
-                  <FormControl isRequired>
-                    <Text mb={2} fontSize="sm" color="gray.600">Market Price</Text>
-                    <Input
-                      name="mPrice"
-                      type="number"
-                      placeholder="Enter market price"
-                      value={formData.mPrice}
-                      onChange={handleChange}
-                      size="lg"
-                      borderRadius="md"
-                    />
-                  </FormControl>
-                </Grid>
+                    <FormControl>
+                      <Text mb={2} fontSize="sm" color="gray.600">Additional Images (comma-separated URLs)</Text>
+                      <Textarea
+                        name="additionalImages"
+                        placeholder="Enter additional image URLs"
+                        value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
+                        onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+                        size="lg"
+                        borderRadius="md"
+                        minH="100px"
+                      />
+                    </FormControl>
+                  </VStack>
+                </Box>
+
+                <Box>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                    Categories
+                  </Text>
+                  <Divider mb={6} />
+
+                  <VStack spacing={5}>
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Main Category</Text>
+                      <Select
+                        name="mainCategory"
+                        value={formData.mainCategory}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        h="48px"
+                      >
+                        <option value="">Select Main Category</option>
+                        <option value="GLASSES">Glasses</option>
+                        <option value="CONTACT_LENSES">Contact Lenses</option>
+                      </Select>
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
+                      <Select
+                        name="subCategory"
+                        value={formData.subCategory}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        h="48px"
+                      >
+                        <option value="">Select Sub Category</option>
+                        <option value="EYEGLASSES">Eye Glasses</option>
+                        <option value="SUNGLASSES">Sun Glasses</option>
+                        <option value="COMPUTER_GLASSES">Computer Glasses</option>
+                        <option value="CONTACT_LENSES">Contact Lenses</option>
+                        <option value="CONTACT_LENS_SOLUTION">Contact Lens Solution</option>
+                        <option value="CONTACT_LENS_CASES">Contact Lens Cases</option>
+                        <option value="CONTACT_LENS_ACCESSORIES">Contact Lens Accessories</option>
+                      </Select>
+                    </FormControl>
+
+                    <FormControl isRequired>
+                      <Text mb={2} fontSize="sm" color="gray.600">Top Picks</Text>
+                      <Select
+                        name="topPicks"
+                        value={formData.topPicks}
+                        onChange={handleChange}
+                        placeholder="Select top picks category"
+                        size="lg"
+                        borderRadius="md"
+                        h="48px"
+                      >
+                        <option value="new-arrivals">New Arrivals</option>
+                        <option value="best-sellers">Best Sellers</option>
+                        <option value="trending">Trending</option>
+                        <option value="exclusive">Exclusive</option>
+                        <option value="essentials">Essentials</option>
+                        <option value="lenskart-blu-lenses">Lenskart Blu Lenses</option>
+                        <option value="tinted-eyeglasses">Tinted Eyeglasses</option>
+                        <option value="computer-eyeglasses">Computer Eyeglasses</option>
+                        <option value="progressive-eyeglasses">Progressive Eyeglasses</option>
+                        <option value="pilot-style">Pilot Style</option>
+                        <option value="power-sunglasses">Power Sunglasses</option>
+                        <option value="polarized-sunglasses">Polarized Sunglasses</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                      </Select>
+                    </FormControl>
+                  </VStack>
+                </Box>
               </VStack>
             </GridItem>
 
-            {/* Right Column - Specifications */}
+            {/* Right Column - Additional Details */}
             <GridItem>
-              <VStack spacing={4} align="stretch">
-                <Text fontSize="lg" fontWeight="bold" color="gray.600">
-                  Specifications
-                </Text>
-                <Divider />
+              <VStack spacing={8} align="stretch">
+                <Box>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                    Product Details
+                  </Text>
+                  <Divider mb={6} />
 
-                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                  <FormControl>
-                    <Text mb={2} fontSize="sm" color="gray.600">Shape</Text>
-                    <Select
-                      name="shape"
-                      placeholder="Select shape"
-                      value={formData.shape}
-                      onChange={handleChange}
-                      size="lg"
-                      borderRadius="md"
-                    >
-                      <option value="Round">Round</option>
-                      <option value="Square">Square</option>
-                      <option value="Rectangle">Rectangle</option>
-                      <option value="Aviator">Aviator</option>
-                      <option value="Cat Eye">Cat Eye</option>
-                      <option value="Oval">Oval</option>
-                      <option value="Geometric">Geometric</option>
-                    </Select>
-                  </FormControl>
+                  <VStack spacing={5}>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Person Category</Text>
+                        <Select
+                          name="personCategory"
+                          value={formData.personCategory}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Person Category</option>
+                          <option value="men">Men</option>
+                          <option value="women">Women</option>
+                          <option value="kids">Kids</option>
+                          <option value="unisex">Unisex</option>
+                        </Select>
+                      </FormControl>
 
-                  <FormControl>
-                    <Text mb={2} fontSize="sm" color="gray.600">Gender</Text>
-                    <Select
-                      name="gender"
-                      placeholder="Select gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      size="lg"
-                      borderRadius="md"
-                    >
-                      <option value="Men">Men</option>
-                      <option value="Women">Women</option>
-                      <option value="Unisex">Unisex</option>
-                      <option value="Kids">Kids</option>
-                    </Select>
-                  </FormControl>
-                </Grid>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Gender</Text>
+                        <Select
+                          name="gender"
+                          value={formData.gender}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Transgender">Transgender</option>
+                          <option value="Other">Other</option>
+                          <option value="All">All</option>
+                        </Select>
+                      </FormControl>
+                    </Grid>
 
-                <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Style</Text>
-                  <Select
-                    name="style"
-                    placeholder="Select style"
-                    value={formData.style}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  >
-                    <option value="Casual">Casual</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Sports">Sports</option>
-                    <option value="Fashion">Fashion</option>
-                    <option value="Vintage">Vintage</option>
-                  </Select>
-                </FormControl>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Age Group</Text>
+                        <Select
+                          name="ageGroup"
+                          value={formData.ageGroup}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Age Group</option>
+                          <option value="Kids">Kids</option>
+                          <option value="Teens">Teens</option>
+                          <option value="Adults">Adults</option>
+                          <option value="Seniors">Seniors</option>
+                          <option value="Youth">Youth</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
 
-                <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Frame Dimension</Text>
-                  <Input
-                    name="dimension"
-                    placeholder="Enter frame dimension"
-                    value={formData.dimension}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  />
-                </FormControl>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Brand</Text>
+                        <Select
+                          name="brands"
+                          value={formData.brands[0] || ""}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            brands: [e.target.value]
+                          }))}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Brand</option>
+                          {validBrands.map(brand => (
+                            <option key={brand} value={brand}>{brand}</option>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
 
-                <FormControl isRequired>
-                  <Text mb={2} fontSize="sm" color="gray.600">Product Type</Text>
-                  <Select
-                    name="productType"
-                    placeholder="Select product type"
-                    value={formData.productType}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  >
-                    <option value="eyeglasses">Eye Glasses</option>
-                    <option value="sunglasses">Sun Glasses</option>
-                    <option value="contact-lenses">Contact Lenses</option>
-                  </Select>
-                </FormControl>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+                        <Input
+                          name="price"
+                          placeholder="Enter price"
+                          value={formData.price}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          type="number"
+                          h="48px"
+                        />
+                      </FormControl>
 
-                <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Frame Type</Text>
-                  <Select
-                    name="frameType"
-                    placeholder="Select frame type"
-                    value={formData.frameType}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  >
-                    <option value="Full Rim">Full Rim</option>
-                    <option value="Half Rim">Half Rim</option>
-                    <option value="Rimless">Rimless</option>
-                  </Select>
-                </FormControl>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
+                        <Input
+                          name="mPrice"
+                          placeholder="Enter market price"
+                          value={formData.mPrice}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          type="number"
+                          h="48px"
+                        />
+                      </FormControl>
+                    </Grid>
 
-                <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Colors</Text>
-                  <Textarea
-                    name="colors"
-                    placeholder="Enter colors (comma-separated)"
-                    value={formData.colors}
-                    onChange={handleChange}
-                    size="lg"
-                    borderRadius="md"
-                  />
-                </FormControl>
+                    <FormControl>
+                      <Text mb={2} fontSize="sm" color="gray.600">Discount (%)</Text>
+                      <Input
+                        name="discount"
+                        placeholder="Enter discount percentage"
+                        value={formData.discount}
+                        onChange={handleChange}
+                        size="lg"
+                        borderRadius="md"
+                        type="number"
+                        min="0"
+                        max="100"
+                        h="48px"
+                      />
+                    </FormControl>
+                  </VStack>
+                </Box>
 
-                <Flex gap={4} mt={2}>
-                  <FormControl>
-                    <Checkbox
-                      name="trending"
-                      isChecked={formData.trending}
-                      onChange={handleChange}
-                      size="lg"
-                      colorScheme="blue"
-                    >
-                      <Badge colorScheme="green" fontSize="sm">Trending</Badge>
-                    </Checkbox>
-                  </FormControl>
+                <Box>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                    Technical Specifications
+                  </Text>
+                  <Divider mb={6} />
 
-                  <FormControl>
-                    <Checkbox
-                      name="recommended"
-                      isChecked={formData.recommended}
-                      onChange={handleChange}
-                      size="lg"
-                      colorScheme="blue"
-                    >
-                      <Badge colorScheme="purple" fontSize="sm">Recommended</Badge>
-                    </Checkbox>
-                  </FormControl>
-                </Flex>
+                  <VStack spacing={5}>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
+                        <Select
+                          name="powerType"
+                          value={formData.powerType}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Power Type</option>
+                          <option value="zero_power">Zero Power</option>
+                          <option value="with_power">With Power</option>
+                          <option value="single_vision">Single Vision</option>
+                          <option value="bifocal">Bifocal</option>
+                          <option value="progressive">Progressive</option>
+                          <option value="reading">Reading</option>
+                          <option value="contact_lens_power">Contact Lens Power</option>
+                          <option value="spherical_minus_cyl">Spherical Minus Cyl</option>
+                          <option value="spherical_plus_cyl">Spherical Plus Cyl</option>
+                          <option value="cylindrical_power">Cylindrical Power</option>
+                          <option value="toric_power">Toric Power</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
+
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Frame Type</Text>
+                        <Select
+                          name="frameType"
+                          value={formData.frameType}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Frame Type</option>
+                          <option value="Full Rim">Full Rim</option>
+                          <option value="Half Rim">Half Rim</option>
+                          <option value="Rimless">Rimless</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Shape</Text>
+                        <Select
+                          name="shape"
+                          value={formData.shape}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Shape</option>
+                          <option value="Round">Round</option>
+                          <option value="Square">Square</option>
+                          <option value="Rectangle">Rectangle</option>
+                          <option value="Aviator">Aviator</option>
+                          <option value="Cat Eye">Cat Eye</option>
+                          <option value="Oval">Oval</option>
+                          <option value="Geometric">Geometric</option>
+                          <option value="Wayfarer">Wayfarer</option>
+                          <option value="Clubmaster">Clubmaster</option>
+                          <option value="Butterfly">Butterfly</option>
+                          <option value="Wrap">Wrap</option>
+                          <option value="Sports">Sports</option>
+                          <option value="Spherical Contact Lense">Spherical Contact Lense</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
+
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Style</Text>
+                        <Select
+                          name="style"
+                          value={formData.style}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h="48px"
+                        >
+                          <option value="">Select Style</option>
+                          <option value="Casual">Casual</option>
+                          <option value="Formal">Formal</option>
+                          <option value="Sports">Sports</option>
+                          <option value="Fashion">Fashion</option>
+                          <option value="Vintage">Vintage</option>
+                          <option value="Classic">Classic</option>
+                          <option value="Day Night">Day Night</option>
+                          <option value="Modern">Modern</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Min Power</Text>
+                        <Input
+                          name="powerRange.min"
+                          placeholder="Enter min power"
+                          value={formData.powerRange.min}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          type="number"
+                          h="48px"
+                        />
+                      </FormControl>
+
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Max Power</Text>
+                        <Input
+                          name="powerRange.max"
+                          placeholder="Enter max power"
+                          value={formData.powerRange.max}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          type="number"
+                          h="48px"
+                        />
+                      </FormControl>
+                    </Grid>
+                  </VStack>
+                </Box>
+
+                <Box>
+                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                    Product Status
+                  </Text>
+                  <Divider mb={6} />
+
+                  <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                    <FormControl>
+                      <Checkbox
+                        name="isRecommended"
+                        isChecked={formData.isRecommended}
+                        onChange={handleChange}
+                        colorScheme="blue"
+                        size="lg"
+                      >
+                        Recommended
+                      </Checkbox>
+                    </FormControl>
+
+                    <FormControl>
+                      <Checkbox
+                        name="isTrending"
+                        isChecked={formData.isTrending}
+                        onChange={handleChange}
+                        colorScheme="blue"
+                        size="lg"
+                      >
+                        Trending
+                      </Checkbox>
+                    </FormControl>
+
+                    <FormControl>
+                      <Checkbox
+                        name="isLatest"
+                        isChecked={formData.isLatest}
+                        onChange={handleChange}
+                        colorScheme="blue"
+                        size="lg"
+                      >
+                        Latest
+                      </Checkbox>
+                    </FormControl>
+
+                    <FormControl>
+                      <Checkbox
+                        name="isExclusive"
+                        isChecked={formData.isExclusive}
+                        onChange={handleChange}
+                        colorScheme="blue"
+                        size="lg"
+                      >
+                        Exclusive
+                      </Checkbox>
+                    </FormControl>
+                  </Grid>
+                </Box>
               </VStack>
             </GridItem>
           </Grid>
 
-          <Button
-            colorScheme="blue"
-            size="lg"
-            width="full"
-            onClick={handleSubmit}
-            isLoading={loading}
-            loadingText={isEditing ? "Updating Product..." : "Adding Product..."}
-            mt={6}
-            _hover={{
-              transform: "translateY(-2px)",
-              boxShadow: "lg"
-            }}
-            transition="all 0.2s"
-          >
-            {isEditing ? 'Update Product' : 'Add Product'}
-          </Button>
+          <Flex justify="center" mt={8}>
+            <Button
+              type="submit"
+              colorScheme="blue"
+              size="lg"
+              isLoading={loading}
+              onClick={handleSubmit}
+              w="200px"
+            >
+              {isEditing ? 'Update Product' : 'Add Product'}
+            </Button>
+          </Flex>
         </VStack>
       </Center>
     </Box>

@@ -69,6 +69,9 @@ const Home = () => {
   const [colorContactLenses, setColorContactLenses] = useState([]);
   const [colorContactLensesLoading, setColorContactLensesLoading] = useState(true);
   const [colorContactLensesError, setColorContactLensesError] = useState(null);
+  const [computerBlueLensesWithPower, setComputerBlueLensesWithPower] = useState([]);
+  const [computerBlueLensesWithPowerLoading, setComputerBlueLensesWithPowerLoading] = useState(true);
+  const [computerBlueLensesWithPowerError, setComputerBlueLensesWithPowerError] = useState(null);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -116,12 +119,13 @@ const Home = () => {
 
     const fetchSunglasses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/products?productType=sunglasses', {
+        const response = await axios.get('http://localhost:8080/products/sunglasses', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        setSunglasses(response.data);
+        console.log('Sunglasses API Response:', response.data);
+        setSunglasses(response.data.products || []);
         setSunglassesLoading(false);
       } catch (err) {
         console.error('Error fetching sunglasses:', err);
@@ -132,12 +136,13 @@ const Home = () => {
 
     const fetchEyeglasses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/products?productType=eyeglasses', {
+        const response = await axios.get('http://localhost:8080/products/eyeglasses', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        setEyeglasses(response.data);
+        console.log('Eyeglasses API Response:', response.data);
+        setEyeglasses(response.data.products || []);
         setEyeglassesLoading(false);
       } catch (err) {
         console.error('Error fetching eyeglasses:', err);
@@ -148,12 +153,13 @@ const Home = () => {
 
     const fetchComputerBlueLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/products?productType=COMPUTER_BLU_LENSES&powerType=ZERO_POWER', {
+        const response = await axios.get('http://localhost:8080/products/computer-blu-lenses/zero-power', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        setZeroPowerComputerBlueLenses(response.data);
+        console.log('Computer Blue Lenses API Response:', response.data);
+        setZeroPowerComputerBlueLenses(response.data.products || []);
         setZeroPowerComputerBlueLensesLoading(false);
       } catch (err) {
         console.error('Error fetching computer blue lenses:', err);
@@ -162,15 +168,32 @@ const Home = () => {
       }
     };
 
-    const fetchContactLenses = async () => {
+    const fetchComputerBlueLensesWithPower = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/products?productType=CONTACT_LENSES', {
+        const response = await axios.get('http://localhost:8080/products/computer-blu-lenses/with-power', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        
-        setContactLenses(response.data);
+        console.log('Computer Blue Lenses with Power API Response:', response.data);
+        setComputerBlueLensesWithPower(response.data.products || []);
+        setComputerBlueLensesWithPowerLoading(false);
+      } catch (err) {
+        console.error('Error fetching computer blue lenses with power:', err);
+        setComputerBlueLensesWithPowerError('Failed to fetch computer blue lenses with power: ' + (err.message || 'Unknown error'));
+        setComputerBlueLensesWithPowerLoading(false);
+      }
+    };
+
+    const fetchContactLenses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/products/contact-lenses', {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Contact Lenses API Response:', response.data);
+        setContactLenses(response.data.products || []);
         setContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching contact lenses:', err);
@@ -181,13 +204,13 @@ const Home = () => {
 
     const fetchColorContactLenses = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/products?productType=COLOR_CONTACT_LENSES', {
+        const response = await axios.get('http://localhost:8080/products/color-contact-lenses', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-       
-        setColorContactLenses(response.data);
+        console.log('Color Contact Lenses API Response:', response.data);
+        setColorContactLenses(response.data.products || []);
         setColorContactLensesLoading(false);
       } catch (err) {
         console.error('Error fetching color contact lenses:', err);
@@ -223,6 +246,7 @@ const Home = () => {
     fetchSunglasses();
     fetchEyeglasses();
     fetchComputerBlueLenses();
+    fetchComputerBlueLensesWithPower();
     fetchContactLenses();
     fetchColorContactLenses();
   }, []);
@@ -293,7 +317,9 @@ const Home = () => {
       />
      
       <HomeCard6
-       type={sunglasses}
+        type={computerBlueLensesWithPower}
+        loading={computerBlueLensesWithPowerLoading}
+        error={computerBlueLensesWithPowerError}
         heading="WITH POWER COMPUTER BLU LENSES" 
       />
 

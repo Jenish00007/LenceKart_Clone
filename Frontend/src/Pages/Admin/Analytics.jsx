@@ -60,7 +60,7 @@ const Analytics = () => {
                         usersData.filter(user => user.isActive).length : 0;
 
       // Fetch product count
-      const productsResponse = await fetch(`${API_URL}/product`);
+      const productsResponse = await fetch(`${API_URL}/products`);
       const productsData = await productsResponse.json();
       const totalProducts = productsData.totalCount;
 
