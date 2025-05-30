@@ -414,19 +414,33 @@ const Products = () => {
         ...filters,
         page: productState.page,
         search: productState.searchQuery,
-        sort: filters.basic.sort || 'newest'
+        sort: filters.basic.sort || 'newest',
+        limit: 10 // Number of items per page
       }).toString();
 
       const data = await productService.fetchProducts(queryParams);
       
+      // Log the response to debug
+      console.log('API Response:', data);
+      
+      // Ensure we have the correct total count
+      const totalCount = data.totalCount || data.total || data.products?.length || 0;
+      
+      // Calculate total pages (10 items per page)
+      const totalPages = Math.ceil(totalCount / 10);
+      
+      console.log('Total Count:', totalCount);
+      console.log('Total Pages:', totalPages);
+      
       setProductState(prev => ({
         ...prev,
         products: data.products || [],
-        totalProducts: data.totalCount || 0,
-        totalPages: data.totalPages || Math.ceil((data.products || []).length / ITEMS_PER_PAGE),
+        totalProducts: totalCount,
+        totalPages: totalPages,
         error: null
       }));
     } catch (error) {
+      console.error('Fetch Error:', error);
       setProductState(prev => ({ ...prev, error: error.message }));
       toast({
         title: "Error fetching products",
@@ -449,7 +463,12 @@ const Products = () => {
         [name]: value
       }
     }));
+    // Reset to first page when filters change
     setProductState(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handlePageChange = (newPage) => {
+    setProductState(prev => ({ ...prev, page: newPage }));
   };
 
   const handleDelete = async (id) => {
@@ -563,11 +582,25 @@ const Products = () => {
 
         {/* Pagination */}
         {productState.products.length > 0 && (
-          <Pagination
-            page={productState.page}
-            totalPages={productState.totalPages}
-            onPageChange={(newPage) => setProductState(prev => ({ ...prev, page: newPage }))}
-          />
+          <Flex justify="center" mt={4}>
+            <HStack spacing={4}>
+              <Button
+                onClick={() => handlePageChange(Math.max(1, productState.page - 1))}
+                isDisabled={productState.page === 1}
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <Text>Page {productState.page} of {productState.totalPages}</Text>
+              <Button
+                onClick={() => handlePageChange(Math.min(productState.totalPages, productState.page + 1))}
+                isDisabled={productState.page === productState.totalPages}
+                variant="outline"
+              >
+                Next
+              </Button>
+            </HStack>
+          </Flex>
         )}
       </VStack>
 
