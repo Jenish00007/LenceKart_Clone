@@ -183,7 +183,7 @@ const ProductCard = ({ product }) => {
             ₹{product.originalPrice}
           </Text>
         </Flex>
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/products/${product.id}`}>
           <Button
             size="sm"
             w="full"
