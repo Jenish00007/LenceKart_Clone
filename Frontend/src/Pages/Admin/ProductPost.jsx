@@ -79,6 +79,42 @@ const ProductPost = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  const validBrands = [
+    "Ray-Ban",
+    "Aqualens",
+    "Bausch Lomb",
+    "Soflens",
+    "Acuvue",
+    "Iconnect",
+    "Alcon",
+    "Oakley",
+    "Prada",
+    "Gucci",
+    "Dior",
+    "Cartier",
+    "Versace",
+    "Fendi",
+    "Burberry",
+    "Dolce & Gabbana",
+    "Louis Vuitton",
+    "Hermes",
+    "Chanel",
+    "Not Applicable"
+  ];
+
+  const validLensFeatures = [
+    "Anti Glare",
+    "Blue Light Block",
+    "Polarized",
+    "UV Protection",
+    "Anti Scratch",
+    "Water Resistant",
+    "Photochromic",
+    "High Index",
+    "Day Night",
+    "Not Applicable"
+  ];
+
   useEffect(() => {
     if (isEditing && productData) {
       setFormData({
@@ -124,7 +160,7 @@ const ProductPost = () => {
       // Validate required fields
       const requiredFields = [
         'name', 'imageTsrc', 'caption',
-        'price', 'mPrice', 'mainCategory', 'subCategory'
+        'price', 'mPrice', 'mainCategory', 'subCategory', 'topPicks'
       ];
       const missingFields = requiredFields.filter(field => !formData[field]);
       
@@ -141,16 +177,46 @@ const ProductPost = () => {
         return;
       }
 
+      // Validate numeric fields
+      if (isNaN(formData.price) || isNaN(formData.mPrice)) {
+        toast({
+          title: "Invalid Price",
+          description: "Price and Market Price must be numbers",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Format the data before sending
       const payload = {
         ...formData,
+        // Convert string numbers to actual numbers
         price: Number(formData.price),
         mPrice: Number(formData.mPrice),
         discount: Number(formData.discount) || 0,
+        quantity: Number(formData.quantity) || 1,
+        // Ensure arrays are properly formatted
+        additionalImages: Array.isArray(formData.additionalImages) ? formData.additionalImages : [],
+        brands: Array.isArray(formData.brands) ? formData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(formData.lensFeatures) ? formData.lensFeatures : [],
+        // Ensure powerRange is properly formatted
+        powerRange: {
+          min: formData.powerRange?.min ? Number(formData.powerRange.min) : undefined,
+          max: formData.powerRange?.max ? Number(formData.powerRange.max) : undefined
+        },
+        // Set default values for required fields
         rating: isEditing ? formData.rating : 0,
         reviewCount: isEditing ? formData.reviewCount : 0,
-        quantity: isEditing ? formData.quantity : 1,
-        createdAt: isEditing ? formData.createdAt : new Date()
+        createdAt: isEditing ? formData.createdAt : new Date(),
+        // Ensure topPicks is set
+        topPicks: formData.topPicks || 'Not Applicable'
       };
+
+      console.log('Sending payload:', payload);
 
       const url = isEditing 
         ? `${API_URL}/products/${productData._id}`
@@ -158,6 +224,19 @@ const ProductPost = () => {
 
       const method = isEditing ? "PUT" : "POST";
       const token = localStorage.getItem('token');
+
+      if (!token) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to continue",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+        setLoading(false);
+        return;
+      }
 
       const response = await fetch(url, {
         method,
@@ -182,6 +261,11 @@ const ProductPost = () => {
           navigate("/admin/products");
         }, 2000);
       } else {
+        // Handle validation errors from the server
+        if (data.errors) {
+          const errorMessages = data.errors.map(err => `${err.field}: ${err.message}`).join('\n');
+          throw new Error(errorMessages);
+        }
         throw new Error(data.message || `Failed to ${isEditing ? 'update' : 'add'} product`);
       }
     } catch (error) {
@@ -410,15 +494,22 @@ const ProductPost = () => {
                 </FormControl>
 
                 <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Brands (comma-separated)</Text>
-                  <Textarea
+                  <Text mb={2} fontSize="sm" color="gray.600">Brands</Text>
+                  <Select
                     name="brands"
-                    placeholder="Enter brands"
-                    value={formData.brands.join(', ')}
-                    onChange={(e) => handleArrayChange('brands', e.target.value)}
+                    value={formData.brands[0] || ""}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      brands: [e.target.value]
+                    }))}
                     size="lg"
                     borderRadius="md"
-                  />
+                  >
+                    <option value="">Select Brand</option>
+                    {validBrands.map(brand => (
+                      <option key={brand} value={brand}>{brand}</option>
+                    ))}
+                  </Select>
                 </FormControl>
 
                 <FormControl isRequired>
@@ -427,16 +518,16 @@ const ProductPost = () => {
                     name="topPicks"
                     value={formData.topPicks}
                     onChange={handleChange}
+                    placeholder="Select top picks category"
                     size="lg"
                     borderRadius="md"
                   >
-                    <option value="">Select Top Picks</option>
                     <option value="new-arrivals">New Arrivals</option>
                     <option value="best-sellers">Best Sellers</option>
                     <option value="trending">Trending</option>
                     <option value="exclusive">Exclusive</option>
                     <option value="essentials">Essentials</option>
-                    <option value="lenskart-blu-lenses">Lenskart Blu Lenses</option>
+                    <option value="lenskart-blu-lenses">Lenskart Blue Lenses</option>
                     <option value="tinted-eyeglasses">Tinted Eyeglasses</option>
                     <option value="computer-eyeglasses">Computer Eyeglasses</option>
                     <option value="progressive-eyeglasses">Progressive Eyeglasses</option>
@@ -656,15 +747,22 @@ const ProductPost = () => {
                 </FormControl>
 
                 <FormControl>
-                  <Text mb={2} fontSize="sm" color="gray.600">Lens Features (comma-separated)</Text>
-                  <Textarea
+                  <Text mb={2} fontSize="sm" color="gray.600">Lens Features</Text>
+                  <Select
                     name="lensFeatures"
-                    placeholder="Enter lens features"
-                    value={formData.lensFeatures.join(', ')}
-                    onChange={(e) => handleArrayChange('lensFeatures', e.target.value)}
+                    value={formData.lensFeatures[0] || ""}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      lensFeatures: [e.target.value]
+                    }))}
                     size="lg"
                     borderRadius="md"
-                  />
+                  >
+                    <option value="">Select Lens Feature</option>
+                    {validLensFeatures.map(feature => (
+                      <option key={feature} value={feature}>{feature}</option>
+                    ))}
+                  </Select>
                 </FormControl>
 
                 <Grid templateColumns="repeat(2, 1fr)" gap={4}>

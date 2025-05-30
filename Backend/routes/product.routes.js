@@ -813,54 +813,32 @@ productRouter.get("/", async (req, res, next) => {
   }
 });
 
-// Create new product (protected route)
-productRouter.post("/", auth, productValidation.create, async (req, res, next) => {
-  try {
-    const product = new ProductModel(req.body);
-    await product.save();
-    res.status(201).json({
-      success: true,
-      product
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-productRouter.post("/many", async (req, res) => {
-  const payload = req.body;
-  try {
-    const newProduct = await ProductModel.insertMany(payload);
-    res.status(201).send(newProduct);
-  } catch (err) {
-    console.log("err :", err);
-    res.status(400).send({ msg: err });
-  }
-});
-
-// Update product (protected route)
-productRouter.put("/:id", auth, productValidation.update, async (req, res, next) => {
-  try {
-    const product = await ProductModel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found"
-      });
+// Create a new product
+productRouter.post("/", auth, async (req, res) => {
+    try {
+        await productController.createProduct(req, res);
+    } catch (error) {
+        console.error('Error in create product route:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating product',
+            error: error.message
+        });
     }
+});
 
-    res.status(200).json({
-      success: true,
-      product
-    });
-  } catch (error) {
-    next(error);
-  }
+// Update a product
+productRouter.put("/:id", auth, async (req, res) => {
+    try {
+        await productController.updateProduct(req, res);
+    } catch (error) {
+        console.error('Error in update product route:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating product',
+            error: error.message
+        });
+    }
 });
 
 // Special product category routes
