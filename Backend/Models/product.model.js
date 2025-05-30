@@ -135,7 +135,7 @@ const productSchema = new mongoose.Schema(
         "bifocal",
         "progressive",
         "reading",
-        "clear",
+        
         "contact_lens_power",
         "spherical_minus_cyl",
         "spherical_plus_cyl",
@@ -255,6 +255,7 @@ const productSchema = new mongoose.Schema(
       {
         type: String,
         enum: [
+          "Clear",
           "Black",
           "Brown",
           "Blue",
