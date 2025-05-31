@@ -115,7 +115,7 @@ function NavbarCard5() {
   };
 
   // Common component for Top Picks section
-  const TopPicksSection = ({ items, type, categoryType = '' }) => {
+  const TopPicksSection = ({ onClose, items, type, categoryType = '' }) => {
     const selectedCategoryType = useSelector((state) => state.filter.selectedCategoryType);
     const navigate = useNavigate();
     
@@ -160,6 +160,8 @@ function NavbarCard5() {
       }
       
       navigate(`/products?${queryParams.toString()}`);
+      // Close the menu
+    onClose?.();
     };
     
     return (
@@ -246,20 +248,21 @@ function NavbarCard5() {
           <Box>
             <Grid gridTemplateColumns="repeat(4, 1fr)" w="100%" gap={5}>
               <Box mt="10">
-                <CategorySelector />
+                <CategorySelector onClose={onEyeglassesClose} />
               </Box>
 
               <Box>
-                <SelectCategory />
+                <SelectCategory onClose={onEyeglassesClose} />
               </Box>
 
               <TopPicksSection 
                 items={eyeglassTopPicks} 
                 type="eyeglasses"
+                onClose={onEyeglassesClose}
               />
 
               <Flex direction="column" gap="6">
-                <FrameTypeSelector />
+                <FrameTypeSelector onClose={onEyeglassesClose} />
               </Flex>
             </Grid>
           </Box>
@@ -293,20 +296,21 @@ function NavbarCard5() {
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
               <Box mt="20">
-                <CategorySelector />
+                <CategorySelector onClose={onComputerGlassesClose} />
               </Box>
 
               <Box>
-              <SelectCategory />
+              <SelectCategory onClose={onComputerGlassesClose} />
               </Box>
 
               <TopPicksSection 
                 items={computerGlassTopPicks} 
                 type="computer-glasses"
+                onClose={onComputerGlassesClose}
               />
 
               <Flex direction="column" gap="6">
-                <FrameTypeSelector />
+                <FrameTypeSelector onClose={onComputerGlassesClose} />
               </Flex>
             </Grid>
           </Box>
@@ -340,27 +344,28 @@ function NavbarCard5() {
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
               <Box mt="20">
-                <CategorySelector />
+                <CategorySelector onClose={onSunglassesClose} />
               </Box>
 
               <Box>
-              <SelectCategory />
+              <SelectCategory onClose={onSunglassesClose} />
               </Box>
 
               <TopPicksSection 
                 items={sunglassTopPicks} 
                 type="sunglasses"
+                onClose={onSunglassesClose}
               />
 
               <Flex direction="column" gap="6">
-                <FrameTypeSelector />
+                <FrameTypeSelector onClose={onSunglassesClose} />
               </Flex>
             </Grid>
           </Box>
         </MenuList>
       </Menu>
 
-      {/* <Menu>
+      {/* <Menu >
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -382,11 +387,11 @@ function NavbarCard5() {
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%">
               <Box mt="20">
-                <CategorySelector />
+                <CategorySelector onClose={onKidsGlassesClose} />
               </Box>
 
               <Box>
-              <SelectCategory />
+              <SelectCategory onClose={onKidsGlassesClose} />
               </Box>
 
               <TopPicksSection 

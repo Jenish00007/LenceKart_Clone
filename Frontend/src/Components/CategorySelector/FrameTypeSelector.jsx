@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFrameType } from '../../redux/slices/filterSlice';
 
-const FrameTypeSelector = () => {
+const FrameTypeSelector = ({ onClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
  
@@ -77,6 +77,8 @@ const FrameTypeSelector = () => {
     }
    
     navigate(`/products?${queryParams.toString()}`);
+    // Close the menu
+    onClose?.();
   };
 
   return (
