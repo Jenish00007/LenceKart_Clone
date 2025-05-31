@@ -73,8 +73,9 @@ const NewProduct = () => {
       const params = new URLSearchParams();
       
       if (sort) params.append('sort', sort);
-      if (gender) params.append('gender', gender);
-      if (shape) params.append('shape', shape);
+      if (gender) params.append('personCategory', gender);
+      if (shape) params.append('mainCategory=GLASSES&shape', shape);
+      if (types) params.append('subCategory', types);
       if (style) params.append('style', style);
       if (colors) params.append('colors', colors);
       if (page) params.append('page', page);
