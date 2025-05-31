@@ -41,10 +41,12 @@ export const cartReducer = (state = initialState, action) => {
         error: null
       };
     case ADD_TO_CART:
-      const existingItem = state.cart.find(item => item._id === action.payload._id);
+      const existingItem = state.cart.find(item => 
+        item._id === action.payload._id || item.productId === action.payload.productId
+      );
       const updatedCart = existingItem
         ? state.cart.map(item =>
-            item._id === action.payload._id
+            (item._id === action.payload._id || item.productId === action.payload.productId)
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
@@ -60,7 +62,9 @@ export const cartReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        cart: state.cart.filter(item => item._id !== action.payload),
+        cart: state.cart.filter(item => 
+          item._id !== action.payload && item.productId !== action.payload
+        ),
         error: null
       };
     case UPDATE_CART_ITEM:
@@ -68,7 +72,9 @@ export const cartReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         cart: state.cart.map(item =>
-          item._id === action.payload._id ? action.payload : item
+          (item._id === action.payload._id || item.productId === action.payload.productId) 
+            ? action.payload 
+            : item
         ),
         error: null
       };
