@@ -49,26 +49,29 @@ const categories = [
       { 
         name: 'Men', 
         image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass01.png',
-        category: 'men',
-        productType: 'eyeglasses'
+        personCategory: 'men',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
         name: 'Women', 
         image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass02.png',
-        category: 'women',
-        productType: 'eyeglasses'
+        personCategory: 'women',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
         name: 'Kids', 
         image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Eyeglass03.png',
-        category: 'kids',
-        productType: 'eyeglasses'
+        personCategory: 'kids',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
-        name: 'Essentials', 
+        name: 'Computer Glasses', 
         image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Eyeglass04.png',
-        category: 'essentials',
-        productType: 'eyeglasses'
+        subCategory: 'COMPUTER_GLASSES',
+        mainCategory: 'GLASSES'
       }
     ]
   },
@@ -78,26 +81,30 @@ const categories = [
       { 
         name: 'Men', 
         image: 'https://static.lenskart.com/media/desktop/img/men_pic.png',
-        category: 'men',
-        productType: 'sunglasses'
+        personCategory: 'men',
+        subCategory: 'SUNGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
         name: 'Women', 
         image: 'https://static.lenskart.com/media/desktop/img/women_pic.png',
-        category: 'women',
-        productType: 'sunglasses'
+        personCategory: 'women',
+        subCategory: 'SUNGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
         name: 'Kids', 
         image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png',
-        category: 'kids',
-        productType: 'sunglasses'
+        personCategory: 'kids',
+        subCategory: 'SUNGLASSES',
+        mainCategory: 'GLASSES'
       },
       { 
-        name: 'Essentials', 
+        name: 'Power Sunglasses', 
         image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/Sunglass%2004.png',
-        category: 'essentials',
-        productType: 'sunglasses'
+        subCategory: 'SUNGLASSES',
+        mainCategory: 'GLASSES',
+        topPicks: 'power-sunglasses'
       }
     ]
   },
@@ -105,20 +112,81 @@ const categories = [
     title: 'Special Powers',
     badge: 'Exclusive',
     sections: [
-      { name: 'Zero Power', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power01.png' },
-      { name: 'Progressive', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power02.png' },
-      { name: 'Reading', image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power03.png' },
-      { name: 'Power Sun', image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/a/Sunglass%2003.png' }
+      { 
+        name: 'Zero Power', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power01.png',
+        powerType: 'zero_power',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
+      },
+      { 
+        name: 'Progressive', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power02.png',
+        powerType: 'progressive',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
+      },
+      { 
+        name: 'Reading', 
+        image: 'https://static1.lenskart.com/media/desktop/img/11-jan-25/x/Special%20Power03.png',
+        powerType: 'reading',
+        subCategory: 'EYEGLASSES',
+        mainCategory: 'GLASSES'
+      },
+      { 
+        name: 'Power Computer Glasses', 
+        image: 'https://static1.lenskart.com/media/desktop/img/30-jan-25/a/Sunglass%2003.png',
+        subCategory: 'COMPUTER_GLASSES',
+        mainCategory: 'GLASSES',
+        topPicks: 'computer-eyeglasses',
+        powerType:'with_power'
+      }
     ]
   },
   {
     title: 'Contact Lenses & Accessories',
     badge: 'Try for free',
     sections: [
-      { name: 'Clear', image: 'https://static5.lenskart.com/media/uploads/Clear-lens-060225.png' },
-      { name: 'Color', image: 'https://static5.lenskart.com/media/uploads/color-lens-060225.png' },
-      { name: 'Trial Pack', image: 'https://static5.lenskart.com/media/uploads/Trial-Pack-x1.png' },
-      { name: 'Cases & Cleaner', image: 'https://static5.lenskart.com/media/uploads/Cases-Chains-140225.png' }
+      { 
+        name: 'Contact Lenses', 
+        image: 'https://static5.lenskart.com/media/uploads/Clear-lens-060225.png',
+        subCategory: 'CONTACT_LENSES',
+        mainCategory: 'CONTACT_LENSES',
+        
+      },
+      { 
+        name: 'Color Lenses', 
+        image: 'https://static5.lenskart.com/media/uploads/color-lens-060225.png',
+        subCategory: 'CONTACT_LENSES',
+        mainCategory: 'CONTACT_LENSES',
+        contactLensColor:[
+          "Clear",
+          "Black",
+          "Brown",
+          "Blue",
+          "Green",
+          "Grey",
+          "Hazel",
+          "Purple",
+          "Red",
+          "Silver",
+          "White",
+          "Multicolor",
+          "Turquoise",
+        ]
+      },
+      { 
+        name: 'Contact Lens Solution', 
+        image: 'https://static5.lenskart.com/media/uploads/Trial-Pack-x1.png',
+        subCategory: 'CONTACT_LENS_SOLUTION',
+        mainCategory: 'CONTACT_LENSES'
+      },
+      { 
+        name: 'Cases & Accessories', 
+        image: 'https://static5.lenskart.com/media/uploads/Cases-Chains-140225.png',
+        subCategory: 'CONTACT_LENS_ACCESSORIES',
+        mainCategory: 'CONTACT_LENSES'
+      }
     ]
   }
 ];
@@ -143,27 +211,40 @@ const CategoryGrid = () => {
   const navigate = useNavigate();
 
   const handleSectionClick = (section, parentCategory) => {
-    const productType = section.productType || categoryToProductType[parentCategory.title] || parentCategory.title;
-    let personCategory = undefined;
-    let category = undefined;
+    const queryParams = new URLSearchParams();
 
-    // For Eyeglasses/Sunglasses, map Men/Women/Kids to personCategory
-    if (
-      (parentCategory.title === "Eyeglasses" || parentCategory.title === "Sunglasses") &&
-      ["men", "women", "kids"].includes((section.category || section.name || "").toLowerCase())
-    ) {
-      personCategory = (section.category || section.name).toLowerCase();
-    } else {
-      category = section.category || sectionToCategory[section.name] || section.name;
+    // Add main category
+    if (section.mainCategory) {
+      queryParams.append('mainCategory', section.mainCategory);
     }
 
-    dispatch(setSelectedCategory(category || personCategory));
-    dispatch(setProductType(productType));
+    // Add sub category
+    if (section.subCategory) {
+      queryParams.append('subCategory', section.subCategory);
+    }
 
-    const queryParams = new URLSearchParams();
-    queryParams.append('productType', productType);
-    if (personCategory) queryParams.append('personCategory', personCategory);
-    if (category && !personCategory) queryParams.append('category', category);
+    // Add person category (gender)
+    if (section.personCategory) {
+      queryParams.append('personCategory', section.personCategory);
+    }
+
+    // Add power type
+    if (section.powerType) {
+      queryParams.append('powerType', section.powerType);
+    }
+
+    // Add top picks
+    if (section.topPicks) {
+      queryParams.append('topPicks', section.topPicks);
+    }
+
+    // Update Redux state
+    if (section.personCategory) {
+      dispatch(setSelectedCategory(section.personCategory));
+    }
+    if (section.subCategory) {
+      dispatch(setProductType(section.subCategory));
+    }
 
     navigate(`/products?${queryParams.toString()}`);
   };
