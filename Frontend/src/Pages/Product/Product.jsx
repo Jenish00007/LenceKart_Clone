@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "./Loading";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -17,9 +18,11 @@ import {
   Frame2
 } from "./FilterDetails";
 import { API_URL } from "../../config";
-import { useSearchParams } from "react-router-dom";
+import { resetFilters } from '../../redux/slices/filterSlice';
 
 const NewProduct = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [types, setTypes] = useState("");
@@ -30,7 +33,7 @@ const NewProduct = () => {
   const [shape, setShape] = useState("");
   const [style, setStyle] = useState("");
   const [colors, setColors] = useState("");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   const gridColumns = useBreakpointValue({
     base: 2,
@@ -204,11 +207,24 @@ const NewProduct = () => {
 
   // Reset all filters
   const handleResetFilters = () => {
+    // Reset local state
     setFrametype("");
     setShape("");
     setGender("");
     setTypes("");
     setColors("");
+    setSort("");
+    setPage(0);
+    setStyle("");
+
+    // Clear URL parameters
+    setSearchParams({});
+
+    // Clear Redux state
+    dispatch(resetFilters());
+
+    // Navigate to base products URL
+    navigate('/products', { replace: true });
   };
 
   return (
