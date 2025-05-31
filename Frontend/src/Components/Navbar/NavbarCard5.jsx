@@ -43,6 +43,15 @@ function NavbarCard5() {
   const frameType = useSelector((state) => state.filter.frameType);
   const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
   const subCategory = useSelector((state) => state.filter.selectedSubCategory);
+  const masterCategory = useSelector((state) => state.filter.masterCategory);
+
+  // Map masterCategory to the correct subCategory format
+  const subCategoryMap = {
+    'EYEGLASSES': 'EYEGLASSES',
+    'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+    'SUNGLASSES': 'SUNGLASSES',
+    'CONTACT LENSES': 'CONTACT_LENSES'
+  };
 
   const handleSubCategorySelect = (subCategory, isSubFilter = false) => {
     dispatch(setSelectedSubCategory(subCategory));
@@ -50,7 +59,8 @@ function NavbarCard5() {
     // Only update URL if it's a sub-filter click
     if (isSubFilter) {
       const queryParams = new URLSearchParams();
-      queryParams.append('subCategory', 'EYEGLASSES'); // Always use EYEGLASSES as main category
+      
+      queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
       queryParams.append('topPicks', subCategory.toLowerCase().replace(/\s+/g, '-')); // Convert to kebab-case
       
       if (personCategory) {
@@ -182,6 +192,10 @@ function NavbarCard5() {
           _hover={{
             borderBottom: "4px solid teal"
           }}
+          onClick={() => {
+            dispatch(setMasterCategory('COMPUTER GLASSES'));
+            handleSubCategorySelect('COMPUTER_GLASSES');
+          }}
         >
           COMPUTER GLASSES
         </MenuButton>
@@ -223,6 +237,10 @@ function NavbarCard5() {
           fontWeight="600"
           _hover={{
             borderBottom: "4px solid teal"
+          }}
+          onClick={() => {
+            dispatch(setMasterCategory('SUNGLASSES'));
+            handleSubCategorySelect('SUNGLASSES');
           }}
         >
           SUNGLASSES
@@ -307,6 +325,10 @@ function NavbarCard5() {
           fontWeight="600"
           _hover={{
             borderBottom: "4px solid teal"
+          }}
+          onClick={() => {
+            dispatch(setMasterCategory('CONTACT LENSES'));
+            handleSubCategorySelect('CONTACT_LENSES');
           }}
         >
           CONTACT LENSES
