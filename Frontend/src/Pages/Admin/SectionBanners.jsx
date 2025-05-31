@@ -117,78 +117,60 @@ const SectionBanners = () => {
         </select>
       </div>
 
-      <div className="table-container">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Section</th>
-              <th>Left Image</th>
-              <th>Right Image</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBanners.length === 0 ? (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center' }}>
-                  No section banners found
-                </td>
-              </tr>
-            ) : (
-              filteredBanners.map((banner) => (
-                <tr key={banner._id}>
-                  <td>{banner.title}</td>
-                  <td>
-                    <span className={`status-badge ${banner.section}`}>
-                      {banner.section}
-                    </span>
-                  </td>
-                  <td>
-                    <img 
-                      src={banner.leftImage} 
-                      alt="Left" 
-                      style={{
-                        width: '100px',
-                        height: '60px',
-                        objectFit: 'cover',
-                        borderRadius: '4px'
-                      }}
-                    />
-                  </td>
-                  <td>
-                    <img 
-                      src={banner.rightImage} 
-                      alt="Right" 
-                      style={{
-                        width: '100px',
-                        height: '60px',
-                        objectFit: 'cover',
-                        borderRadius: '4px'
-                      }}
-                    />
-                  </td>
-                  <td>{new Date(banner.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEditBanner(banner)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteBanner(banner._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="banners-grid">
+        {filteredBanners.length === 0 ? (
+          <div className="no-banners">No section banners found</div>
+        ) : (
+          filteredBanners.map((banner) => (
+            <div key={banner._id} className="banner-card">
+              <div className="banner-header">
+                <h3>{banner.title}</h3>
+                <span className={`status-badge ${banner.section}`}>
+                  {banner.section}
+                </span>
+              </div>
+              
+              <div className="banner-images">
+                <div className="image-container">
+                  <label>Left Image:</label>
+                  <img 
+                    src={banner.leftImage} 
+                    alt="Left" 
+                    className="banner-image"
+                  />
+                </div>
+                <div className="image-container">
+                  <label>Right Image:</label>
+                  <img 
+                    src={banner.rightImage} 
+                    alt="Right" 
+                    className="banner-image"
+                  />
+                </div>
+              </div>
+
+              <div className="banner-footer">
+                <div className="banner-date">
+                  Created: {new Date(banner.createdAt).toLocaleDateString()}
+                </div>
+                <div className="banner-actions">
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEditBanner(banner)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteBanner(banner._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {showModal && (

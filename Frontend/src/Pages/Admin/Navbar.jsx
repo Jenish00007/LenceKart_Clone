@@ -28,7 +28,8 @@ import {
   Badge,
   Tooltip,
   VStack,
-  Divider
+  Divider,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../ContextApi/AuthContext";
@@ -41,6 +42,19 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { setisAuth } = useContext(AuthContext);
   const toast = useToast();
+
+  // Responsive values
+  const logoSize = useBreakpointValue({ base: "sm", md: "md" });
+  const titleSize = useBreakpointValue({ base: "lg", md: "xl" });
+  const subtitleSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const navItemSize = useBreakpointValue({ base: "sm", md: "md" });
+  const iconSize = useBreakpointValue({ base: "14px", md: "16px" });
+  const avatarSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const menuTextSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const menuSubtextSize = useBreakpointValue({ base: "2xs", md: "xs" });
+  const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const paddingX = useBreakpointValue({ base: 2, md: 4 });
+  const spacing = useBreakpointValue({ base: 2, md: 8 });
 
   // Color mode values
   const bgColor = useColorModeValue("white", "gray.800");
@@ -66,8 +80,8 @@ const Navbar = () => {
       <Link to={to} style={{ textDecoration: 'none' }}>
         <Flex
           align="center"
-          p="4"
-          mx="4"
+          p={paddingX}
+          mx={paddingX}
           borderRadius="lg"
           role="group"
           cursor="pointer"
@@ -78,11 +92,11 @@ const Navbar = () => {
           {...rest}
         >
           <Icon
-            mr="4"
-            fontSize="16"
+            mr={paddingX}
+            fontSize={iconSize}
             as={icon}
           />
-          <Text fontSize="md" fontWeight="medium">{children}</Text>
+          <Text fontSize={navItemSize} fontWeight="medium">{children}</Text>
         </Flex>
       </Link>
     );
@@ -91,7 +105,7 @@ const Navbar = () => {
   return (
     <Box
       bg={bgColor}
-      px={4}
+      px={paddingX}
       position="sticky"
       top={0}
       zIndex={1000}
@@ -101,18 +115,18 @@ const Navbar = () => {
     >
       <Flex h={16} alignItems="center" justifyContent="space-between">
         {/* Logo and Brand */}
-        <Flex alignItems="center" gap={4}>
+        <Flex alignItems="center" gap={paddingX}>
           <Avatar
             src="https://bit.ly/broken-link"
-            size="md"
+            size={logoSize}
             border="2px solid"
             borderColor="blue.500"
           />
           <VStack align="start" spacing={0}>
-            <Text color={textColor} fontSize="xl" fontWeight="bold">
+            <Text color={textColor} fontSize={titleSize} fontWeight="bold">
               Admin Dashboard
             </Text>
-            <Text color="gray.500" fontSize="sm">
+            <Text color="gray.500" fontSize={subtitleSize}>
               Manage your products
             </Text>
           </VStack>
@@ -120,8 +134,8 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         {isLargerThan768 ? (
-          <HStack spacing={8} alignItems="center">
-            <NavItem icon={FiHome} to="/admin/dashboard">
+          <HStack spacing={spacing} alignItems="center">
+            <NavItem icon={FiHome} to="/admin">
               Dashboard
             </NavItem>
             <NavItem icon={FiShoppingBag} to="/admin/products">
@@ -130,16 +144,13 @@ const Navbar = () => {
             <NavItem icon={FiUsers} to="/admin/users">
               Users
             </NavItem>
-            {/* <NavItem icon={FiSettings} to="/admin/settings">
-              Settings
-            </NavItem> */}
 
             <Menu>
               <MenuButton
                 as={Button}
                 variant="ghost"
-                size="sm"
-                px={4}
+                size={buttonSize}
+                px={paddingX}
                 py={2}
                 transition="all 0.2s"
                 borderRadius="md"
@@ -149,28 +160,29 @@ const Navbar = () => {
                 _focus={{ boxShadow: "outline" }}
               >
                 <HStack>
-                  <Avatar size="sm" src="https://bit.ly/broken-link" />
+                  <Avatar size={avatarSize} src="https://bit.ly/broken-link" />
                   <VStack
                     display={{ base: "none", md: "flex" }}
                     alignItems="flex-start"
                     spacing="1px"
                     ml="2"
                   >
-                    <Text fontSize="sm">Admin User</Text>
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontSize={menuTextSize}>Admin User</Text>
+                    <Text fontSize={menuSubtextSize} color="gray.500">
                       Administrator
                     </Text>
                   </VStack>
                 </HStack>
               </MenuButton>
               <MenuList>
-                <MenuItem icon={<FiSettings />}>Settings</MenuItem>
-                <MenuItem icon={<FiUsers />}>Profile</MenuItem>
+                <MenuItem icon={<FiSettings />} fontSize={menuTextSize}>Settings</MenuItem>
+                <MenuItem icon={<FiUsers />} fontSize={menuTextSize}>Profile</MenuItem>
                 <MenuDivider />
                 <MenuItem 
                   icon={<FiLogOut />} 
                   onClick={handleClick}
                   color="red.500"
+                  fontSize={menuTextSize}
                 >
                   Sign out
                 </MenuItem>
@@ -184,9 +196,10 @@ const Navbar = () => {
               onClick={onOpen}
               variant="ghost"
               p={2}
+              size={buttonSize}
               _hover={{ bg: hoverBg }}
             >
-              <Icon as={FiMenu} w={6} h={6} />
+              <Icon as={FiMenu} w={5} h={5} />
             </Button>
 
             <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
@@ -194,18 +207,18 @@ const Navbar = () => {
               <DrawerContent>
                 <DrawerCloseButton />
                 <DrawerHeader borderBottomWidth="1px">
-                  <Flex alignItems="center" gap={4}>
-                    <Avatar size="sm" src="https://bit.ly/broken-link" />
+                  <Flex alignItems="center" gap={paddingX}>
+                    <Avatar size={avatarSize} src="https://bit.ly/broken-link" />
                     <VStack align="start" spacing={0}>
-                      <Text fontSize="lg" fontWeight="bold">Admin User</Text>
-                      <Text fontSize="sm" color="gray.500">Administrator</Text>
+                      <Text fontSize={menuTextSize} fontWeight="bold">Admin User</Text>
+                      <Text fontSize={menuSubtextSize} color="gray.500">Administrator</Text>
                     </VStack>
                   </Flex>
                 </DrawerHeader>
 
                 <DrawerBody>
                   <Stack spacing={4} mt={4}>
-                    <NavItem icon={FiHome} to="/admin/dashboard">
+                    <NavItem icon={FiHome} to="/admin">
                       Dashboard
                     </NavItem>
                     <NavItem icon={FiShoppingBag} to="/admin/products">
@@ -227,6 +240,7 @@ const Navbar = () => {
                     variant="outline"
                     onClick={handleClick}
                     w="full"
+                    size={buttonSize}
                   >
                     Sign out
                   </Button>

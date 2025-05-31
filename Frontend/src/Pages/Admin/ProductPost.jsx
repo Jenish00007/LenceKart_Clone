@@ -18,7 +18,12 @@ import {
   Flex,
   Divider,
   Badge,
-  useColorModeValue
+  useColorModeValue,
+  useBreakpointValue,
+  Container,
+  Card,
+  CardBody,
+  SimpleGrid
 } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -285,194 +290,204 @@ const ProductPost = () => {
     }
   };
 
+  // Add responsive values
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const cardPadding = useBreakpointValue({ base: 4, md: 8 });
+  const gridColumns = useBreakpointValue({ base: "1fr", md: "repeat(2, 1fr)" });
+  const inputHeight = useBreakpointValue({ base: "40px", md: "48px" });
+  const headingSize = useBreakpointValue({ base: "24px", md: "32px" });
+  const sectionSpacing = useBreakpointValue({ base: 6, md: 8 });
+
   return (
     <Box bg="gray.50" minH="100vh">
       <Navbar />
-      <Center py={8}>
-        <VStack
-          w={{ lg: "1200px", md: "95%", sm: "95%", base: "95%" }}
-          spacing={6}
+      <Container maxW="container.xl" py={4}>
+        <Card
           borderRadius="xl"
           boxShadow="2xl"
-          p={8}
           bg={bgColor}
           border="1px solid"
           borderColor={borderColor}
+          p={cardPadding}
         >
           <Heading 
-            fontSize="32px" 
+            fontSize={headingSize}
             color={headingColor}
             textAlign="center"
-            mb={4}
+            mb={6}
           >
             {isEditing ? 'Edit Product' : 'Add New Product'}
           </Heading>
 
           <Grid
-            templateColumns={{ lg: "repeat(2, 1fr)", base: "1fr" }}
-            gap={8}
+            templateColumns={gridColumns}
+            gap={sectionSpacing}
             w="100%"
           >
             {/* Left Column - Basic Info */}
             <GridItem>
-              <VStack spacing={8} align="stretch">
-                <Box>
-                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
-                    Basic Information
-                  </Text>
-                  <Divider mb={6} />
+              <VStack spacing={sectionSpacing} align="stretch">
+                <Card variant="outline" p={4}>
+                  <CardBody>
+                    <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                      Basic Information
+                    </Text>
+                    <Divider mb={6} />
 
-                  <VStack spacing={5}>
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
-                      <Input
-                        name="name"
-                        placeholder="Enter product name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        h="48px"
-                      />
-                    </FormControl>
+                    <VStack spacing={5}>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
+                        <Input
+                          name="name"
+                          placeholder="Enter product name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h={inputHeight}
+                        />
+                      </FormControl>
 
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
-                      <Textarea
-                        name="caption"
-                        placeholder="Enter product caption"
-                        value={formData.caption}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        minH="100px"
-                      />
-                    </FormControl>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+                        <Textarea
+                          name="caption"
+                          placeholder="Enter product caption"
+                          value={formData.caption}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          minH="100px"
+                        />
+                      </FormControl>
 
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
-                      <Input
-                        name="imageTsrc"
-                        placeholder="Enter image URL"
-                        value={formData.imageTsrc}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        h="48px"
-                      />
-                      {formData.imageTsrc && (
-                        <Box mt={3} borderRadius="md" overflow="hidden" border="1px solid" borderColor="gray.200">
-                          <Image 
-                            src={formData.imageTsrc} 
-                            alt="Product preview" 
-                            maxH="200px"
-                            objectFit="contain"
-                          />
-                        </Box>
-                      )}
-                    </FormControl>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+                        <Input
+                          name="imageTsrc"
+                          placeholder="Enter image URL"
+                          value={formData.imageTsrc}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h={inputHeight}
+                        />
+                        {formData.imageTsrc && (
+                          <Box mt={3} borderRadius="md" overflow="hidden" border="1px solid" borderColor="gray.200">
+                            <Image 
+                              src={formData.imageTsrc} 
+                              alt="Product preview" 
+                              maxH="200px"
+                              objectFit="contain"
+                            />
+                          </Box>
+                        )}
+                      </FormControl>
 
-                    <FormControl>
-                      <Text mb={2} fontSize="sm" color="gray.600">Additional Images (comma-separated URLs)</Text>
-                      <Textarea
-                        name="additionalImages"
-                        placeholder="Enter additional image URLs"
-                        value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
-                        onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
-                        size="lg"
-                        borderRadius="md"
-                        minH="100px"
-                      />
-                    </FormControl>
-                  </VStack>
-                </Box>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
+                        <Textarea
+                          name="additionalImages"
+                          placeholder="Enter additional image URLs (comma-separated)"
+                          value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
+                          onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+                          size="lg"
+                          borderRadius="md"
+                          minH="100px"
+                        />
+                      </FormControl>
+                    </VStack>
+                  </CardBody>
+                </Card>
 
-                <Box>
-                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
-                    Categories
-                  </Text>
-                  <Divider mb={6} />
+                <Card variant="outline" p={4}>
+                  <CardBody>
+                    <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                      Categories
+                    </Text>
+                    <Divider mb={6} />
 
-                  <VStack spacing={5}>
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Main Category</Text>
-                      <Select
-                        name="mainCategory"
-                        value={formData.mainCategory}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        h="48px"
-                      >
-                        <option value="">Select Main Category</option>
-                        <option value="GLASSES">Glasses</option>
-                        <option value="CONTACT_LENSES">Contact Lenses</option>
-                      </Select>
-                    </FormControl>
+                    <VStack spacing={5}>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Main Category</Text>
+                        <Select
+                          name="mainCategory"
+                          value={formData.mainCategory}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h={inputHeight}
+                        >
+                          <option value="">Select Main Category</option>
+                          <option value="GLASSES">Glasses</option>
+                          <option value="CONTACT_LENSES">Contact Lenses</option>
+                        </Select>
+                      </FormControl>
 
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
-                      <Select
-                        name="subCategory"
-                        value={formData.subCategory}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        h="48px"
-                      >
-                        <option value="">Select Sub Category</option>
-                        <option value="EYEGLASSES">Eye Glasses</option>
-                        <option value="SUNGLASSES">Sun Glasses</option>
-                        <option value="COMPUTER_GLASSES">Computer Glasses</option>
-                        <option value="CONTACT_LENSES">Contact Lenses</option>
-                        <option value="CONTACT_LENS_SOLUTION">Contact Lens Solution</option>
-                        <option value="CONTACT_LENS_CASES">Contact Lens Cases</option>
-                        <option value="CONTACT_LENS_ACCESSORIES">Contact Lens Accessories</option>
-                      </Select>
-                    </FormControl>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
+                        <Select
+                          name="subCategory"
+                          value={formData.subCategory}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          h={inputHeight}
+                        >
+                          <option value="">Select Sub Category</option>
+                          <option value="EYEGLASSES">Eye Glasses</option>
+                          <option value="SUNGLASSES">Sun Glasses</option>
+                          <option value="COMPUTER_GLASSES">Computer Glasses</option>
+                          <option value="CONTACT_LENSES">Contact Lenses</option>
+                          <option value="CONTACT_LENS_SOLUTION">Contact Lens Solution</option>
+                          <option value="CONTACT_LENS_CASES">Contact Lens Cases</option>
+                          <option value="CONTACT_LENS_ACCESSORIES">Contact Lens Accessories</option>
+                        </Select>
+                      </FormControl>
 
-                    <FormControl isRequired>
-                      <Text mb={2} fontSize="sm" color="gray.600">Top Picks</Text>
-                      <Select
-                        name="topPicks"
-                        value={formData.topPicks}
-                        onChange={handleChange}
-                        placeholder="Select top picks category"
-                        size="lg"
-                        borderRadius="md"
-                        h="48px"
-                      >
-                        <option value="new-arrivals">New Arrivals</option>
-                        <option value="best-sellers">Best Sellers</option>
-                        <option value="trending">Trending</option>
-                        <option value="exclusive">Exclusive</option>
-                        <option value="essentials">Essentials</option>
-                        <option value="lenskart-blu-lenses">Lenskart Blu Lenses</option>
-                        <option value="tinted-eyeglasses">Tinted Eyeglasses</option>
-                        <option value="computer-eyeglasses">Computer Eyeglasses</option>
-                        <option value="progressive-eyeglasses">Progressive Eyeglasses</option>
-                        <option value="pilot-style">Pilot Style</option>
-                        <option value="power-sunglasses">Power Sunglasses</option>
-                        <option value="polarized-sunglasses">Polarized Sunglasses</option>
-                        <option value="Not Applicable">Not Applicable</option>
-                      </Select>
-                    </FormControl>
-                  </VStack>
-                </Box>
+                      <FormControl isRequired>
+                        <Text mb={2} fontSize="sm" color="gray.600">Top Picks</Text>
+                        <Select
+                          name="topPicks"
+                          value={formData.topPicks}
+                          onChange={handleChange}
+                          placeholder="Select top picks category"
+                          size="lg"
+                          borderRadius="md"
+                          h={inputHeight}
+                        >
+                          <option value="new-arrivals">New Arrivals</option>
+                          <option value="best-sellers">Best Sellers</option>
+                          <option value="trending">Trending</option>
+                          <option value="exclusive">Exclusive</option>
+                          <option value="essentials">Essentials</option>
+                          <option value="lenskart-blu-lenses">Lenskart Blu Lenses</option>
+                          <option value="tinted-eyeglasses">Tinted Eyeglasses</option>
+                          <option value="computer-eyeglasses">Computer Eyeglasses</option>
+                          <option value="progressive-eyeglasses">Progressive Eyeglasses</option>
+                          <option value="pilot-style">Pilot Style</option>
+                          <option value="power-sunglasses">Power Sunglasses</option>
+                          <option value="polarized-sunglasses">Polarized Sunglasses</option>
+                          <option value="Not Applicable">Not Applicable</option>
+                        </Select>
+                      </FormControl>
+                    </VStack>
+                  </CardBody>
+                </Card>
               </VStack>
             </GridItem>
 
             {/* Right Column - Additional Details */}
             <GridItem>
-              <VStack spacing={8} align="stretch">
-                <Box>
-                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
-                    Product Details
-                  </Text>
-                  <Divider mb={6} />
+              <VStack spacing={sectionSpacing} align="stretch">
+                <Card variant="outline" p={4}>
+                  <CardBody>
+                    <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                      Product Details
+                    </Text>
+                    <Divider mb={6} />
 
-                  <VStack spacing={5}>
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
                       <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Person Category</Text>
                         <Select
@@ -481,7 +496,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Person Category</option>
                           <option value="men">Men</option>
@@ -499,7 +514,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
@@ -509,9 +524,7 @@ const ProductPost = () => {
                           <option value="All">All</option>
                         </Select>
                       </FormControl>
-                    </Grid>
 
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                       <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Age Group</Text>
                         <Select
@@ -520,7 +533,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Age Group</option>
                           <option value="Kids">Kids</option>
@@ -543,7 +556,7 @@ const ProductPost = () => {
                           }))}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Brand</option>
                           {validBrands.map(brand => (
@@ -551,9 +564,7 @@ const ProductPost = () => {
                           ))}
                         </Select>
                       </FormControl>
-                    </Grid>
 
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                       <FormControl isRequired>
                         <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
                         <Input
@@ -564,7 +575,7 @@ const ProductPost = () => {
                           size="lg"
                           borderRadius="md"
                           type="number"
-                          h="48px"
+                          h={inputHeight}
                         />
                       </FormControl>
 
@@ -578,37 +589,37 @@ const ProductPost = () => {
                           size="lg"
                           borderRadius="md"
                           type="number"
-                          h="48px"
+                          h={inputHeight}
                         />
                       </FormControl>
-                    </Grid>
 
-                    <FormControl>
-                      <Text mb={2} fontSize="sm" color="gray.600">Discount (%)</Text>
-                      <Input
-                        name="discount"
-                        placeholder="Enter discount percentage"
-                        value={formData.discount}
-                        onChange={handleChange}
-                        size="lg"
-                        borderRadius="md"
-                        type="number"
-                        min="0"
-                        max="100"
-                        h="48px"
-                      />
-                    </FormControl>
-                  </VStack>
-                </Box>
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Discount (%)</Text>
+                        <Input
+                          name="discount"
+                          placeholder="Enter discount percentage"
+                          value={formData.discount}
+                          onChange={handleChange}
+                          size="lg"
+                          borderRadius="md"
+                          type="number"
+                          min="0"
+                          max="100"
+                          h={inputHeight}
+                        />
+                      </FormControl>
+                    </SimpleGrid>
+                  </CardBody>
+                </Card>
 
-                <Box>
-                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
-                    Technical Specifications
-                  </Text>
-                  <Divider mb={6} />
+                <Card variant="outline" p={4}>
+                  <CardBody>
+                    <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                      Technical Specifications
+                    </Text>
+                    <Divider mb={6} />
 
-                  <VStack spacing={5}>
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
                       <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
                         <Select
@@ -617,7 +628,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Power Type</option>
                           <option value="zero_power">Zero Power</option>
@@ -643,7 +654,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Frame Type</option>
                           <option value="Full Rim">Full Rim</option>
@@ -652,9 +663,7 @@ const ProductPost = () => {
                           <option value="Not Applicable">Not Applicable</option>
                         </Select>
                       </FormControl>
-                    </Grid>
 
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                       <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Shape</Text>
                         <Select
@@ -663,7 +672,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Shape</option>
                           <option value="Round">Round</option>
@@ -691,7 +700,7 @@ const ProductPost = () => {
                           onChange={handleChange}
                           size="lg"
                           borderRadius="md"
-                          h="48px"
+                          h={inputHeight}
                         >
                           <option value="">Select Style</option>
                           <option value="Casual">Casual</option>
@@ -705,9 +714,7 @@ const ProductPost = () => {
                           <option value="Not Applicable">Not Applicable</option>
                         </Select>
                       </FormControl>
-                    </Grid>
 
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                       <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Min Power</Text>
                         <Input
@@ -718,7 +725,7 @@ const ProductPost = () => {
                           size="lg"
                           borderRadius="md"
                           type="number"
-                          h="48px"
+                          h={inputHeight}
                         />
                       </FormControl>
 
@@ -732,69 +739,71 @@ const ProductPost = () => {
                           size="lg"
                           borderRadius="md"
                           type="number"
-                          h="48px"
+                          h={inputHeight}
                         />
                       </FormControl>
-                    </Grid>
-                  </VStack>
-                </Box>
+                    </SimpleGrid>
+                  </CardBody>
+                </Card>
 
-                <Box>
-                  <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
-                    Product Status
-                  </Text>
-                  <Divider mb={6} />
+                <Card variant="outline" p={4}>
+                  <CardBody>
+                    <Text fontSize="xl" fontWeight="bold" color="blue.600" mb={4}>
+                      Product Status
+                    </Text>
+                    <Divider mb={6} />
 
-                  <Grid templateColumns="repeat(2, 1fr)" gap={5}>
-                    <FormControl>
-                      <Checkbox
-                        name="isRecommended"
-                        isChecked={formData.isRecommended}
-                        onChange={handleChange}
-                        colorScheme="blue"
-                        size="lg"
-                      >
-                        Recommended
-                      </Checkbox>
-                    </FormControl>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+                      <FormControl>
+                        <Checkbox
+                          name="isRecommended"
+                          isChecked={formData.isRecommended}
+                          onChange={handleChange}
+                          colorScheme="blue"
+                          size="lg"
+                        >
+                          Recommended
+                        </Checkbox>
+                      </FormControl>
 
-                    <FormControl>
-                      <Checkbox
-                        name="isTrending"
-                        isChecked={formData.isTrending}
-                        onChange={handleChange}
-                        colorScheme="blue"
-                        size="lg"
-                      >
-                        Trending
-                      </Checkbox>
-                    </FormControl>
+                      <FormControl>
+                        <Checkbox
+                          name="isTrending"
+                          isChecked={formData.isTrending}
+                          onChange={handleChange}
+                          colorScheme="blue"
+                          size="lg"
+                        >
+                          Trending
+                        </Checkbox>
+                      </FormControl>
 
-                    <FormControl>
-                      <Checkbox
-                        name="isLatest"
-                        isChecked={formData.isLatest}
-                        onChange={handleChange}
-                        colorScheme="blue"
-                        size="lg"
-                      >
-                        Latest
-                      </Checkbox>
-                    </FormControl>
+                      <FormControl>
+                        <Checkbox
+                          name="isLatest"
+                          isChecked={formData.isLatest}
+                          onChange={handleChange}
+                          colorScheme="blue"
+                          size="lg"
+                        >
+                          Latest
+                        </Checkbox>
+                      </FormControl>
 
-                    <FormControl>
-                      <Checkbox
-                        name="isExclusive"
-                        isChecked={formData.isExclusive}
-                        onChange={handleChange}
-                        colorScheme="blue"
-                        size="lg"
-                      >
-                        Exclusive
-                      </Checkbox>
-                    </FormControl>
-                  </Grid>
-                </Box>
+                      <FormControl>
+                        <Checkbox
+                          name="isExclusive"
+                          isChecked={formData.isExclusive}
+                          onChange={handleChange}
+                          colorScheme="blue"
+                          size="lg"
+                        >
+                          Exclusive
+                        </Checkbox>
+                      </FormControl>
+                    </SimpleGrid>
+                  </CardBody>
+                </Card>
               </VStack>
             </GridItem>
           </Grid>
@@ -806,13 +815,14 @@ const ProductPost = () => {
               size="lg"
               isLoading={loading}
               onClick={handleSubmit}
-              w="200px"
+              w={{ base: "100%", md: "200px" }}
+              h="48px"
             >
               {isEditing ? 'Update Product' : 'Add Product'}
             </Button>
           </Flex>
-        </VStack>
-      </Center>
+        </Card>
+      </Container>
     </Box>
   );
 };

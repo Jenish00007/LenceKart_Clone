@@ -85,24 +85,14 @@ const Banners = () => {
         </button>
       </div>
 
-      <div className="banners-container" style={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        height: 'calc(100vh - 200px)',
-        overflow: 'hidden'
-      }}>
-        <div className="table-container" style={{ 
-          flex: 1,
-          overflowY: 'auto',
-          marginBottom: '20px'
-        }}>
+      <div className="banners-container">
+        {/* Desktop Table View */}
+        <div className="table-view">
           <table className="admin-table">
-            <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
+            <thead>
               <tr>
                 <th>Image</th>
                 <th>Title</th>
-                {/* <th>Description</th> */}
-                {/* <th>Link</th> */}
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -118,20 +108,12 @@ const Banners = () => {
                     />
                   </td>
                   <td>{banner.caption}</td>
-                  {/* <td>{banner.description}</td> */}
-                  {/* <td>{banner.link}</td> */}
                   <td>
                     <span className={`status-badge ${banner.status || 'active'}`}>
                       {banner.status || 'active'}
                     </span>
                   </td>
                   <td>
-                    {/* <button
-                      className="edit-btn"
-                      onClick={() => handleEditBanner(banner)}
-                    >
-                      Edit
-                    </button> */}
                     <button
                       className="delete-btn"
                       onClick={() => handleDeleteBanner(banner._id)}
@@ -143,6 +125,32 @@ const Banners = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="card-view">
+          {banners.map((banner) => (
+            <div key={banner._id} className="banner-card">
+              <div className="banner-card-image">
+                <img 
+                  src={banner.img} 
+                  alt={banner.title || 'Banner image'} 
+                />
+              </div>
+              <div className="banner-card-content">
+                <h3>{banner.caption}</h3>
+                <span className={`status-badge ${banner.status || 'active'}`}>
+                  {banner.status || 'active'}
+                </span>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteBanner(banner._id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
