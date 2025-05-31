@@ -108,7 +108,8 @@ const Home = () => {
             'Content-Type': 'application/json'
           }
         });
-        setShapes(response.data);
+        console.log('Shapes API Response:', response.data);
+        setShapes(response.data || []);
         setShapesLoading(false);
       } catch (err) {
         console.error('Error fetching shapes:', err);
