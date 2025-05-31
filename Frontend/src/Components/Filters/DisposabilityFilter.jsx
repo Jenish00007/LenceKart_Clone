@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Text, Flex } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setDisposability } from '../../redux/slices/filterSlice';
+import { setFilter } from '../../redux/slices/filterSlice';
 
-const DisposabilityFilter = () => {
+const DisposabilityFilter = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const subCategory = useSelector((state) => state.filter.selectedSubCategory);
@@ -19,29 +19,32 @@ const DisposabilityFilter = () => {
 
   const handleDisposabilitySelect = (option) => {
     // Store in Redux
-    dispatch(setDisposability(option));
+    dispatch(setFilter({ disposability: option }));
     
     // Update URL
     const queryParams = new URLSearchParams();
     queryParams.append('subCategory', subCategory);
-    queryParams.append('contactLensType', option.toLowerCase().replace(/\s+/g, '_'));
+    queryParams.append('contactLensType', option);
     navigate(`/products?${queryParams.toString()}`);
+    
+    // Close the menu
+    onClose?.();
   };
 
   return (
-    <Flex direction="column" gap="6">
+    <Flex direction="column" gap="6" pl={6}>
       <Box
         fontSize="md"
         fontWeight="bold"
         borderBottom="1px solid black"
         p="1"
       >
-        Explore by Disposability
+        Disposability
       </Box>
       <Flex direction="column" fontSize="md" gap="2">
-        {disposabilityOptions.map((option) => (
+        {disposabilityOptions.map((option, index) => (
           <Box
-            key={option}
+            key={index}
             _hover={{ 
               bg: "gray.100",
               color: "teal.500",

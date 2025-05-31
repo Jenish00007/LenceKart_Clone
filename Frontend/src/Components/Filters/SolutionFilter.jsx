@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Text, Flex } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setSolution } from '../../redux/slices/filterSlice';
+import { setFilter } from '../../redux/slices/filterSlice';
 
-const SolutionFilter = () => {
+const SolutionFilter = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const subCategory = useSelector((state) => state.filter.selectedSubCategory);
@@ -15,33 +15,34 @@ const SolutionFilter = () => {
     'View all solutions'
   ];
 
-  const handleSolutionSelect = (option) => {
-    if (option === 'View all solutions') return;
-    
+  const handleSolutionSelect = (size) => {
     // Store in Redux
-    dispatch(setSolution(option));
+    dispatch(setFilter({ solutionSize: size }));
     
     // Update URL
     const queryParams = new URLSearchParams();
     queryParams.append('subCategory', subCategory);
-    queryParams.append('contactLensSolutionSize', option);
+    queryParams.append('contactLensSolutionSize', size);
     navigate(`/products?${queryParams.toString()}`);
+    
+    // Close the menu
+    onClose?.();
   };
 
   return (
-    <Flex direction="column" gap="6">
+    <Flex direction="column" gap="6" pl={6}>
       <Box
         fontSize="md"
         fontWeight="bold"
         borderBottom="1px solid black"
         p="1"
       >
-        Solution
+        Solution Size
       </Box>
       <Flex direction="column" fontSize="md" gap="2">
-        {solutionOptions.map((option) => (
+        {solutionOptions.map((size, index) => (
           <Box
-            key={option}
+            key={index}
             _hover={{ 
               bg: "gray.100",
               color: "teal.500",
@@ -51,9 +52,9 @@ const SolutionFilter = () => {
             cursor="pointer"
             p="2"
             borderRadius="md"
-            onClick={() => handleSolutionSelect(option)}
+            onClick={() => handleSolutionSelect(size)}
           >
-            {option}
+            {size}
           </Box>
         ))}
       </Flex>

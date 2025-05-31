@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Text, Flex } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setPower } from '../../redux/slices/filterSlice';
+import { setFilter } from '../../redux/slices/filterSlice';
 
-const PowerFilter = () => {
+const PowerFilter = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const subCategory = useSelector((state) => state.filter.selectedSubCategory);
@@ -16,31 +16,34 @@ const PowerFilter = () => {
     'Toric Power'
   ];
 
-  const handlePowerSelect = (option) => {
+  const handlePowerSelect = (power) => {
     // Store in Redux
-    dispatch(setPower(option));
+    dispatch(setFilter({ power }));
     
     // Update URL
     const queryParams = new URLSearchParams();
     queryParams.append('subCategory', subCategory);
-    queryParams.append('powerType', option.toLowerCase().replace(/\s+/g, '_'));
+    queryParams.append('powerType', power);
     navigate(`/products?${queryParams.toString()}`);
+    
+    // Close the menu
+    onClose?.();
   };
 
   return (
-    <Flex direction="column" gap="6">
+    <Flex direction="column" gap="6" pl={6}>
       <Box
         fontSize="md"
         fontWeight="bold"
         borderBottom="1px solid black"
         p="1"
       >
-        Explore by Power
+        Power
       </Box>
       <Flex direction="column" fontSize="md" gap="2">
-        {powerOptions.map((option) => (
+        {powerOptions.map((power, index) => (
           <Box
-            key={option}
+            key={index}
             _hover={{ 
               bg: "gray.100",
               color: "teal.500",
@@ -50,9 +53,9 @@ const PowerFilter = () => {
             cursor="pointer"
             p="2"
             borderRadius="md"
-            onClick={() => handlePowerSelect(option)}
+            onClick={() => handlePowerSelect(power)}
           >
-            {option}
+            {power}
           </Box>
         ))}
       </Flex>

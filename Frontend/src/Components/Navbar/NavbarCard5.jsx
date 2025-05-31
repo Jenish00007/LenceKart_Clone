@@ -11,7 +11,8 @@ import {
   Grid,
   Menu,
   MenuButton,
-  MenuList
+  MenuList,
+  useDisclosure
 } from "@chakra-ui/react";
 import CategorySelector from "../CategorySelector/CategorySelector";
 import SelectCategory from "../CategorySelector/SelectCategory";
@@ -38,6 +39,31 @@ import BrandsFilter from '../Filters/BrandsFilter';
 function NavbarCard5() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Create separate disclosure hooks for each menu
+  const {
+    isOpen: isEyeglassesOpen,
+    onOpen: onEyeglassesOpen,
+    onClose: onEyeglassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isComputerGlassesOpen,
+    onOpen: onComputerGlassesOpen,
+    onClose: onComputerGlassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isSunglassesOpen,
+    onOpen: onSunglassesOpen,
+    onClose: onSunglassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isContactLensesOpen,
+    onOpen: onContactLensesOpen,
+    onClose: onContactLensesClose
+  } = useDisclosure();
  
   const personCategory = useSelector((state) => state.filter.selectedCategory);
   const frameType = useSelector((state) => state.filter.frameType);
@@ -193,7 +219,7 @@ function NavbarCard5() {
 
   return (
     <Flex bg="#fbf9f7" cursor="pointer" gap="6">
-      <Menu>
+      <Menu isOpen={isEyeglassesOpen} onClose={onEyeglassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -204,6 +230,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('EYEGLASSES'));
             handleSubCategorySelect('EYEGLASSES');
+            onEyeglassesOpen();
           }}
         >
           EYEGLASSES
@@ -239,7 +266,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      <Menu isOpen={isComputerGlassesOpen} onClose={onComputerGlassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -250,6 +277,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('COMPUTER GLASSES'));
             handleSubCategorySelect('COMPUTER_GLASSES');
+            onComputerGlassesOpen();
           }}
         >
           COMPUTER GLASSES
@@ -285,7 +313,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      <Menu isOpen={isSunglassesOpen} onClose={onSunglassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -296,6 +324,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('SUNGLASSES'));
             handleSubCategorySelect('SUNGLASSES');
+            onSunglassesOpen();
           }}
         >
           SUNGLASSES
@@ -373,7 +402,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu> */}
 
-      <Menu>
+      <Menu isOpen={isContactLensesOpen} onClose={onContactLensesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -384,6 +413,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('CONTACT LENSES'));
             dispatch(setSelectedSubCategory('CONTACT_LENSES'));
+            onContactLensesOpen();
           }}
         >
           CONTACT LENSES
@@ -399,19 +429,19 @@ function NavbarCard5() {
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
               <Box>
-                <BrandsFilter />
+                <BrandsFilter onClose={onContactLensesClose} />
               </Box>
               <Box>
-                <DisposabilityFilter />
+                <DisposabilityFilter onClose={onContactLensesClose} />
               </Box>
               <Box>
-                <PowerFilter />
+                <PowerFilter onClose={onContactLensesClose} />
               </Box>
               <Box>
-                <ColorFilter />
+                <ColorFilter onClose={onContactLensesClose} />
               </Box>
               <Box>
-                <SolutionFilter />
+                <SolutionFilter onClose={onContactLensesClose} />
               </Box>
             </Grid>
           </Box>
