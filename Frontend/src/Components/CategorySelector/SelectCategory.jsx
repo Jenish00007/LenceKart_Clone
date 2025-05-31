@@ -9,6 +9,8 @@ const SelectCategory = () => {
   const dispatch = useDispatch();
   const selectedType = useSelector((state) => state.filter.selectedType);
   const selectedCategoryType = useSelector((state) => state.filter.selectedCategoryType);
+  const masterCategory = useSelector((state) => state.filter.masterCategory);
+  const personCategory = useSelector((state) => state.filter.selectedCategory);
 
   const categories = [
     {
@@ -34,8 +36,25 @@ const SelectCategory = () => {
     dispatch(setProductType('eyeglasses'));
     
     const queryParams = new URLSearchParams();
-    queryParams.append('type', category.id);
-    queryParams.append('productType', 'eyeglasses');
+    
+    // Map masterCategory to the correct subCategory format
+    const subCategoryMap = {
+      'EYEGLASSES': 'EYEGLASSES',
+      'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+      'SUNGLASSES': 'SUNGLASSES',
+      'CONTACT LENSES': 'CONTACT_LENSES'
+    };
+    
+    // Add subCategory based on masterCategory
+    queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
+    
+    // Add personCategory if available
+    if (personCategory) {
+      queryParams.append('personCategory', personCategory);
+    }
+    
+    // Add selectedCategoryPrice
+    queryParams.append('selectedCategoryPrice', category.id);
     
     navigate(`/products?${queryParams.toString()}`);
   };

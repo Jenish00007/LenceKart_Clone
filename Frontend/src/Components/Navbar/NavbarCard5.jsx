@@ -11,7 +11,8 @@ import {
   Grid,
   Menu,
   MenuButton,
-  MenuList
+  MenuList,
+  useDisclosure
 } from "@chakra-ui/react";
 import CategorySelector from "../CategorySelector/CategorySelector";
 import SelectCategory from "../CategorySelector/SelectCategory";
@@ -38,20 +39,37 @@ import BrandsFilter from '../Filters/BrandsFilter';
 function NavbarCard5() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Create separate disclosure hooks for each menu
+  const {
+    isOpen: isEyeglassesOpen,
+    onOpen: onEyeglassesOpen,
+    onClose: onEyeglassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isComputerGlassesOpen,
+    onOpen: onComputerGlassesOpen,
+    onClose: onComputerGlassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isSunglassesOpen,
+    onOpen: onSunglassesOpen,
+    onClose: onSunglassesClose
+  } = useDisclosure();
+  
+  const {
+    isOpen: isContactLensesOpen,
+    onOpen: onContactLensesOpen,
+    onClose: onContactLensesClose
+  } = useDisclosure();
  
   const personCategory = useSelector((state) => state.filter.selectedCategory);
   const frameType = useSelector((state) => state.filter.frameType);
   const selectedCategoryPrice = useSelector((state) => state.filter?.selectedCategoryType || '');
   const subCategory = useSelector((state) => state.filter.selectedSubCategory);
   const masterCategory = useSelector((state) => state.filter.masterCategory);
-
-  // Map masterCategory to the correct subCategory format
-  const subCategoryMap = {
-    'EYEGLASSES': 'EYEGLASSES',
-    'COMPUTER GLASSES': 'COMPUTER_GLASSES',
-    'SUNGLASSES': 'SUNGLASSES',
-    'CONTACT LENSES': 'CONTACT_LENSES'
-  };
 
   const handleSubCategorySelect = (subCategory, isSubFilter = false) => {
     dispatch(setSelectedSubCategory(subCategory));
@@ -60,17 +78,36 @@ function NavbarCard5() {
     if (isSubFilter) {
       const queryParams = new URLSearchParams();
       
-      queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
-      queryParams.append('topPicks', subCategory.toLowerCase().replace(/\s+/g, '-')); // Convert to kebab-case
+      // Map masterCategory to the correct subCategory format
+      const subCategoryMap = {
+        'EYEGLASSES': 'EYEGLASSES',
+        'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+        'SUNGLASSES': 'SUNGLASSES',
+        'CONTACT LENSES': 'CONTACT_LENSES'
+      };
+
+      // Map masterCategory to selectedCategoryPrice
+      const selectedCategoryPriceMap = {
+        'EYEGLASSES': 'classic-eyeglasses',
+        'COMPUTER GLASSES': 'classic-computer-glasses',
+        'SUNGLASSES': 'classic-sunglasses',
+        'CONTACT LENSES': 'classic-contact-lenses'
+      };
       
+      // Add subCategory based on masterCategory
+      queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
+      
+      // Add personCategory if available
       if (personCategory) {
         queryParams.append('personCategory', personCategory);
       }
+      
+      // Add selectedCategoryPrice based on masterCategory
+      queryParams.append('selectedCategoryPrice', selectedCategoryPriceMap[masterCategory] || 'classic-eyeglasses');
+      
+      // Add frameType if available
       if (frameType) {
         queryParams.append('frameType', frameType);
-      }
-      if (selectedCategoryPrice) {
-        queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
       }
       
       navigate(`/products?${queryParams.toString()}`);
@@ -80,6 +117,50 @@ function NavbarCard5() {
   // Common component for Top Picks section
   const TopPicksSection = ({ items, type, categoryType = '' }) => {
     const selectedCategoryType = useSelector((state) => state.filter.selectedCategoryType);
+    const navigate = useNavigate();
+    
+    const handleTopPickSelect = (item) => {
+      const queryParams = new URLSearchParams();
+      
+      // Map masterCategory to the correct subCategory format
+      const subCategoryMap = {
+        'EYEGLASSES': 'EYEGLASSES',
+        'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+        'SUNGLASSES': 'SUNGLASSES',
+        'CONTACT LENSES': 'CONTACT_LENSES'
+      };
+      
+      // Map items to their corresponding topPicks values
+      const topPicksMap = {
+        'New Arrivals': 'new-arrivals',
+        'Lenskart BLU lenses': 'blu-lenses',
+        'Trending': 'trending',
+        'Tinted Eyeglasses': 'tinted-eyeglasses',
+        'Computer Eyeglasses': 'computer-eyeglasses',
+        'Progressive Eyeglasses': 'progressive-eyeglasses',
+        'Pilot Style': 'pilot-style',
+        'Power Sunglasses': 'power-sunglasses',
+        'Polarized Sunglasses': 'polarized-sunglasses'
+      };
+      
+      // Add subCategory based on masterCategory
+      queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
+      
+      // Add personCategory if available
+      if (personCategory) {
+        queryParams.append('personCategory', personCategory);
+      }
+      
+      // Add topPicks based on the selected item
+      queryParams.append('topPicks', topPicksMap[item] || 'best-sellers');
+      
+      // Add selectedCategoryPrice if available
+      if (selectedCategoryPrice) {
+        queryParams.append('selectedCategoryPrice', selectedCategoryPrice);
+      }
+      
+      navigate(`/products?${queryParams.toString()}`);
+    };
     
     return (
       <Flex direction="column" gap="6" pl={6}>
@@ -104,7 +185,7 @@ function NavbarCard5() {
               cursor="pointer"
               p="2"
               borderRadius="md"
-              onClick={() => handleSubCategorySelect(item, true)}
+              onClick={() => handleTopPickSelect(item)}
             >
               {item}
             </Box>
@@ -138,7 +219,7 @@ function NavbarCard5() {
 
   return (
     <Flex bg="#fbf9f7" cursor="pointer" gap="6">
-      <Menu>
+      <Menu isOpen={isEyeglassesOpen} onClose={onEyeglassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -149,6 +230,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('EYEGLASSES'));
             handleSubCategorySelect('EYEGLASSES');
+            onEyeglassesOpen();
           }}
         >
           EYEGLASSES
@@ -184,7 +266,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      <Menu isOpen={isComputerGlassesOpen} onClose={onComputerGlassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -195,6 +277,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('COMPUTER GLASSES'));
             handleSubCategorySelect('COMPUTER_GLASSES');
+            onComputerGlassesOpen();
           }}
         >
           COMPUTER GLASSES
@@ -230,7 +313,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu>
 
-      <Menu>
+      <Menu isOpen={isSunglassesOpen} onClose={onSunglassesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -241,6 +324,7 @@ function NavbarCard5() {
           onClick={() => {
             dispatch(setMasterCategory('SUNGLASSES'));
             handleSubCategorySelect('SUNGLASSES');
+            onSunglassesOpen();
           }}
         >
           SUNGLASSES
@@ -318,7 +402,7 @@ function NavbarCard5() {
         </MenuList>
       </Menu> */}
 
-      <Menu>
+      <Menu isOpen={isContactLensesOpen} onClose={onContactLensesClose}>
         <MenuButton
           bg="#fbf9f7"
           fontSize="15px"
@@ -328,7 +412,8 @@ function NavbarCard5() {
           }}
           onClick={() => {
             dispatch(setMasterCategory('CONTACT LENSES'));
-            handleSubCategorySelect('CONTACT_LENSES');
+            dispatch(setSelectedSubCategory('CONTACT_LENSES'));
+            onContactLensesOpen();
           }}
         >
           CONTACT LENSES
@@ -343,26 +428,21 @@ function NavbarCard5() {
         >
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
-            <Box>
-                <BrandsFilter />
+              <Box>
+                <BrandsFilter onClose={onContactLensesClose} />
               </Box>
               <Box>
-                <DisposabilityFilter />
+                <DisposabilityFilter onClose={onContactLensesClose} />
               </Box>
-
               <Box>
-                <PowerFilter />
+                <PowerFilter onClose={onContactLensesClose} />
               </Box>
-
               <Box>
-                <ColorFilter />
+                <ColorFilter onClose={onContactLensesClose} />
               </Box>
-
               <Box>
-                <SolutionFilter />
+                <SolutionFilter onClose={onContactLensesClose} />
               </Box>
-
-             
             </Grid>
           </Box>
         </MenuList>

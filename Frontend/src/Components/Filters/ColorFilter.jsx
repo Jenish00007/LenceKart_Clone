@@ -1,40 +1,62 @@
 import React from 'react';
+import { Box, Text, Flex } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Flex } from '@chakra-ui/react';
-import { setColor } from '../../redux/slices/filterSlice';
+import { useNavigate } from 'react-router-dom';
+import { setFilter } from '../../redux/slices/filterSlice';
 
-const ColorFilter = () => {
+const ColorFilter = ({ onClose }) => {
   const dispatch = useDispatch();
-  const color = useSelector((state) => state.filter.filters.color);
+  const navigate = useNavigate();
+  const subCategory = useSelector((state) => state.filter.selectedSubCategory);
 
   const colorOptions = [
-    'Green',
     'Blue',
+    'Green',
     'Brown',
     'Turquoise',
     'View all colors'
   ];
 
+  const handleColorSelect = (color) => {
+    // Store in Redux
+    dispatch(setFilter({ color }));
+    
+    // Update URL
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory);
+    queryParams.append('contactLensColors', color);
+    navigate(`/products?${queryParams.toString()}`);
+    
+    // Close the menu
+    onClose?.();
+  };
+
   return (
-    <Flex direction="column" gap="6">
+    <Flex direction="column" gap="6" pl={6}>
       <Box
         fontSize="md"
         fontWeight="bold"
         borderBottom="1px solid black"
         p="1"
       >
-        Explore by Colors
+        Color
       </Box>
       <Flex direction="column" fontSize="md" gap="2">
-        {colorOptions.map((option) => (
+        {colorOptions.map((color, index) => (
           <Box
-            key={option}
-            _hover={{ fontWeight: "bold" }}
+            key={index}
+            _hover={{ 
+              bg: "gray.100",
+              color: "teal.500",
+              transform: "translateX(5px)",
+              transition: "all 0.2s ease-in-out"
+            }}
             cursor="pointer"
-            fontWeight={color === option ? "bold" : "normal"}
-            onClick={() => dispatch(setColor(option))}
+            p="2"
+            borderRadius="md"
+            onClick={() => handleColorSelect(color)}
           >
-            {option}
+            {color}
           </Box>
         ))}
       </Flex>

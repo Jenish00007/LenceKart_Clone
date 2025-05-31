@@ -1,12 +1,13 @@
 import React from 'react';
 import { Box, Text, Flex } from '@chakra-ui/react';
-import { useDispatch } from 'react-redux';
-import { setFilter } from '../../redux/slices/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { setFilter } from '../../redux/slices/filterSlice';
 
-const BrandsFilter = () => {
+const BrandsFilter = ({ onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const subCategory = useSelector((state) => state.filter.selectedSubCategory);
 
   const brands = [
     'Aqualens',
@@ -18,8 +19,17 @@ const BrandsFilter = () => {
   ];
 
   const handleBrandSelect = (brand) => {
+    // Store in Redux
     dispatch(setFilter({ brands: [brand] }));
-    navigate(`/products?brands=${brand}`);
+    
+    // Update URL
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory);
+    queryParams.append('brands', brand);
+    navigate(`/products?${queryParams.toString()}`);
+    
+    // Close the menu
+    onClose?.();
   };
 
   return (
