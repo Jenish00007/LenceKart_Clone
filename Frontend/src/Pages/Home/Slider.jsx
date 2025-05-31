@@ -43,7 +43,7 @@ const Slider = ({ type }) => {
   });
 
   const handleExplore = (shape) => {
-    navigate(`/products?shape=${shape}`);
+    navigate(`/products?mainCategory=GLASSES&shape=${shape}`);
   };
 
   return (
