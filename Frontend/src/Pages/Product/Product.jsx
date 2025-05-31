@@ -82,7 +82,7 @@ const NewProduct = () => {
       if (topPicks) params.append('topPicks', topPicks);
       if (priceRange) params.append('selectedCategoryPrice', priceRange);
       
-      url += params.toString();
+      url += '?' + params.toString();
       console.log("Request URL:", url);
 
       const response = await fetch(url);
