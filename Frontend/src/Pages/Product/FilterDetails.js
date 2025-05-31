@@ -1,30 +1,49 @@
 export const Gender = [
   {
-    title: "Men"
+    title: "Male"
   },
   {
-    title: "Women"
+    title: "Female"
   },
   {
-    title: "Unisex"
+    title: "Transgender"
   },
   {
-    title: "Kids"
+    title: "Other"
+  },
+  {
+    title: "All"
   }
 ];
 
 export const ProductTypes = [
   {
-    name: "Eye Glasses",
-    title: "eyeglasses"
+    name: "Eyeglasses",
+    title: "EYEGLASSES"
   },
   {
-    name: "Sun Glasses",
-    title: "sunglasses"
+    name: "Sunglasses",
+    title: "SUNGLASSES"
+  },
+  {
+    name: "Computer Glasses",
+    title: "COMPUTER_GLASSES"
   },
   {
     name: "Contact Lenses",
-    title: "contact-lenses"
+    title: "CONTACT_LENSES"
+  },
+  {
+    name: "Contact Lens Solution",
+    title: "CONTACT_LENS_SOLUTION"
+  },
+  {
+    name: "Contact Lens Cases",
+    title: "CONTACT_LENS_CASES"
+  },
+  {
+    name: "Contact Lens Accessories",
+    title: "CONTACT_LENS_ACCESSORIES"
   }
 ];
 
@@ -55,13 +74,11 @@ export const Frame1 = [
     title: "Full Rim",
     name: "Full Rim"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/HalfRim.png",
     title: "Half Rim",
     name: "Half Rim"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Rimless.png",
     title: "Rimless",
@@ -71,60 +88,63 @@ export const Frame1 = [
 
 export const Frame2 = [
   {
-    src:
-      "https://static.lenskart.com/images/cust_mailer/Eyeglass/Rectangle.png",
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Rectangle.png",
     title: "Rectangle",
     name: "Rectangle"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Round.png",
     name: "Round",
     title: "Round"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/CatEye.png",
     title: "Cat Eye",
     name: "Cat Eye"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Square.png",
     title: "Square",
     name: "Square"
   },
-
   {
-    src:
-      "https://static.lenskart.com/images/cust_mailer/Eyeglass/Geometric.png",
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Geometric.png",
     title: "Geometric",
     name: "Geometric"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Wayfarer.png",
-    title: "Aviator",
-    name: "Aviator"
+    title: "Wayfarer",
+    name: "Wayfarer"
   },
-
   {
     src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Aviator.png",
     title: "Aviator",
     name: "Aviator"
   },
-
   {
-    src:
-      "https://static.lenskart.com/images/cust_mailer/Eyeglass/Hexagonal.png",
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Hexagonal.png",
     title: "Oval",
     name: "Oval"
   },
-
   {
-    src:
-      "https://static.lenskart.com/images/cust_mailer/Eyeglass/Clubmaster.png",
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Clubmaster.png",
+    title: "Clubmaster",
+    name: "Clubmaster"
+  },
+  {
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Butterfly.png",
     title: "Butterfly",
     name: "Butterfly"
+  },
+  {
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Sports.png",
+    title: "Wrap",
+    name: "Wrap"
+  },
+  {
+    src: "https://static.lenskart.com/images/cust_mailer/Eyeglass/Sports.png",
+    title: "Sports",
+    name: "Sports"
   }
 ];
