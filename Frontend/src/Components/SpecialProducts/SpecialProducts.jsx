@@ -34,7 +34,7 @@ import {
   Center
 } from '@chakra-ui/react';
 import { FiShoppingCart, FiHeart, FiEye, FiTrendingUp } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../ContextApi/AuthContext';
 import Login from '../../Pages/Login/Login';
 import { addToWishlist, removeFromWishlist } from '../../redux/wishlist/wishlist.actions';
@@ -240,7 +240,8 @@ const ProductCard = ({ product, onAddToCart, onViewDetails, onWishlistToggle, is
                 leftIcon={<Icon as={FiEye} boxSize={{ base: 3, sm: 4 }} />}
                 colorScheme="teal"
                 variant="ghost"
-                onClick={() => onViewDetails(product)}
+                as={Link}
+                to={`/products/${product._id}`}
                 width="100%"
               >
                 View Details

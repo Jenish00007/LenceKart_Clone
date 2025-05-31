@@ -228,6 +228,18 @@ productRouter.get("/", async (req, res, next) => {
       query.powerType = req.query.powerType.toLowerCase();
     }
 
+    // Search functionality
+    if (req.query.search) {
+      const searchTerm = req.query.search.toLowerCase();
+      query.$or = [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { description: { $regex: searchTerm, $options: 'i' } },
+        { mainCategory: { $regex: searchTerm, $options: 'i' } },
+        { subCategory: { $regex: searchTerm, $options: 'i' } },
+        { brands: { $regex: searchTerm, $options: 'i' } }
+      ];
+    }
+
     // Contact lens colors filter
     if (req.query.contactLensColors) {
       // Convert to title case (first letter uppercase, rest lowercase)

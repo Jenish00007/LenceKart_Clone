@@ -6,12 +6,30 @@ import { setSelectedCategory } from '../../redux/slices/filterSlice';
 
 const CategorySelector = () => {
   const dispatch = useDispatch();
-  const selectedCategory = useSelector((state) => state.filter.selectedCategory);
   const navigate = useNavigate();
+  const selectedCategory = useSelector((state) => state.filter.selectedCategory);
+  const masterCategory = useSelector((state) => state.filter.masterCategory);
 
   const handleCategorySelect = (categoryId) => {
     dispatch(setSelectedCategory(categoryId));
-    navigate(`/products?category=${categoryId}`);
+    
+    const queryParams = new URLSearchParams();
+    
+    // Map masterCategory to the correct subCategory format
+    const subCategoryMap = {
+      'EYEGLASSES': 'EYEGLASSES',
+      'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+      'SUNGLASSES': 'SUNGLASSES',
+      'CONTACT LENSES': 'CONTACT_LENSES'
+    };
+    
+    // Add subCategory based on masterCategory
+    queryParams.append('subCategory', subCategoryMap[masterCategory] || 'EYEGLASSES');
+    
+    // Add personCategory
+    queryParams.append('personCategory', categoryId);
+    
+    navigate(`/products?${queryParams.toString()}`);
   };
 
   const categories = [
@@ -26,7 +44,7 @@ const CategorySelector = () => {
       image: 'https://static.lenskart.com/media/desktop/img/women_pic.png'
     },
     {
-      id: 'kids',
+      id: 'Kids',
       title: 'Kids',
       image: 'https://static.lenskart.com/media/desktop/img/kid_pic.png'
     }
