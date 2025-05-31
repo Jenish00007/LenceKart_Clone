@@ -1,11 +1,13 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Box, Flex } from '@chakra-ui/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setDisposability } from '../../redux/slices/filterSlice';
 
 const DisposabilityFilter = () => {
   const dispatch = useDispatch();
-  const disposability = useSelector((state) => state.filter.filters.disposability);
+  const navigate = useNavigate();
+  const subCategory = useSelector((state) => state.filter.selectedSubCategory);
 
   const disposabilityOptions = [
     'Monthly',
@@ -14,6 +16,17 @@ const DisposabilityFilter = () => {
     'Yearly',
     'Bi-weekly'
   ];
+
+  const handleDisposabilitySelect = (option) => {
+    // Store in Redux
+    dispatch(setDisposability(option));
+    
+    // Update URL
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory);
+    queryParams.append('contactLensType', option.toLowerCase().replace(/\s+/g, '_'));
+    navigate(`/products?${queryParams.toString()}`);
+  };
 
   return (
     <Flex direction="column" gap="6">
@@ -29,10 +42,16 @@ const DisposabilityFilter = () => {
         {disposabilityOptions.map((option) => (
           <Box
             key={option}
-            _hover={{ fontWeight: "bold" }}
+            _hover={{ 
+              bg: "gray.100",
+              color: "teal.500",
+              transform: "translateX(5px)",
+              transition: "all 0.2s ease-in-out"
+            }}
             cursor="pointer"
-            fontWeight={disposability === option ? "bold" : "normal"}
-            onClick={() => dispatch(setDisposability(option))}
+            p="2"
+            borderRadius="md"
+            onClick={() => handleDisposabilitySelect(option)}
           >
             {option}
           </Box>

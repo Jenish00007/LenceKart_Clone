@@ -383,7 +383,7 @@ function NavbarCard5() {
           }}
           onClick={() => {
             dispatch(setMasterCategory('CONTACT LENSES'));
-            handleSubCategorySelect('CONTACT_LENSES');
+            dispatch(setSelectedSubCategory('CONTACT_LENSES'));
           }}
         >
           CONTACT LENSES
@@ -398,26 +398,21 @@ function NavbarCard5() {
         >
           <Box>
             <Grid gridTemplateColumns="repeat(5, 1fr)" w="100%" gap={4}>
-            <Box>
+              <Box>
                 <BrandsFilter />
               </Box>
               <Box>
                 <DisposabilityFilter />
               </Box>
-
               <Box>
                 <PowerFilter />
               </Box>
-
               <Box>
                 <ColorFilter />
               </Box>
-
               <Box>
                 <SolutionFilter />
               </Box>
-
-             
             </Grid>
           </Box>
         </MenuList>

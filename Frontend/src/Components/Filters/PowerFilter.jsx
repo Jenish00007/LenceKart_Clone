@@ -1,11 +1,13 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Box, Flex } from '@chakra-ui/react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setPower } from '../../redux/slices/filterSlice';
 
 const PowerFilter = () => {
   const dispatch = useDispatch();
-  const power = useSelector((state) => state.filter.filters.power);
+  const navigate = useNavigate();
+  const subCategory = useSelector((state) => state.filter.selectedSubCategory);
 
   const powerOptions = [
     'Spherical - CYL',
@@ -13,6 +15,17 @@ const PowerFilter = () => {
     'Cylindrical Power',
     'Toric Power'
   ];
+
+  const handlePowerSelect = (option) => {
+    // Store in Redux
+    dispatch(setPower(option));
+    
+    // Update URL
+    const queryParams = new URLSearchParams();
+    queryParams.append('subCategory', subCategory);
+    queryParams.append('powerType', option.toLowerCase().replace(/\s+/g, '_'));
+    navigate(`/products?${queryParams.toString()}`);
+  };
 
   return (
     <Flex direction="column" gap="6">
@@ -28,10 +41,16 @@ const PowerFilter = () => {
         {powerOptions.map((option) => (
           <Box
             key={option}
-            _hover={{ fontWeight: "bold" }}
+            _hover={{ 
+              bg: "gray.100",
+              color: "teal.500",
+              transform: "translateX(5px)",
+              transition: "all 0.2s ease-in-out"
+            }}
             cursor="pointer"
-            fontWeight={power === option ? "bold" : "normal"}
-            onClick={() => dispatch(setPower(option))}
+            p="2"
+            borderRadius="md"
+            onClick={() => handlePowerSelect(option)}
           >
             {option}
           </Box>
