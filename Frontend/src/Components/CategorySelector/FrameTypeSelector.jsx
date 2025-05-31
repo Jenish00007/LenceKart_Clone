@@ -61,6 +61,8 @@ const FrameTypeSelector = ({ handleSubCategorySelect }) => {
       
     const queryParams = new URLSearchParams();
 
+    // Always include EYEGLASSES as subCategory when selecting frame type
+    queryParams.append('subCategory', 'EYEGLASSES');
     queryParams.append('frameType', frame.id);
   
     if (masterCategory) {
