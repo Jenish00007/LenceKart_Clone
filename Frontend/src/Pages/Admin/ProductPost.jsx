@@ -20,7 +20,10 @@ import {
   Badge,
   useColorModeValue,
   Tag,
-  Wrap
+  Wrap,
+  RadioGroup,
+  Stack,
+  Radio
 } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -78,7 +81,8 @@ const ProductPost = () => {
     reviewCount: 0,
     quantity: 1,
     discount: 0,
-    frameColors: []
+    frameColors: [],
+    isContactLensColor: false
   });
   const [loading, setLoading] = useState(false);
 
@@ -761,105 +765,97 @@ const ProductPost = () => {
                       </FormControl>
                     </Grid>
 
-                    <Grid templateColumns="repeat(2, 1fr)" gap={5}>
-                      <FormControl>
-                        <Text mb={2} fontSize="sm" color="gray.600">Min Power</Text>
-                        <Input
-                          name="powerRange.min"
-                          placeholder="Enter min power"
-                          value={formData.powerRange.min}
-                          onChange={handleChange}
-                          size="lg"
-                          borderRadius="md"
-                          type="number"
-                          h="48px"
-                        />
-                      </FormControl>
-
-                      <FormControl>
-                        <Text mb={2} fontSize="sm" color="gray.600">Max Power</Text>
-                        <Input
-                          name="powerRange.max"
-                          placeholder="Enter max power"
-                          value={formData.powerRange.max}
-                          onChange={handleChange}
-                          size="lg"
-                          borderRadius="md"
-                          type="number"
-                          h="48px"
-                        />
-                      </FormControl>
-                    </Grid>
-
                     <FormControl>
-                      <Text mb={2} fontSize="sm" color="gray.600">Frame Colors</Text>
-                      <Wrap spacing={2}>
-                        {FRAME_COLORS.map((color) => (
-                          <Tag
-                            key={color}
-                            size="md"
-                            borderRadius="full"
-                            variant="solid"
-                            cursor="pointer"
-                            onClick={() => {
-                              const newColors = formData.frameColors || [];
-                              if (newColors.includes(color)) {
-                                setFormData({
-                                  ...formData,
-                                  frameColors: newColors.filter(c => c !== color)
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  frameColors: [...newColors, color]
-                                });
-                              }
-                            }}
-                            bg={FRAME_COLOR_MAPPING[color]}
-                            color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
-                            border={color === "White" ? "1px solid #E2E8F0" : "none"}
-                            _hover={{
-                              opacity: 0.8,
-                              transform: "scale(1.05)",
-                              transition: "all 0.2s"
-                            }}
-                            position="relative"
-                            overflow="hidden"
-                          >
-                            <Box
-                              position="absolute"
-                              top="0"
-                              left="0"
-                              right="0"
-                              bottom="0"
-                              bg={formData.frameColors?.includes(color) ? "rgba(0, 0, 0, 0.2)" : "transparent"}
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
-                            >
-                              {formData.frameColors?.includes(color) && (
-                                <Box
-                                  as="span"
-                                  fontSize="lg"
-                                  color="white"
-                                  textShadow="0 0 2px rgba(0,0,0,0.5)"
-                                >
-                                  ✓
-                                </Box>
-                              )}
-                            </Box>
-                            <Text
-                              px={3}
-                              py={1}
-                              fontWeight="medium"
-                              textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
-                            >
-                              {color}
-                            </Text>
-                          </Tag>
-                        ))}
-                      </Wrap>
+                      <Text mb={2} fontSize="sm" color="gray.600">Color Contact Lens</Text>
+                      <RadioGroup 
+                        value={formData.isContactLensColor ? "yes" : "no"} 
+                        onChange={(value) => setFormData(prev => ({
+                          ...prev,
+                          isContactLensColor: value === "yes"
+                        }))}
+                      >
+                        <Stack direction="row" spacing={4}>
+                          <Radio value="yes" colorScheme="blue" size="lg">
+                            Yes
+                          </Radio>
+                          <Radio value="no" colorScheme="blue" size="lg">
+                            No
+                          </Radio>
+                        </Stack>
+                      </RadioGroup>
                     </FormControl>
+
+                    {formData.isContactLensColor && (
+                      <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Frame Colors</Text>
+                        <Wrap spacing={2}>
+                          {FRAME_COLORS.map((color) => (
+                            <Tag
+                              key={color}
+                              size="md"
+                              borderRadius="full"
+                              variant="solid"
+                              cursor="pointer"
+                              onClick={() => {
+                                const newColors = formData.frameColors || [];
+                                if (newColors.includes(color)) {
+                                  setFormData({
+                                    ...formData,
+                                    frameColors: newColors.filter(c => c !== color)
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    frameColors: [...newColors, color]
+                                  });
+                                }
+                              }}
+                              bg={FRAME_COLOR_MAPPING[color]}
+                              color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
+                              border={color === "White" ? "1px solid #E2E8F0" : "none"}
+                              _hover={{
+                                opacity: 0.8,
+                                transform: "scale(1.05)",
+                                transition: "all 0.2s"
+                              }}
+                              position="relative"
+                              overflow="hidden"
+                            >
+                              <Box
+                                position="absolute"
+                                top="0"
+                                left="0"
+                                right="0"
+                                bottom="0"
+                                bg={formData.frameColors?.includes(color) ? "rgba(0, 0, 0, 0.2)" : "transparent"}
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                              >
+                                {formData.frameColors?.includes(color) && (
+                                  <Box
+                                    as="span"
+                                    fontSize="lg"
+                                    color="white"
+                                    textShadow="0 0 2px rgba(0,0,0,0.5)"
+                                  >
+                                    ✓
+                                  </Box>
+                                )}
+                              </Box>
+                              <Text
+                                px={3}
+                                py={1}
+                                fontWeight="medium"
+                                textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
+                              >
+                                {color}
+                              </Text>
+                            </Tag>
+                          ))}
+                        </Wrap>
+                      </FormControl>
+                    )}
                   </VStack>
                 </Box>
 
