@@ -111,6 +111,7 @@ export const removeFromCart = (productId) => async (dispatch) => {
       throw new Error('Authentication required');
     }
 
+    // First try to remove from API
     const response = await fetch(`${API_URL}/cart/${productId}`, {
       method: 'DELETE',
       headers: {
@@ -125,15 +126,30 @@ export const removeFromCart = (productId) => async (dispatch) => {
       throw new Error(data.message || 'Failed to remove item from cart');
     }
 
-    // Update local storage
+    // Update local storage - check both _id and productId
     const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const updatedCart = currentCart.filter(item => item._id !== productId);
+    const updatedCart = currentCart.filter(item => 
+      item._id !== productId && item.productId !== productId
+    );
     localStorage.setItem('cart', JSON.stringify(updatedCart));
 
+    // Dispatch success action
     dispatch({ type: REMOVE_FROM_CART, payload: productId });
     return data;
   } catch (error) {
+    console.error('Remove from cart error:', error);
     dispatch({ type: CART_ERROR, payload: error.message });
+    // Even if API call fails, try to remove from local storage
+    try {
+      const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const updatedCart = currentCart.filter(item => 
+        item._id !== productId && item.productId !== productId
+      );
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      dispatch({ type: REMOVE_FROM_CART, payload: productId });
+    } catch (localError) {
+      console.error('Local storage update error:', localError);
+    }
     throw error;
   }
 };

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedType, setSelectedCategoryType, setProductType } from '../../redux/slices/filterSlice';
 
-const SelectCategory = () => {
+const SelectCategory = ({ onClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selectedType = useSelector((state) => state.filter.selectedType);
@@ -57,6 +57,8 @@ const SelectCategory = () => {
     queryParams.append('selectedCategoryPrice', category.id);
     
     navigate(`/products?${queryParams.toString()}`);
+    // Close the menu
+onClose?.();
   };
 
   return (

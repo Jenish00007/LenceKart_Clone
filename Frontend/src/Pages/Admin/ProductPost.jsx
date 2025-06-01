@@ -19,6 +19,11 @@ import {
   Divider,
   Badge,
   useColorModeValue,
+  Tag,
+  Wrap,
+  RadioGroup,
+  Stack,
+  Radio,
   useBreakpointValue,
   Container,
   Card,
@@ -80,7 +85,9 @@ const ProductPost = () => {
     rating: 0,
     reviewCount: 0,
     quantity: 1,
-    discount: 0
+    discount: 0,
+    frameColors: [],
+    isContactLensColor: false
   });
   const [loading, setLoading] = useState(false);
 
@@ -120,6 +127,55 @@ const ProductPost = () => {
     "Not Applicable"
   ];
 
+  const FRAME_COLORS = [
+    "Black",
+    "Transparent",
+    "Gold",
+    "Gunmetal",
+    "Blue",
+    "Silver",
+    "Brown",
+    "Green",
+    "Grey",
+    "Purple",
+    "Pink",
+    "Red",
+    "Rose Gold",
+    "Yellow",
+    "Orange",
+    "White",
+    "Copper",
+    "Maroon",
+    "Multicolor",
+    "Gradient",
+    "Not Applicable"
+  ];
+
+  // Add this color mapping object after the FRAME_COLORS constant
+  const FRAME_COLOR_MAPPING = {
+    "Black": "#000000",
+    "Transparent": "rgba(255, 255, 255, 0.5)",
+    "Gold": "#FFD700",
+    "Gunmetal": "#2A3439",
+    "Blue": "#0000FF",
+    "Silver": "#C0C0C0",
+    "Brown": "#8B4513",
+    "Green": "#008000",
+    "Grey": "#808080",
+    "Purple": "#800080",
+    "Pink": "#FFC0CB",
+    "Red": "#FF0000",
+    "Rose Gold": "#B76E79",
+    "Yellow": "#FFFF00",
+    "Orange": "#FFA500",
+    "White": "#FFFFFF",
+    "Copper": "#B87333",
+    "Maroon": "#800000",
+    "Multicolor": "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
+    "Gradient": "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
+    "Not Applicable": "#E2E8F0"
+  };
+
   useEffect(() => {
     if (isEditing && productData) {
       setFormData({
@@ -127,7 +183,8 @@ const ProductPost = () => {
         powerRange: productData.powerRange || { min: "", max: "" },
         additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
         brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
-        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : []
+        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : [],
+        frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : []
       });
     }
   }, [isEditing, productData]);
@@ -221,7 +278,8 @@ const ProductPost = () => {
         reviewCount: isEditing ? formData.reviewCount : 0,
         createdAt: isEditing ? formData.createdAt : new Date(),
         // Ensure topPicks is set
-        topPicks: formData.topPicks || 'Not Applicable'
+        topPicks: formData.topPicks || 'Not Applicable',
+        frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : []
       };
 
       console.log('Sending payload:', payload);
@@ -716,16 +774,32 @@ const ProductPost = () => {
                       </FormControl>
 
                       <FormControl>
+                        <Text mb={2} fontSize="sm" color="gray.600">Color Contact Lens</Text>
+                        <RadioGroup 
+                          value={formData.isContactLensColor ? "yes" : "no"} 
+                          onChange={(value) => setFormData(prev => ({
+                            ...prev,
+                            isContactLensColor: value === "yes"
+                          }))}
+                        >
+                          <Stack direction="row" spacing={4}>
+                            <Radio value="yes" colorScheme="blue" size="lg">
+                              Yes
+                            </Radio>
+                            <Radio value="no" colorScheme="blue" size="lg">
+                              No
+                            </Radio>
+                          </Stack>
+                        </RadioGroup>
+                      </FormControl>
+
+                      <FormControl>
                         <Text mb={2} fontSize="sm" color="gray.600">Min Power</Text>
                         <Input
                           name="powerRange.min"
-                          placeholder="Enter min power"
                           value={formData.powerRange.min}
                           onChange={handleChange}
-                          size="lg"
-                          borderRadius="md"
-                          type="number"
-                          h={inputHeight}
+                          placeholder="Enter minimum power"
                         />
                       </FormControl>
 
@@ -733,15 +807,83 @@ const ProductPost = () => {
                         <Text mb={2} fontSize="sm" color="gray.600">Max Power</Text>
                         <Input
                           name="powerRange.max"
-                          placeholder="Enter max power"
                           value={formData.powerRange.max}
                           onChange={handleChange}
-                          size="lg"
-                          borderRadius="md"
-                          type="number"
-                          h={inputHeight}
+                          placeholder="Enter maximum power"
                         />
                       </FormControl>
+
+                      {formData.isContactLensColor && (
+                        <FormControl>
+                          <Text mb={2} fontSize="sm" color="gray.600">Frame Colors</Text>
+                          <Wrap spacing={2}>
+                            {FRAME_COLORS.map((color) => (
+                              <Tag
+                                key={color}
+                                size="md"
+                                borderRadius="full"
+                                variant="solid"
+                                cursor="pointer"
+                                onClick={() => {
+                                  const newColors = formData.frameColors || [];
+                                  if (newColors.includes(color)) {
+                                    setFormData({
+                                      ...formData,
+                                      frameColors: newColors.filter(c => c !== color)
+                                    });
+                                  } else {
+                                    setFormData({
+                                      ...formData,
+                                      frameColors: [...newColors, color]
+                                    });
+                                  }
+                                }}
+                                bg={FRAME_COLOR_MAPPING[color]}
+                                color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
+                                border={color === "White" ? "1px solid #E2E8F0" : "none"}
+                                _hover={{
+                                  opacity: 0.8,
+                                  transform: "scale(1.05)",
+                                  transition: "all 0.2s"
+                                }}
+                                position="relative"
+                                overflow="hidden"
+                              >
+                                <Box
+                                  position="absolute"
+                                  top="0"
+                                  left="0"
+                                  right="0"
+                                  bottom="0"
+                                  bg={formData.frameColors?.includes(color) ? "rgba(0, 0, 0, 0.2)" : "transparent"}
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                >
+                                  {formData.frameColors?.includes(color) && (
+                                    <Box
+                                      as="span"
+                                      fontSize="lg"
+                                      color="white"
+                                      textShadow="0 0 2px rgba(0,0,0,0.5)"
+                                    >
+                                      ✓
+                                    </Box>
+                                  )}
+                                </Box>
+                                <Text
+                                  px={3}
+                                  py={1}
+                                  fontWeight="medium"
+                                  textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
+                                >
+                                  {color}
+                                </Text>
+                              </Tag>
+                            ))}
+                          </Wrap>
+                        </FormControl>
+                      )}
                     </SimpleGrid>
                   </CardBody>
                 </Card>

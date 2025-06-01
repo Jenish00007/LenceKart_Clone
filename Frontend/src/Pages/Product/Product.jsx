@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "./Loading";
 import Navbar from "../../Components/Navbar/Navbar";
 import Footer from "../../Components/Footer/Footer";
@@ -17,9 +18,11 @@ import {
   Frame2
 } from "./FilterDetails";
 import { API_URL } from "../../config";
-import { useSearchParams } from "react-router-dom";
+import { resetFilters } from '../../redux/slices/filterSlice';
 
 const NewProduct = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [types, setTypes] = useState("");
@@ -30,7 +33,7 @@ const NewProduct = () => {
   const [shape, setShape] = useState("");
   const [style, setStyle] = useState("");
   const [colors, setColors] = useState("");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   const gridColumns = useBreakpointValue({
     base: 2,
@@ -73,14 +76,95 @@ const NewProduct = () => {
       const params = new URLSearchParams();
       
       if (sort) params.append('sort', sort);
-      if (gender) params.append('gender', gender);
-      if (shape) params.append('shape', shape);
-      if (style) params.append('style', style);
+      
+      // Person Category (Gender)
+      if (gender) {
+        const validGenders = ['Male', 'Female', 'Transgender', 'Other', 'All'];
+        if (validGenders.includes(gender)) {
+          params.append('gender', gender);
+        }
+      }
+
+      // Shape
+      if (shape) {
+        const validShapes = [
+          'Round', 'Square', 'Rectangle', 'Aviator', 'Cat Eye', 'Oval',
+          'Geometric', 'Wayfarer', 'Clubmaster', 'Butterfly', 'Wrap', 'Sports'
+        ];
+        if (validShapes.includes(shape)) {
+          params.append('mainCategory', 'GLASSES');
+          params.append('shape', shape);
+        }
+      }
+
+      // Sub Categories
+      if (types) {
+        const validSubCategories = [
+          'EYEGLASSES',
+          'SUNGLASSES',
+          'COMPUTER_GLASSES',
+          'CONTACT_LENSES',
+          'CONTACT_LENS_SOLUTION',
+          'CONTACT_LENS_CASES',
+          'CONTACT_LENS_ACCESSORIES'
+        ];
+        if (validSubCategories.includes(types)) {
+          params.append('subCategory', types);
+        }
+      }
+
+      // Style
+      if (style) {
+        const validStyles = [
+          'Casual', 'Formal', 'Sports', 'Fashion', 'Vintage', 'Classic',
+          'Day Night', 'Modern'
+        ];
+        if (validStyles.includes(style)) {
+          params.append('style', style);
+        }
+      }
+
+      // Colors
       if (colors) params.append('colors', colors);
+
+      // Pagination
       if (page) params.append('page', page);
+
+      // Search
       if (searchQuery) params.append('search', searchQuery);
-      if (topPicks) params.append('topPicks', topPicks);
-      if (priceRange) params.append('selectedCategoryPrice', priceRange);
+
+      // Top Picks
+      if (topPicks) {
+        const validTopPicks = [
+          'new-arrivals', 'best-sellers', 'trending', 'exclusive',
+          'essentials', 'lenskart-blu-lenses', 'tinted-eyeglasses',
+          'computer-eyeglasses', 'progressive-eyeglasses', 'pilot-style',
+          'power-sunglasses', 'polarized-sunglasses'
+        ];
+        if (validTopPicks.includes(topPicks)) {
+          params.append('topPicks', topPicks);
+        }
+      }
+
+      // Price Range (Category Price)
+      if (priceRange) {
+        const validPriceRanges = [
+          'classic-eyeglasses',
+          'premium-eyeglasses',
+          'designer-eyeglasses'
+        ];
+        if (validPriceRanges.includes(priceRange)) {
+          params.append('selectedCategoryPrice', priceRange);
+        }
+      }
+
+      // Frame Type
+      if (frametype) {
+        const validFrameTypes = ['Full Rim', 'Half Rim', 'Rimless'];
+        if (validFrameTypes.includes(frametype)) {
+          params.append('frameType', frametype);
+        }
+      }
       
       url += '?' + params.toString();
       console.log("Request URL:", url);
@@ -123,11 +207,24 @@ const NewProduct = () => {
 
   // Reset all filters
   const handleResetFilters = () => {
+    // Reset local state
     setFrametype("");
     setShape("");
     setGender("");
     setTypes("");
     setColors("");
+    setSort("");
+    setPage(0);
+    setStyle("");
+
+    // Clear URL parameters
+    setSearchParams({});
+
+    // Clear Redux state
+    dispatch(resetFilters());
+
+    // Navigate to base products URL
+    navigate('/products', { replace: true });
   };
 
   return (

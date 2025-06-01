@@ -255,6 +255,10 @@ const productSchema = new mongoose.Schema(
         "Not Applicable",
       ],
     },
+    isContactLensColor: {
+      type: Boolean,
+      default: false,
+    },
     contactLensColors: [
       {
         type: String,

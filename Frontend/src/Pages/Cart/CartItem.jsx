@@ -12,6 +12,7 @@ import {
   Text,
   Box,
   Grid,
+  useToast
 } from "@chakra-ui/react";
 import { keyframes } from '@emotion/react';
 
@@ -28,17 +29,48 @@ const slideIn = keyframes`
 
 const CartItem = () => {
   const dispatch = useDispatch();
+  const toast = useToast();
   const { cart } = useSelector((state) => state.cart);
 
-  const handleDelete = (productId) => {
-    dispatch(removeFromCart(productId));
+  const handleDelete = async (item) => {
+    try {
+      await dispatch(removeFromCart(item._id));
+      toast({
+        title: "Item Removed",
+        description: "Item has been removed from your cart",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove item from cart",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+    }
   };
 
-  const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-      dispatch(removeFromCart(productId));
-    } else {
-      dispatch(updateCartItem(productId, newQuantity));
+  const handleQuantityChange = async (item, newQuantity) => {
+    try {
+      if (newQuantity < 1) {
+        await handleDelete(item);
+      } else {
+        await dispatch(updateCartItem(item._id, newQuantity));
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update quantity",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
     }
   };
 
@@ -211,7 +243,7 @@ const CartItem = () => {
                   textDecoration="underline"
                   fontSize={"18"}
                   ml="-1.5"
-                  onClick={() => handleDelete(item._id)}
+                  onClick={() => handleDelete(item)}
                   transition="all 0.3s ease"
                 >
                   Remove
@@ -233,7 +265,7 @@ const CartItem = () => {
                     size="md"
                     borderRadius="50%"
                     fontSize="20px"
-                    onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                    onClick={() => handleQuantityChange(item, item.quantity - 1)}
                     _hover={{
                       bg: "gray.100",
                       transform: "scale(1.1)"
@@ -253,12 +285,13 @@ const CartItem = () => {
                   >
                     {item.quantity}
                   </Box>
+
                   <Button
                     bg="whiteAlpha.900"
+                    size="md"
                     borderRadius="50%"
                     fontSize="20px"
-                    size="md"
-                    onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                    onClick={() => handleQuantityChange(item, item.quantity + 1)}
                     _hover={{
                       bg: "gray.100",
                       transform: "scale(1.1)"

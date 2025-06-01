@@ -47,8 +47,54 @@ const HomeCard6 = ({ type = [], heading, loading, error }) => {
   };
 
   const handleViewRange = () => {
-    const typeToFilter = type?.[0]?.productType || "eyeglasses";
-    navigate(`/products?productType=${typeToFilter}`);
+    // Get the first item to determine the category
+    const firstItem = type[0];
+    if (!firstItem) return;
+
+    // Construct query parameters based on the Product model schema
+    const queryParams = new URLSearchParams();
+
+    // Determine the category based on the item's properties
+    if (firstItem.mainCategory === "GLASSES") {
+      if (firstItem.subCategory === "EYEGLASSES") {
+        // Case 1: EYEGLASSES
+        queryParams.append('mainCategory', 'GLASSES');
+        queryParams.append('subCategory', 'EYEGLASSES');
+      } else if (firstItem.subCategory === "SUNGLASSES") {
+        // Case 2: SUNGLASSES
+        queryParams.append('mainCategory', 'GLASSES');
+        queryParams.append('subCategory', 'SUNGLASSES');
+      } else if (firstItem.subCategory === "COMPUTER_GLASSES") {
+        if (firstItem.powerType === "zero_power") {
+          // Case 3: WITH ZERO POWER COMPUTER BLU LENSES
+          queryParams.append('mainCategory', 'GLASSES');
+          queryParams.append('subCategory', 'COMPUTER_GLASSES');
+          queryParams.append('powerType', 'zero_power');
+        } else {
+          // Case 4: WITH POWER COMPUTER BLU LENSES
+          queryParams.append('mainCategory', 'GLASSES');
+          queryParams.append('subCategory', 'COMPUTER_GLASSES');
+          queryParams.append('powerType', 'with_power');
+        }
+      }
+    } else if (firstItem.mainCategory === "CONTACT_LENSES") {
+      if (firstItem.subCategory === "CONTACT_LENSES") {
+        if (firstItem.isContactLensColor) {
+          // Case 6: COLOR CONTACT LENSES
+          queryParams.append('mainCategory', 'CONTACT_LENSES');
+          queryParams.append('subCategory', 'CONTACT_LENSES');
+          queryParams.append('isContactLensColor', 'true');
+        } else {
+          // Case 5: CONTACT LENSES
+          queryParams.append('mainCategory', 'CONTACT_LENSES');
+          queryParams.append('subCategory', 'CONTACT_LENSES');
+          queryParams.append('isContactLensColor', 'false');
+        }
+      }
+    }
+
+    // Navigate to products page with the constructed query parameters
+    navigate(`/products?${queryParams.toString()}`);
   };
 
   return (
