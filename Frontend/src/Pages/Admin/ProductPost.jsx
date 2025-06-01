@@ -1048,6 +1048,33 @@ const ProductPost = () => {
             />
           </FormControl>
 
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
+            <Textarea
+              name="additionalImages"
+              placeholder="Enter additional image URLs (comma-separated)"
+              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
+              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              size="lg"
+              borderRadius="md"
+              minH="100px"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+            <Textarea
+              name="caption"
+              placeholder="Enter product caption"
+              value={formData.caption}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              minH="100px"
+            />
+          </FormControl>
+
+          {/* Categories and Demographics */}
           <FormControl isRequired>
             <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
             <Select
@@ -1066,7 +1093,115 @@ const ProductPost = () => {
             </Select>
           </FormControl>
 
-          {/* Lens Details */}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Person Category</Text>
+            <Select
+              name="personCategory"
+              value={formData.personCategory}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Person Category</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+              <option value="unisex">Unisex</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Gender</Text>
+            <Select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Transgender">Transgender</option>
+              <option value="Other">Other</option>
+              <option value="All">All</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Age Group</Text>
+            <Select
+              name="ageGroup"
+              value={formData.ageGroup}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Age Group</option>
+              <option value="Kids">Kids</option>
+              <option value="Teens">Teens</option>
+              <option value="Adults">Adults</option>
+              <option value="Seniors">Seniors</option>
+              <option value="Youth">Youth</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          {/* Brand and Price */}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Brand</Text>
+            <Select
+              name="brands"
+              value={formData.brands[0] || ""}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                brands: [e.target.value]
+              }))}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Brand</option>
+              {validBrands.map(brand => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </Select>
+          </FormControl>
+
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl isRequired>
+              <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+              <Input
+                name="price"
+                placeholder="Enter price"
+                value={formData.price}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                h={inputHeight}
+              />
+            </FormControl>
+
+            <FormControl isRequired>
+              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
+              <Input
+                name="mPrice"
+                placeholder="Enter market price"
+                value={formData.mPrice}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                h={inputHeight}
+              />
+            </FormControl>
+          </SimpleGrid>
+
+          {/* Contact Lens Specific Details */}
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Color Contact Lens</Text>
             <RadioGroup 
@@ -1081,6 +1216,82 @@ const ProductPost = () => {
                 <Radio value="no" colorScheme="blue" size="lg">No</Radio>
               </Stack>
             </RadioGroup>
+          </FormControl>
+
+          {formData.isContactLensColor && (
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Colors</Text>
+              <Wrap spacing={2}>
+                {FRAME_COLORS.map((color) => (
+                  <Tag
+                    key={color}
+                    size="md"
+                    borderRadius="full"
+                    variant="solid"
+                    cursor="pointer"
+                    onClick={() => {
+                      const newColors = formData.contactLensColors || [];
+                      if (newColors.includes(color)) {
+                        setFormData({
+                          ...formData,
+                          contactLensColors: newColors.filter(c => c !== color)
+                        });
+                      } else {
+                        setFormData({
+                          ...formData,
+                          contactLensColors: [...newColors, color]
+                        });
+                      }
+                    }}
+                    bg={FRAME_COLOR_MAPPING[color]}
+                    color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
+                    border={color === "White" ? "1px solid #E2E8F0" : "none"}
+                    _hover={{
+                      opacity: 0.8,
+                      transform: "scale(1.05)",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    {color}
+                  </Tag>
+                ))}
+              </Wrap>
+            </FormControl>
+          )}
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Type</Text>
+            <Select
+              name="contactLensType"
+              value={formData.contactLensType}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Contact Lens Type</option>
+              <option value="Daily Disposable">Daily Disposable</option>
+              <option value="Monthly Disposable">Monthly Disposable</option>
+              <option value="Yearly Disposable">Yearly Disposable</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Material</Text>
+            <Select
+              name="contactLensMaterial"
+              value={formData.contactLensMaterial}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Material</option>
+              <option value="Silicone Hydrogel">Silicone Hydrogel</option>
+              <option value="Hydrogel">Hydrogel</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
           </FormControl>
 
           <FormControl>
@@ -1103,34 +1314,223 @@ const ProductPost = () => {
             </Select>
           </FormControl>
 
-          {/* Price Details */}
-          <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
-            <Input
-              name="price"
-              placeholder="Enter price"
-              value={formData.price}
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Min Power</Text>
+              <Input
+                name="powerRange.min"
+                value={formData.powerRange.min}
+                onChange={handleChange}
+                placeholder="Enter minimum power"
+                size="lg"
+                borderRadius="md"
+                h={inputHeight}
+              />
+            </FormControl>
+
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Max Power</Text>
+              <Input
+                name="powerRange.max"
+                value={formData.powerRange.max}
+                onChange={handleChange}
+                placeholder="Enter maximum power"
+                size="lg"
+                borderRadius="md"
+                h={inputHeight}
+              />
+            </FormControl>
+          </SimpleGrid>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
               onChange={handleChange}
               size="lg"
               borderRadius="md"
-              type="number"
               h={inputHeight}
-            />
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
           </FormControl>
 
-          <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
-            <Input
-              name="mPrice"
-              placeholder="Enter market price"
-              value={formData.mPrice}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Style</Text>
+            <Select
+              name="style"
+              value={formData.style}
               onChange={handleChange}
               size="lg"
               borderRadius="md"
-              type="number"
               h={inputHeight}
-            />
+            >
+              <option value="">Select Style</option>
+              <option value="Casual">Casual</option>
+              <option value="Formal">Formal</option>
+              <option value="Sports">Sports</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Vintage">Vintage</option>
+              <option value="Classic">Classic</option>
+              <option value="Day Night">Day Night</option>
+              <option value="Modern">Modern</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
           </FormControl>
+
+          {/* Lens Features */}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Lens Features</Text>
+            <Wrap spacing={2}>
+              {validLensFeatures.map((feature) => (
+                <Tag
+                  key={feature}
+                  size="md"
+                  borderRadius="full"
+                  variant="solid"
+                  cursor="pointer"
+                  onClick={() => {
+                    const newFeatures = formData.lensFeatures || [];
+                    if (newFeatures.includes(feature)) {
+                      setFormData({
+                        ...formData,
+                        lensFeatures: newFeatures.filter(f => f !== feature)
+                      });
+                    } else {
+                      setFormData({
+                        ...formData,
+                        lensFeatures: [...newFeatures, feature]
+                      });
+                    }
+                  }}
+                  bg={formData.lensFeatures?.includes(feature) ? "blue.500" : "gray.200"}
+                  color={formData.lensFeatures?.includes(feature) ? "white" : "gray.700"}
+                  _hover={{
+                    opacity: 0.8,
+                    transform: "scale(1.05)",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  {feature}
+                </Tag>
+              ))}
+            </Wrap>
+          </FormControl>
+
+          {/* Additional Details */}
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Discount (%)</Text>
+              <Input
+                name="discount"
+                placeholder="Enter discount percentage"
+                value={formData.discount}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                min="0"
+                max="100"
+                h={inputHeight}
+              />
+            </FormControl>
+
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Quantity</Text>
+              <Input
+                name="quantity"
+                placeholder="Enter quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                min="1"
+                h={inputHeight}
+              />
+            </FormControl>
+          </SimpleGrid>
+
+          {/* Product Status */}
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl>
+              <Checkbox
+                name="isRecommended"
+                isChecked={formData.isRecommended}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Recommended
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isTrending"
+                isChecked={formData.isTrending}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Trending
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isLatest"
+                isChecked={formData.isLatest}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Latest
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isExclusive"
+                isChecked={formData.isExclusive}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Exclusive
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isSpecialOffer"
+                isChecked={formData.isSpecialOffer}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Special Offer
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isTrialPack"
+                isChecked={formData.isTrialPack}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Trial Pack
+              </Checkbox>
+            </FormControl>
+          </SimpleGrid>
         </VStack>
       </CardBody>
     </Card>
@@ -1171,6 +1571,33 @@ const ProductPost = () => {
             />
           </FormControl>
 
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
+            <Textarea
+              name="additionalImages"
+              placeholder="Enter additional image URLs (comma-separated)"
+              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
+              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              size="lg"
+              borderRadius="md"
+              minH="100px"
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+            <Textarea
+              name="caption"
+              placeholder="Enter product caption"
+              value={formData.caption}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              minH="100px"
+            />
+          </FormControl>
+
+          {/* Categories and Demographics */}
           <FormControl isRequired>
             <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
             <Select
@@ -1188,74 +1615,315 @@ const ProductPost = () => {
             </Select>
           </FormControl>
 
-          {/* Accessory Details */}
           <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Material</Text>
-            <Input
-              name="material"
-              value={formData.material}
+            <Text mb={2} fontSize="sm" color="gray.600">Person Category</Text>
+            <Select
+              name="personCategory"
+              value={formData.personCategory}
               onChange={handleChange}
-              placeholder="Enter material type"
               size="lg"
               borderRadius="md"
               h={inputHeight}
-            />
-          </FormControl>
-
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Dimensions</Text>
-            <Input
-              name="dimensions"
-              value={formData.dimensions}
-              onChange={handleChange}
-              placeholder="Enter dimensions (e.g., 10x5x2 cm)"
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            />
+            >
+              <option value="">Select Person Category</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+              <option value="unisex">Unisex</option>
+            </Select>
           </FormControl>
 
           <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Capacity</Text>
-            <Input
-              name="capacity"
-              value={formData.capacity}
+            <Text mb={2} fontSize="sm" color="gray.600">Gender</Text>
+            <Select
+              name="gender"
+              value={formData.gender}
               onChange={handleChange}
-              placeholder="Enter capacity (e.g., 100ml)"
               size="lg"
               borderRadius="md"
               h={inputHeight}
-            />
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Transgender">Transgender</option>
+              <option value="Other">Other</option>
+              <option value="All">All</option>
+            </Select>
           </FormControl>
 
-          {/* Price Details */}
-          <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
-            <Input
-              name="price"
-              placeholder="Enter price"
-              value={formData.price}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Age Group</Text>
+            <Select
+              name="ageGroup"
+              value={formData.ageGroup}
               onChange={handleChange}
               size="lg"
               borderRadius="md"
-              type="number"
               h={inputHeight}
-            />
+            >
+              <option value="">Select Age Group</option>
+              <option value="Kids">Kids</option>
+              <option value="Teens">Teens</option>
+              <option value="Adults">Adults</option>
+              <option value="Seniors">Seniors</option>
+              <option value="Youth">Youth</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
           </FormControl>
 
-          <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
-            <Input
-              name="mPrice"
-              placeholder="Enter market price"
-              value={formData.mPrice}
+          {/* Brand and Price */}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Brand</Text>
+            <Select
+              name="brands"
+              value={formData.brands[0] || ""}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                brands: [e.target.value]
+              }))}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Brand</option>
+              {validBrands.map(brand => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </Select>
+          </FormControl>
+
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl isRequired>
+              <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+              <Input
+                name="price"
+                placeholder="Enter price"
+                value={formData.price}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                h={inputHeight}
+              />
+            </FormControl>
+
+            <FormControl isRequired>
+              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
+              <Input
+                name="mPrice"
+                placeholder="Enter market price"
+                value={formData.mPrice}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                h={inputHeight}
+              />
+            </FormControl>
+          </SimpleGrid>
+
+          {/* Accessory Specific Details */}
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Accessory Type</Text>
+            <Select
+              name="accessoryType"
+              value={formData.accessoryType}
               onChange={handleChange}
               size="lg"
               borderRadius="md"
-              type="number"
               h={inputHeight}
-            />
+            >
+              <option value="">Select Accessory Type</option>
+              <option value="Contact Lens Solution">Contact Lens Solution</option>
+              <option value="Contact Lens Case">Contact Lens Case</option>
+              <option value="Contact Lens Accessories">Contact Lens Accessories</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
           </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Accessory Size</Text>
+            <Select
+              name="accessorySize"
+              value={formData.accessorySize}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Accessory Size</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Weight Group</Text>
+            <Select
+              name="weightGroup"
+              value={formData.weightGroup}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Weight Group</option>
+              <option value="Light">Light</option>
+              <option value="Medium">Medium</option>
+              <option value="Heavy">Heavy</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Accessory Material</Text>
+            <Select
+              name="accessoryMaterial"
+              value={formData.accessoryMaterial}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Material</option>
+              <option value="Plastic">Plastic</option>
+              <option value="Metal">Metal</option>
+              <option value="Glass">Glass</option>
+              <option value="Silicone">Silicone</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Solution Size</Text>
+            <Select
+              name="contactLensSolutionSize"
+              value={formData.contactLensSolutionSize}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Solution Size</option>
+              <option value="60ml">60ml</option>
+              <option value="120ml">120ml</option>
+              <option value="240ml">240ml</option>
+              <option value="360ml">360ml</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
+
+          {/* Additional Details */}
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Discount (%)</Text>
+              <Input
+                name="discount"
+                placeholder="Enter discount percentage"
+                value={formData.discount}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                min="0"
+                max="100"
+                h={inputHeight}
+              />
+            </FormControl>
+
+            <FormControl>
+              <Text mb={2} fontSize="sm" color="gray.600">Quantity</Text>
+              <Input
+                name="quantity"
+                placeholder="Enter quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                size="lg"
+                borderRadius="md"
+                type="number"
+                min="1"
+                h={inputHeight}
+              />
+            </FormControl>
+          </SimpleGrid>
+
+          {/* Product Status */}
+          <SimpleGrid columns={2} spacing={4}>
+            <FormControl>
+              <Checkbox
+                name="isRecommended"
+                isChecked={formData.isRecommended}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Recommended
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isTrending"
+                isChecked={formData.isTrending}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Trending
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isLatest"
+                isChecked={formData.isLatest}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Latest
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isExclusive"
+                isChecked={formData.isExclusive}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Exclusive
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isSpecialOffer"
+                isChecked={formData.isSpecialOffer}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Special Offer
+              </Checkbox>
+            </FormControl>
+
+            <FormControl>
+              <Checkbox
+                name="isTrialPack"
+                isChecked={formData.isTrialPack}
+                onChange={handleChange}
+                colorScheme="blue"
+                size="lg"
+              >
+                Trial Pack
+              </Checkbox>
+            </FormControl>
+          </SimpleGrid>
         </VStack>
       </CardBody>
     </Card>
