@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema(
     mainCategory: {
       type: String,
       required: true,
-      enum: ["GLASSES", "CONTACT_LENSES"],
+      enum: ["GLASSES", "CONTACT_LENSES", "ACCESSORIES"],
     },
 
     // Sub Category (Level 2)
@@ -256,8 +256,9 @@ const productSchema = new mongoose.Schema(
       ],
     },
     isContactLensColor: {
-      type: Boolean,
-      default: false,
+      type: String,
+      enum: ["yes", "no"],
+      default: "no"
     },
     contactLensColors: [
       {

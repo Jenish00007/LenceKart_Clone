@@ -479,6 +479,7 @@ const ProductPost = () => {
                           <option value="">Select Main Category</option>
                           <option value="GLASSES">Glasses</option>
                           <option value="CONTACT_LENSES">Contact Lenses</option>
+                          <option value="ACCESSORIES">Accessories</option>
                         </Select>
                       </FormControl>
 

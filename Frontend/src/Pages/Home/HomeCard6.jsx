@@ -79,16 +79,16 @@ const HomeCard6 = ({ type = [], heading, loading, error }) => {
       }
     } else if (firstItem.mainCategory === "CONTACT_LENSES") {
       if (firstItem.subCategory === "CONTACT_LENSES") {
-        if (firstItem.isContactLensColor) {
+        if (firstItem.isContactLensColor === "yes") {
           // Case 6: COLOR CONTACT LENSES
           queryParams.append('mainCategory', 'CONTACT_LENSES');
           queryParams.append('subCategory', 'CONTACT_LENSES');
-          queryParams.append('isContactLensColor', 'true');
+          queryParams.append('isContactLensColor', 'yes');
         } else {
           // Case 5: CONTACT LENSES
           queryParams.append('mainCategory', 'CONTACT_LENSES');
           queryParams.append('subCategory', 'CONTACT_LENSES');
-          queryParams.append('isContactLensColor', 'false');
+          queryParams.append('isContactLensColor', 'no');
         }
       }
     }
