@@ -235,7 +235,7 @@ const ProductPost = () => {
       // Validate required fields
       const requiredFields = [
         'name', 'imageTsrc', 'caption',
-        'price', 'mPrice', 'mainCategory', 'subCategory', 'topPicks'
+        'price', 'mPrice', 'subCategory'
       ];
       const missingFields = requiredFields.filter(field => !formData[field]);
       
@@ -269,6 +269,8 @@ const ProductPost = () => {
       // Format the data before sending
       const payload = {
         ...formData,
+        // Set mainCategory based on the selected tab
+        mainCategory: selectedCategory,
         // Convert string numbers to actual numbers
         price: Number(formData.price),
         mPrice: Number(formData.mPrice),
