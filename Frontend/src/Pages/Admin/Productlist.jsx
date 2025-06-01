@@ -86,20 +86,20 @@
 //       <Grid
 //         templateColumns={{
 //           lg: "30% 10% 10% 10% 15% 15%",
-//           md: "30% 10% 10% 10% 15% 15%",
+//           md: "repeat(2, 1fr)",
 //           sm: "repeat(1, 1fr)",
 //           base: "repeat(1, 1fr)"
 //         }}
 //         justifyContent="space-between"
 //         w="95%"
 //         m="auto"
-//         gap="2"
+//         gap="4"
 //       >
-//         <GridItem>
+//         <GridItem colSpan={{ lg: 1, md: 2, sm: 1, base: 1 }}>
 //           <Input
 //             size="lg"
 //             type="search"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //             borderRadius="3xl"
@@ -113,7 +113,7 @@
 //             value={filter}
 //             onChange={(e) => setFilter(e.target.value)}
 //             size="lg"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //           >
@@ -127,7 +127,7 @@
 //             value={gender}
 //             onChange={(e) => setGender(e.target.value)}
 //             size="lg"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //           >
@@ -142,7 +142,7 @@
 //             value={sort}
 //             onChange={(e) => setSort(e.target.value)}
 //             size="lg"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //           >
@@ -157,7 +157,7 @@
 //             onChange={(e) => setShape(e.target.value)}
 //             value={shape}
 //             size="lg"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //           >
@@ -178,7 +178,7 @@
 //             onChange={(e) => setStyle(e.target.value)}
 //             value={style}
 //             size="lg"
-//             fontSize="16px"
+//             fontSize={{ lg: "16px", base: "14px" }}
 //             h="40px"
 //             bg="whiteAlpha.900"
 //           >
@@ -193,7 +193,7 @@
 //       {isLoading ? (
 //         <Heading
 //           as="h1"
-//           fontSize="4xl"
+//           fontSize={{ lg: "4xl", base: "2xl" }}
 //           fontFamily="cursive"
 //           textAlign="center"
 //           minH="500px"
@@ -203,7 +203,7 @@
 //       ) : data.length === 0 ? (
 //         <Heading
 //           as="h1"
-//           fontSize="4xl"
+//           fontSize={{ lg: "4xl", base: "2xl" }}
 //           color="gray"
 //           textAlign="center"
 //           minH="540px"
@@ -215,7 +215,7 @@
 //           <Text
 //             w="95%"
 //             m="auto"
-//             fontSize={{ lg: "2xl", sm: "xl", base: "xl" }}
+//             fontSize={{ lg: "2xl", sm: "xl", base: "lg" }}
 //             fontWeight="bold"
 //             color="whiteAlpha.900"
 //             bg="#329c92"
@@ -223,68 +223,90 @@
 //           >
 //             Product List
 //           </Text>
-//           <TableContainer w="95%" m="auto" bg="whiteAlpha.900">
-//             <Table variant="striped" colorScheme="teal">
-//               <Thead>
-//                 <Tr>
-//                   <Th fontSize="15px">Edit</Th>
-//                   <Th fontSize="15px">Delete</Th>
-
-//                   <Th fontSize="15px">Name</Th>
-//                   <Th fontSize="15px">Shape</Th>
-//                   <Th fontSize="15px">Colors</Th>
-//                   <Th fontSize="15px">Gender</Th>
-//                   <Th fontSize="15px">Style</Th>
-//                   <Th fontSize="15px">Dimension</Th>
-//                   <Th fontSize="15px">Product Type</Th>
-//                   <Th fontSize="15px">Orginal Price</Th>
-//                   <Th fontSize="15px">Discounted Price</Th>
-//                   <Th fontSize="15px">Rating</Th>
-//                   <Th fontSize="15px">image Url</Th>
-//                 </Tr>
-//               </Thead>
-//               <Tbody>
-//                 {data.map((el, i) => (
-//                   <Tr key={i}>
-//                     <Td>
-//                       <Button
-//                         colorScheme="blue"
-//                         fontSize="15px"
-//                         onClick={() => navigate(`/editproduct/${el._id}`)}
-//                       >
-//                         Edit
-//                       </Button>
-//                     </Td>
-//                     <Td>
-//                       <Button
-//                         fontSize="15px"
-//                         colorScheme="red"
-//                         onClick={() => handleDelete(el._id)}
-//                       >
-//                         Delete
-//                       </Button>
-//                     </Td>
-
-//                     <Td fontSize="15px" textTransform="capitalize">
-//                       {el.productRefLink}
-//                     </Td>
-//                     <Td fontSize="15px">{el.shape}</Td>
-//                     <Td fontSize="15px">{el.colors}</Td>
-//                     <Td fontSize="15px">{el.gender}</Td>
-//                     <Td fontSize="15px">{el.style}</Td>
-//                     <Td fontSize="15px">{el.dimension}</Td>
-//                     <Td fontSize="15px" textTransform="capitalize">
-//                       {el.productType}
-//                     </Td>
-//                     <Td fontSize="15px">₹ {el.mPrice}</Td>
-//                     <Td fontSize="15px">₹ {el.price}</Td>
-//                     <Td fontSize="15px">{el.rating}</Td>
-//                     <Td fontSize="15px">{el.imageTsrc}</Td>
+//           <Box
+//             w="95%"
+//             m="auto"
+//             bg="whiteAlpha.900"
+//             overflowX="auto"
+//             sx={{
+//               '&::-webkit-scrollbar': {
+//                 height: '8px',
+//               },
+//               '&::-webkit-scrollbar-track': {
+//                 background: '#f1f1f1',
+//               },
+//               '&::-webkit-scrollbar-thumb': {
+//                 background: '#888',
+//                 borderRadius: '4px',
+//               },
+//               '&::-webkit-scrollbar-thumb:hover': {
+//                 background: '#555',
+//               },
+//             }}
+//           >
+//             <TableContainer>
+//               <Table variant="striped" colorScheme="teal" size={{ lg: "md", base: "sm" }}>
+//                 <Thead>
+//                   <Tr>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Edit</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Delete</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Name</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Shape</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Colors</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Gender</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Style</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Dimension</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Product Type</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Orginal Price</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Discounted Price</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>Rating</Th>
+//                     <Th fontSize={{ lg: "15px", base: "12px" }}>image Url</Th>
 //                   </Tr>
-//                 ))}
-//               </Tbody>
-//             </Table>
-//           </TableContainer>
+//                 </Thead>
+//                 <Tbody>
+//                   {data.map((el, i) => (
+//                     <Tr key={i}>
+//                       <Td>
+//                         <Button
+//                           colorScheme="blue"
+//                           fontSize={{ lg: "15px", base: "12px" }}
+//                           size={{ lg: "md", base: "sm" }}
+//                           onClick={() => navigate(`/editproduct/${el._id}`)}
+//                         >
+//                           Edit
+//                         </Button>
+//                       </Td>
+//                       <Td>
+//                         <Button
+//                           fontSize={{ lg: "15px", base: "12px" }}
+//                           colorScheme="red"
+//                           size={{ lg: "md", base: "sm" }}
+//                           onClick={() => handleDelete(el._id)}
+//                         >
+//                           Delete
+//                         </Button>
+//                       </Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }} textTransform="capitalize">
+//                         {el.productRefLink}
+//                       </Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.shape}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.colors}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.gender}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.style}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.dimension}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }} textTransform="capitalize">
+//                         {el.productType}
+//                       </Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>₹ {el.mPrice}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>₹ {el.price}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.rating}</Td>
+//                       <Td fontSize={{ lg: "15px", base: "12px" }}>{el.imageTsrc}</Td>
+//                     </Tr>
+//                   ))}
+//                 </Tbody>
+//               </Table>
+//             </TableContainer>
+//           </Box>
 //         </Box>
 //       )}
 //       <br />

@@ -347,84 +347,212 @@ const Orders = () => {
             </CardBody>
           </Card>
 
-          {/* Orders Table */}
+          {/* Orders Table/Cards */}
           <Card bg={bgColor} overflowX="auto">
             <CardBody>
-              <Table variant="simple">
-                <Thead>
-                  <Tr>
-                    <Th>Order ID</Th>
-                    <Th>Customer</Th>
-                    <Th>Amount</Th>
-                    <Th>Date</Th>
-                    <Th>Status</Th>
-                    <Th>Payment</Th>
-                    <Th>Actions</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
+              {/* Table View for Desktop */}
+              <Box display={{ base: 'none', md: 'block' }}>
+                <Table variant="simple">
+                  <Thead>
+                    <Tr>
+                      <Th>Order ID</Th>
+                      <Th>Customer</Th>
+                      <Th>Amount</Th>
+                      <Th>Date</Th>
+                      <Th>Status</Th>
+                      <Th>Payment</Th>
+                      <Th>Actions</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {orders.map((order) => (
+                      <Tr key={order._id}>
+                        <Td>
+                          <VStack align="start" spacing={0}>
+                            <Text fontWeight="medium">{order.orderId}</Text>
+                            <Text fontSize="sm" color="gray.500">
+                              {order.receipt}
+                            </Text>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={0}>
+                            <Text>{order.shippingAddress?.first_name} {order.shippingAddress?.last_name}</Text>
+                            <Text fontSize="sm" color="gray.500">
+                              {order.shippingAddress?.email}
+                            </Text>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <Text fontWeight="bold">₹{order.amount}</Text>
+                        </Td>
+                        <Td>
+                          <VStack align="start" spacing={0}>
+                            <Text>{formatDate(order.createdAt)}</Text>
+                            <Text fontSize="sm" color="gray.500">
+                              {order.orderDetails?.items?.length} items
+                            </Text>
+                          </VStack>
+                        </Td>
+                        <Td>
+                          <Select
+                            value={order.status}
+                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                            size="sm"
+                            colorScheme={getStatusColor(order.status)}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                          </Select>
+                        </Td>
+                        <Td>
+                          <Badge colorScheme={order.paymentId ? "green" : "red"}>
+                            {order.paymentId ? "Paid" : "Unpaid"}
+                          </Badge>
+                        </Td>
+                        <Td>
+                          <HStack spacing={2}>
+                            <Tooltip label="View Details">
+                              <IconButton
+                                icon={<FiEye />}
+                                colorScheme="blue"
+                                variant="ghost"
+                                onClick={() => navigate(`/admin/orders/${order.orderId}`)}
+                              />
+                            </Tooltip>
+                          </HStack>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </Box>
+
+              {/* Card View for Mobile */}
+              <Box display={{ base: 'block', md: 'none' }}>
+                <VStack spacing={4} align="stretch">
                   {orders.map((order) => (
-                    <Tr key={order._id}>
-                      <Td>
-                        <VStack align="start" spacing={0}>
-                          <Text fontWeight="medium">{order.orderId}</Text>
-                          <Text fontSize="sm" color="gray.500">
-                            {order.receipt}
-                          </Text>
-                        </VStack>
-                      </Td>
-                      <Td>
-                        <VStack align="start" spacing={0}>
-                          <Text>{order.shippingAddress?.first_name} {order.shippingAddress?.last_name}</Text>
-                          <Text fontSize="sm" color="gray.500">
-                            {order.shippingAddress?.email}
-                          </Text>
-                        </VStack>
-                      </Td>
-                      <Td>
-                        <Text fontWeight="bold">₹{order.amount}</Text>
-                      </Td>
-                      <Td>
-                        <VStack align="start" spacing={0}>
-                          <Text>{formatDate(order.createdAt)}</Text>
-                          <Text fontSize="sm" color="gray.500">
-                            {order.orderDetails?.items?.length} items
-                          </Text>
-                        </VStack>
-                      </Td>
-                      <Td>
-                        <Select
-                          value={order.status}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          size="sm"
-                          colorScheme={getStatusColor(order.status)}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="completed">Completed</option>
-                          <option value="failed">Failed</option>
-                        </Select>
-                      </Td>
-                      <Td>
-                        <Badge colorScheme={order.paymentId ? "green" : "red"}>
-                          {order.paymentId ? "Paid" : "Unpaid"}
-                        </Badge>
-                      </Td>
-                      <Td>
-                        <HStack spacing={2}>
-                          <Tooltip label="View Details">
+                    <Card key={order._id} variant="outline">
+                      <CardBody>
+                        <VStack align="stretch" spacing={3}>
+                          <Flex justify="space-between" align="center" wrap="wrap" gap={2}>
+                            <VStack align="start" spacing={0} maxW="70%">
+                              <Text 
+                                fontWeight="bold" 
+                                fontSize={{ base: "xs", sm: "sm" }}
+                                noOfLines={1}
+                              >
+                                {order.orderId}
+                              </Text>
+                              <Text 
+                                fontSize={{ base: "2xs", sm: "xs" }} 
+                                color="gray.500"
+                                noOfLines={1}
+                              >
+                                {order.receipt}
+                              </Text>
+                            </VStack>
+                            <Badge 
+                              fontSize={{ base: "2xs", sm: "xs" }}
+                              colorScheme={order.paymentId ? "green" : "red"}
+                              px={2}
+                              py={1}
+                              borderRadius="md"
+                            >
+                              {order.paymentId ? "Paid" : "Unpaid"}
+                            </Badge>
+                          </Flex>
+
+                          <Divider />
+
+                          <HStack justify="space-between">
+                            <VStack align="start" spacing={0}>
+                              <Text 
+                                fontSize={{ base: "xs", sm: "sm" }} 
+                                color="gray.600"
+                              >
+                                Customer
+                              </Text>
+                              <Text 
+                                fontSize={{ base: "sm", sm: "md" }}
+                              >
+                                {order.shippingAddress?.first_name} {order.shippingAddress?.last_name}
+                              </Text>
+                              <Text 
+                                fontSize={{ base: "xs", sm: "sm" }} 
+                                color="gray.500"
+                              >
+                                {order.shippingAddress?.email}
+                              </Text>
+                            </VStack>
+                          </HStack>
+
+                          <HStack justify="space-between">
+                            <VStack align="start" spacing={0}>
+                              <Text 
+                                fontSize={{ base: "xs", sm: "sm" }} 
+                                color="gray.600"
+                              >
+                                Amount
+                              </Text>
+                              <Text 
+                                fontWeight="bold"
+                                fontSize={{ base: "sm", sm: "md" }}
+                              >
+                                ₹{order.amount}
+                              </Text>
+                            </VStack>
+                            <VStack align="end" spacing={0}>
+                              <Text 
+                                fontSize={{ base: "xs", sm: "sm" }} 
+                                color="gray.600"
+                              >
+                                Date
+                              </Text>
+                              <Text 
+                                fontSize={{ base: "sm", sm: "md" }}
+                              >
+                                {formatDate(order.createdAt)}
+                              </Text>
+                              <Text 
+                                fontSize={{ base: "xs", sm: "sm" }} 
+                                color="gray.500"
+                              >
+                                {order.orderDetails?.items?.length} items
+                              </Text>
+                            </VStack>
+                          </HStack>
+
+                          <Divider />
+
+                          <HStack justify="space-between">
+                            <Select
+                              value={order.status}
+                              onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                              size={{ base: "xs", sm: "sm" }}
+                              colorScheme={getStatusColor(order.status)}
+                              width="60%"
+                              fontSize={{ base: "xs", sm: "sm" }}
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="completed">Completed</option>
+                              <option value="failed">Failed</option>
+                            </Select>
                             <IconButton
                               icon={<FiEye />}
                               colorScheme="blue"
                               variant="ghost"
+                              size={{ base: "sm", sm: "md" }}
                               onClick={() => navigate(`/admin/orders/${order.orderId}`)}
                             />
-                          </Tooltip>
-                        </HStack>
-                      </Td>
-                    </Tr>
+                          </HStack>
+                        </VStack>
+                      </CardBody>
+                    </Card>
                   ))}
-                </Tbody>
-              </Table>
+                </VStack>
+              </Box>
             </CardBody>
           </Card>
 

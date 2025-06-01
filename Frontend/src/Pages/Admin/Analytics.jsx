@@ -128,18 +128,30 @@ const Analytics = () => {
   return (
     <Box bg="gray.50" minH="100vh">
       <Navbar />
-      <Box p={6}>
-        <VStack spacing={6} align="stretch">
+      <Box p={{ base: 4, md: 6 }}>
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {/* Header */}
-          <Flex justify="space-between" align="center">
-            <Heading size="lg" color="blue.600">Dashboard Analytics</Heading>
-            <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="full">
+          <Flex 
+            direction={{ base: 'column', sm: 'row' }} 
+            justify="space-between" 
+            align={{ base: 'flex-start', sm: 'center' }}
+            gap={{ base: 2, sm: 0 }}
+          >
+            <Heading size={{ base: 'md', md: 'lg' }} color="blue.600">Dashboard Analytics</Heading>
+            <Badge 
+              colorScheme="blue" 
+              fontSize={{ base: 'sm', md: 'md' }} 
+              px={3} 
+              py={1} 
+              borderRadius="full"
+              alignSelf={{ base: 'flex-start', sm: 'center' }}
+            >
               Last Updated: {new Date().toLocaleTimeString()}
             </Badge>
           </Flex>
 
           {/* Main Stats */}
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+          <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={{ base: 4, md: 6 }}>
             <Card bg={cardBg}>
               <CardBody>
                 <Stat>
@@ -224,7 +236,7 @@ const Analytics = () => {
           </SimpleGrid>
 
           {/* Detailed Stats */}
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={{ base: 4, md: 6 }}>
             <Card bg={bgColor}>
               <CardBody>
                 <Heading size="md" mb={4}>Order Status</Heading>
@@ -274,7 +286,7 @@ const Analytics = () => {
           </Grid>
 
           {/* Quick Stats */}
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={{ base: 4, md: 6 }}>
             <Card bg={bgColor}>
               <CardBody>
                 <HStack spacing={4}>

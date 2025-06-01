@@ -63,12 +63,20 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogBody,
-  AlertDialogFooter
+  AlertDialogFooter,
+  useBreakpointValue,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
 } from '@chakra-ui/react';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import './AdminPages.css';
 import { API_URL } from '../../config';
 import { MdRefresh } from 'react-icons/md';
+import { FiFilter } from 'react-icons/fi';
 
 // Constants
 const ITEMS_PER_PAGE = 10;
@@ -196,7 +204,7 @@ const productService = {
 };
 
 // Sub-components
-const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
+const ProductFilters = ({ filters, onFilterChange, onResetFilters, isMobile = false }) => {
   const cardBg = useColorModeValue("gray.50", "gray.700");
   const [searchInput, setSearchInput] = useState(filters.basic.searchQuery || '');
 
@@ -223,180 +231,203 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
     };
   }, [debouncedSearch]);
 
-  return (
-    <Card bg={cardBg} p={4}>
-      <CardBody>
-        <VStack spacing={4}>
-          <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }} gap={4} width="100%">
-            <GridItem>
-              <InputGroup>
-                <Input
-                  placeholder="Search products..."
-                  value={searchInput}
-                  onChange={handleSearchChange}
-                />
-                <InputRightElement>
-                  <IconButton
-                    aria-label="Search"
-                    icon={<SearchIcon />}
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      if (searchInput !== filters.basic.searchQuery) {
-                        onFilterChange('basic', 'searchQuery', searchInput);
-                      }
-                    }}
-                  />
-                </InputRightElement>
-              </InputGroup>
-            </GridItem>
+  const FilterContent = () => (
+    <VStack spacing={{ base: 3, md: 4 }}>
+      <Grid 
+        templateColumns={{ 
+          base: "1fr", 
+          md: "repeat(2, 1fr)", 
+          lg: "repeat(3, 1fr)", 
+          xl: "repeat(4, 1fr)" 
+        }} 
+        gap={{ base: 2, md: 4 }} 
+        width="100%"
+      >
+        <GridItem colSpan={{ base: 1, md: 2, lg: 1 }}>
+          <InputGroup size={{ base: "md", md: "lg" }}>
+            <Input
+              placeholder="Search products..."
+              value={searchInput}
+              onChange={handleSearchChange}
+              fontSize={{ base: "sm", md: "md" }}
+            />
+            <InputRightElement>
+              <IconButton
+                aria-label="Search"
+                icon={<SearchIcon />}
+                size={{ base: "sm", md: "md" }}
+                variant="ghost"
+                onClick={() => {
+                  if (searchInput !== filters.basic.searchQuery) {
+                    onFilterChange('basic', 'searchQuery', searchInput);
+                  }
+                }}
+              />
+            </InputRightElement>
+          </InputGroup>
+        </GridItem>
 
-            <GridItem>
-              <Select
-                placeholder="Product Type"
-                value={filters.basic.filter}
-                onChange={(e) => onFilterChange('basic', 'filter', e.target.value)}
-              >
-                <option value="eyeglasses">Eye Glasses</option>
-                <option value="sunglasses">Sun Glasses</option>
-                <option value="contact-lenses">Contact Lenses</option>
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Person Category"
-                value={filters.product.gender}
-                onChange={(e) => onFilterChange('product', 'gender', e.target.value)}
-              >
-                <option value="Men">Men</option>
-                <option value="Women">Women</option>
-                <option value="Unisex">Unisex</option>
-                <option value="Kids">Kids</option>
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Frame Type"
-                value={filters.product.frameType}
-                onChange={(e) => onFilterChange('product', 'frameType', e.target.value)}
-              >
-                <option value="Full Rim">Full Rim</option>
-                <option value="Half Rim">Half Rim</option>
-                <option value="Rimless">Rimless</option>
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Brand"
-                value={filters.product.brand}
-                onChange={(e) => onFilterChange('product', 'brand', e.target.value)}
-              >
-                {BRANDS.map(brand => (
-                  <option key={brand} value={brand}>{brand}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Shape"
-                value={filters.product.shape}
-                onChange={(e) => onFilterChange('product', 'shape', e.target.value)}
-              >
-                {SHAPES.map(shape => (
-                  <option key={shape} value={shape}>{shape}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Style"
-                value={filters.product.style}
-                onChange={(e) => onFilterChange('product', 'style', e.target.value)}
-              >
-                {STYLES.map(style => (
-                  <option key={style} value={style}>{style}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Power Type"
-                value={filters.product.powerType}
-                onChange={(e) => onFilterChange('product', 'powerType', e.target.value)}
-              >
-                {POWER_TYPES.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Discount"
-                value={filters.product.discount}
-                onChange={(e) => onFilterChange('product', 'discount', e.target.value)}
-              >
-                {DISCOUNT_RANGES.map(range => (
-                  <option key={range.value} value={range.value}>{range.label}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Price Range"
-                value={filters.technical.priceRange}
-                onChange={(e) => onFilterChange('technical', 'priceRange', e.target.value)}
-              >
-                {PRICE_RANGES.map(range => (
-                  <option key={range.value} value={range.value}>{range.label}</option>
-                ))}
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Sort By"
-                value={filters.basic.sort}
-                onChange={(e) => onFilterChange('basic', 'sort', e.target.value)}
-              >
-                <option value="lowtohigh">Price: Low to High</option>
-                <option value="hightolow">Price: High to Low</option>
-                <option value="newest">Newest First</option>
-                <option value="rating">Highest Rated</option>
-              </Select>
-            </GridItem>
-
-            <GridItem>
-              <Select
-                placeholder="Top Pick"
-                value={filters.features.topPick}
-                onChange={(e) => onFilterChange('features', 'topPick', e.target.value)}
-              >
-                {TOP_PICKS.map(pick => (
-                  <option key={pick} value={pick}>
-                    {pick.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </option>
-                ))}
-              </Select>
-            </GridItem>
-          </Grid>
-          <Button
-            leftIcon={<MdRefresh />}
-            colorScheme="gray"
-            variant="outline"
-            onClick={onResetFilters}
-            width="200px"
+        <GridItem>
+          <Select
+            placeholder="Product Type"
+            value={filters.basic.filter}
+            onChange={(e) => onFilterChange('basic', 'filter', e.target.value)}
           >
-            Reset Filters
-          </Button>
-        </VStack>
+            <option value="eyeglasses">Eye Glasses</option>
+            <option value="sunglasses">Sun Glasses</option>
+            <option value="contact-lenses">Contact Lenses</option>
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Person Category"
+            value={filters.product.gender}
+            onChange={(e) => onFilterChange('product', 'gender', e.target.value)}
+          >
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Unisex">Unisex</option>
+            <option value="Kids">Kids</option>
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Frame Type"
+            value={filters.product.frameType}
+            onChange={(e) => onFilterChange('product', 'frameType', e.target.value)}
+          >
+            <option value="Full Rim">Full Rim</option>
+            <option value="Half Rim">Half Rim</option>
+            <option value="Rimless">Rimless</option>
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Brand"
+            value={filters.product.brand}
+            onChange={(e) => onFilterChange('product', 'brand', e.target.value)}
+          >
+            {BRANDS.map(brand => (
+              <option key={brand} value={brand}>{brand}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Shape"
+            value={filters.product.shape}
+            onChange={(e) => onFilterChange('product', 'shape', e.target.value)}
+          >
+            {SHAPES.map(shape => (
+              <option key={shape} value={shape}>{shape}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Style"
+            value={filters.product.style}
+            onChange={(e) => onFilterChange('product', 'style', e.target.value)}
+          >
+            {STYLES.map(style => (
+              <option key={style} value={style}>{style}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Power Type"
+            value={filters.product.powerType}
+            onChange={(e) => onFilterChange('product', 'powerType', e.target.value)}
+          >
+            {POWER_TYPES.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Discount"
+            value={filters.product.discount}
+            onChange={(e) => onFilterChange('product', 'discount', e.target.value)}
+          >
+            {DISCOUNT_RANGES.map(range => (
+              <option key={range.value} value={range.value}>{range.label}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Price Range"
+            value={filters.technical.priceRange}
+            onChange={(e) => onFilterChange('technical', 'priceRange', e.target.value)}
+          >
+            {PRICE_RANGES.map(range => (
+              <option key={range.value} value={range.value}>{range.label}</option>
+            ))}
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Sort By"
+            value={filters.basic.sort}
+            onChange={(e) => onFilterChange('basic', 'sort', e.target.value)}
+          >
+            <option value="lowtohigh">Price: Low to High</option>
+            <option value="hightolow">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+            <option value="rating">Highest Rated</option>
+          </Select>
+        </GridItem>
+
+        <GridItem>
+          <Select
+            placeholder="Top Pick"
+            value={filters.features.topPick}
+            onChange={(e) => onFilterChange('features', 'topPick', e.target.value)}
+          >
+            {TOP_PICKS.map(pick => (
+              <option key={pick} value={pick}>
+                {pick.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              </option>
+            ))}
+          </Select>
+        </GridItem>
+      </Grid>
+      <Button
+        leftIcon={<MdRefresh />}
+        colorScheme="gray"
+        variant="outline"
+        onClick={onResetFilters}
+        width={{ base: "100%", md: "200px" }}
+        size={{ base: "md", md: "lg" }}
+      >
+        Reset Filters
+      </Button>
+    </VStack>
+  );
+
+  if (isMobile) {
+    return (
+      <DrawerBody>
+        <FilterContent />
+      </DrawerBody>
+    );
+  }
+
+  return (
+    <Card bg={cardBg} p={{ base: 2, md: 4 }}>
+      <CardBody>
+        <FilterContent />
       </CardBody>
     </Card>
   );
@@ -404,6 +435,120 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters }) => {
 
 const ProductTable = ({ products, onEdit, onDelete }) => {
   const bgColor = useColorModeValue("white", "gray.800");
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
+  if (isMobile) {
+    return (
+      <VStack spacing={4} align="stretch">
+        {products.map((product) => (
+          <Card key={product._id} bg={bgColor} boxShadow="sm">
+            <CardBody>
+              <Grid templateColumns="auto 1fr" gap={4}>
+                {/* Product Image */}
+                <GridItem>
+                  <Image
+                    src={product.imageTsrc || product.image || '/placeholder-image.png'}
+                    alt={product.name || "Product Image"}
+                    boxSize="80px"
+                    objectFit="cover"
+                    borderRadius="md"
+                    fallbackSrc="/placeholder-image.png"
+                  />
+                </GridItem>
+
+                {/* Product Details */}
+                <GridItem>
+                  <VStack align="start" spacing={2}>
+                    <Text fontWeight="bold" fontSize="md">
+                      {product.name || "Product Name"}
+                    </Text>
+                    <Text fontSize="sm" color="gray.500">
+                      {product.productRefLink || "No Reference"}
+                    </Text>
+                    <HStack spacing={2}>
+                      <Badge colorScheme={
+                        product.productType === 'eyeglasses' ? 'blue' :
+                        product.productType === 'sunglasses' ? 'orange' : 'purple'
+                      }>
+                        {product.productType || "Unknown"}
+                      </Badge>
+                      {product.trending && (
+                        <Badge colorScheme="green">Trending</Badge>
+                      )}
+                      {product.recommended && (
+                        <Badge colorScheme="purple">Recommended</Badge>
+                      )}
+                    </HStack>
+                  </VStack>
+                </GridItem>
+              </Grid>
+
+              <Divider my={3} />
+
+              {/* Price and Rating */}
+              <Grid templateColumns="1fr 1fr" gap={4} mb={3}>
+                <GridItem>
+                  <VStack align="start" spacing={0}>
+                    <Text fontWeight="bold" fontSize="lg">
+                      ₹{product.price || 0}
+                    </Text>
+                    <Text fontSize="sm" textDecoration="line-through" color="gray.500">
+                      ₹{product.mPrice || 0}
+                    </Text>
+                  </VStack>
+                </GridItem>
+                <GridItem>
+                  <HStack>
+                    <Text>{product.rating}</Text>
+                    <Text color="yellow.400">★</Text>
+                    <Text fontSize="sm" color="gray.500">
+                      ({product.userRated})
+                    </Text>
+                  </HStack>
+                </GridItem>
+              </Grid>
+
+              {/* Additional Details */}
+              <VStack align="start" spacing={2} mb={3}>
+                <HStack>
+                  <Text fontSize="sm" fontWeight="medium">Brand:</Text>
+                  <Text fontSize="sm">{product.brand || "N/A"}</Text>
+                </HStack>
+                <HStack>
+                  <Text fontSize="sm" fontWeight="medium">Style:</Text>
+                  <Text fontSize="sm">{product.style || "N/A"}</Text>
+                </HStack>
+                <HStack>
+                  <Text fontSize="sm" fontWeight="medium">Shape:</Text>
+                  <Text fontSize="sm">{product.shape || "N/A"}</Text>
+                </HStack>
+              </VStack>
+
+              {/* Action Buttons */}
+              <HStack spacing={2} justify="flex-end">
+                <Button
+                  leftIcon={<EditIcon />}
+                  colorScheme="blue"
+                  size="sm"
+                  onClick={() => onEdit(product)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  leftIcon={<DeleteIcon />}
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => onDelete(product._id)}
+                >
+                  Delete
+                </Button>
+              </HStack>
+            </CardBody>
+          </Card>
+        ))}
+      </VStack>
+    );
+  }
 
   return (
     <Card bg={bgColor} overflowX="auto">
@@ -431,10 +576,6 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
                     objectFit="cover"
                     borderRadius="md"
                     fallbackSrc="/placeholder-image.png"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/placeholder-image.png';
-                    }}
                   />
                 </Td>
                 <Td>
@@ -582,6 +723,8 @@ const Products = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const cancelRef = React.useRef();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // Memoized values
   const sortedProducts = useMemo(() => {
@@ -805,31 +948,68 @@ const Products = () => {
   }
 
   return (
-    <Box p={6} bg="gray.50" minH="100vh">
-      <VStack spacing={6} align="stretch">
+    <Box p={{ base: 2, md: 6 }} bg="gray.50" minH="100vh">
+      <VStack spacing={{ base: 4, md: 6 }} align="stretch">
         {/* Header Section */}
-        <Flex justify="space-between" align="center">
-          <Heading size="lg" color="blue.600">Products Management</Heading>
-          <HStack spacing={4}>
-            <Text color="gray.600">Total Products: {productState.totalProducts}</Text>
-            <Button
-              leftIcon={<AddIcon />}
-              colorScheme="blue"
-              onClick={() => navigate('/admin/productpost')}
-            >
-              Add New Product
-            </Button>
+        <Flex 
+          direction={{ base: "column", md: "row" }} 
+          justify="space-between" 
+          align={{ base: "stretch", md: "center" }}
+          gap={{ base: 3, md: 0 }}
+        >
+          <Heading size={{ base: "md", md: "lg" }} color="blue.600">
+            Products Management
+          </Heading>
+          <HStack spacing={4} justify={{ base: "space-between", md: "flex-end" }}>
+            {isMobile ? (
+              <>
+                <IconButton
+                  icon={<FiFilter />}
+                  aria-label="Filter Products"
+                  onClick={onOpen}
+                  colorScheme="blue"
+                  variant="outline"
+                />
+                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
+                  Total: {productState.totalProducts}
+                </Text>
+                <Tooltip label="Add New Product">
+                  <IconButton
+                    icon={<AddIcon />}
+                    aria-label="Add New Product"
+                    colorScheme="blue"
+                    onClick={() => navigate('/admin/productpost')}
+                  />
+                </Tooltip>
+              </>
+            ) : (
+              <>
+                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
+                  Total Products: {productState.totalProducts}
+                </Text>
+                <Button
+                  leftIcon={<AddIcon />}
+                  colorScheme="blue"
+                  size={{ base: "sm", md: "md" }}
+                  onClick={() => navigate('/admin/productpost')}
+                >
+                  Add New Product
+                </Button>
+              </>
+            )}
           </HStack>
         </Flex>
 
-        {/* Filters Section */}
-        <ProductFilters 
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onResetFilters={handleResetFilters}
-        />
+        {/* Filters Section - Only show on desktop */}
+        {!isMobile && (
+          <ProductFilters 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+          />
+        )}
 
-        {/* Products Table */}
+        {/* Products Table/Cards */}
         <ProductTable 
           products={sortedProducts}
           onEdit={handleEdit}
@@ -839,19 +1019,23 @@ const Products = () => {
         {/* Pagination */}
         {productState.products.length > 0 && (
           <Flex justify="center" mt={4}>
-            <HStack spacing={4}>
+            <HStack spacing={{ base: 2, md: 4 }}>
               <Button
                 onClick={() => handlePageChange(Math.max(1, productState.page - 1))}
                 isDisabled={productState.page === 1}
                 variant="outline"
+                size={{ base: "sm", md: "md" }}
               >
                 Previous
               </Button>
-              <Text>Page {productState.page} of {productState.totalPages}</Text>
+              <Text fontSize={{ base: "sm", md: "md" }}>
+                Page {productState.page} of {productState.totalPages}
+              </Text>
               <Button
                 onClick={() => handlePageChange(Math.min(productState.totalPages, productState.page + 1))}
                 isDisabled={productState.page === productState.totalPages}
                 variant="outline"
+                size={{ base: "sm", md: "md" }}
               >
                 Next
               </Button>
@@ -860,6 +1044,28 @@ const Products = () => {
         )}
       </VStack>
 
+      {/* Mobile Filter Drawer */}
+      <Drawer
+        isOpen={isOpen}
+        placement="right"
+        onClose={onClose}
+        size="full"
+      >
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px">
+            Filter Products
+          </DrawerHeader>
+          <ProductFilters 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+            isMobile={true}
+          />
+        </DrawerContent>
+      </Drawer>
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog
         isOpen={productState.isDeleteDialogOpen}
@@ -867,12 +1073,12 @@ const Products = () => {
         onClose={() => setProductState(prev => ({ ...prev, isDeleteDialogOpen: false }))}
       >
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+          <AlertDialogContent mx={{ base: 4, md: 0 }}>
+            <AlertDialogHeader fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
               Delete Product
             </AlertDialogHeader>
 
-            <AlertDialogBody>
+            <AlertDialogBody fontSize={{ base: "sm", md: "md" }}>
               Are you sure you want to delete this product? This action cannot be undone.
             </AlertDialogBody>
 
@@ -881,6 +1087,7 @@ const Products = () => {
                 ref={cancelRef} 
                 onClick={() => setProductState(prev => ({ ...prev, isDeleteDialogOpen: false }))}
                 isDisabled={loadingStates.deleting}
+                size={{ base: "sm", md: "md" }}
               >
                 Cancel
               </Button>
@@ -889,6 +1096,7 @@ const Products = () => {
                 onClick={confirmDelete} 
                 ml={3}
                 isLoading={loadingStates.deleting}
+                size={{ base: "sm", md: "md" }}
               >
                 Delete
               </Button>

@@ -1,7 +1,6 @@
 .admin-page {
   padding: 20px;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -500,6 +499,356 @@
   }
 
   .order-info p {
+    font-size: 14px;
+  }
+}
+
+/* Banner Management Styles */
+.banners-container {
+  padding: 20px;
+}
+
+/* Table View Styles */
+.table-view {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+/* Card View Styles */
+.card-view {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+.banner-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.banner-card:hover {
+  transform: translateY(-2px);
+}
+
+.banner-card-image {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.banner-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-card-content {
+  padding: 15px;
+}
+
+.banner-card-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.status-badge.active {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+}
+
+.status-badge.inactive {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .table-view {
+    display: none;
+  }
+
+  .card-view {
+    display: grid;
+  }
+
+  .banner-card {
+    margin-bottom: 15px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-btn {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .card-view {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-card-image {
+    height: 140px;
+  }
+}
+
+.banners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.banner-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.2s ease;
+  width: 100%;
+}
+
+.banner-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.banner-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.banner-images {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.image-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.image-container label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.banner-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.banner-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.banner-date {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #45a049;
+}
+
+.delete-btn:hover {
+  background-color: #da190b;
+}
+
+.no-banners {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .banners-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .banner-card {
+    padding: 20px;
+  }
+
+  .banner-image {
+    height: 200px;
+  }
+
+  .banner-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .edit-btn, .delete-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .banners-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .banner-image {
+    height: 160px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 767px) {
+  .banners-grid {
+    grid-template-columns: 1fr;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .banner-card {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .banner-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .banner-images {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 10px 0;
+    margin: 0 -10px;
+    width: calc(100% + 20px);
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .banner-images::-webkit-scrollbar {
+    display: none;
+  }
+
+  .image-container {
+    flex: 0 0 280px;
+    min-width: 280px;
+    margin: 0 5px;
+  }
+
+  .banner-image {
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .banner-footer {
+    margin-top: 15px;
+  }
+
+  .banner-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .edit-btn, .delete-btn {
+    flex: 1;
+    padding: 10px;
     font-size: 14px;
   }
 } 
