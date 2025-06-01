@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema(
     mainCategory: {
       type: String,
       required: true,
-      enum: ["GLASSES", "CONTACT_LENSES"],
+      enum: ["GLASSES", "CONTACT_LENSES", "ACCESSORIES"],
     },
 
     // Sub Category (Level 2)
@@ -74,7 +74,7 @@ const productSchema = new mongoose.Schema(
     },
     ageGroup: {
       type: String,
-      enum: ["Kids", "Teens", "Adults", "Seniors", "Youth", "Not Applicable"],
+      enum: ["Kids", "Youth", "Teens", "Adults", "Seniors", "Grandparents", "Not Applicable"],
     },
     selectedCategoryPrice: {
       type: String,
@@ -200,36 +200,14 @@ const productSchema = new mongoose.Schema(
     },
     frameWidth: {
       type: String,
-      enum: [
-        "123 mm",
-        "125 mm",
-        "126 mm",
-        "127 mm",
-        "128 mm",
-        "129 mm",
-        "130 mm",
-        "131 mm",
-        "132 mm",
-        "133 mm",
-        "134 mm",
-        "135 mm",
-        "136 mm",
-        "137 mm",
-        "138 mm",
-        "139 mm",
-        "140 mm",
-        "141 mm",
-        "142 mm",
-        "143 mm",
-        "144 mm",
-        "145 mm",
-        "146 mm",
-        "147 mm",
-        "148 mm",
-        "149 mm",
-        "150 mm",
-        "Not Applicable",
-      ],
+      required: true,
+      validate: {
+        validator: function(v) {
+          // Allow "Not Applicable" or a number between 123-150 followed by " mm"
+          return v === "Not Applicable" || /^(12[3-9]|13[0-9]|14[0-9]|150)\s*mm$/.test(v);
+        },
+        message: props => `${props.value} is not a valid frame width! Must be between 123-150 mm or "Not Applicable"`
+      }
     },
     weightGroup: {
       type: String,
@@ -248,16 +226,13 @@ const productSchema = new mongoose.Schema(
         "Classic",
         "Day Night",
         "Modern",
-        "Unisex",
-        "Kids",
-        "Youth",
-        "Senior",
         "Not Applicable",
       ],
     },
     isContactLensColor: {
-      type: Boolean,
-      default: false,
+      type: String,
+      enum: ["yes", "no"],
+      default: "no"
     },
     contactLensColors: [
       {
@@ -317,7 +292,6 @@ const productSchema = new mongoose.Schema(
           "Copper",
           "Maroon",
           "Multicolor",
-          "Not Applicable",
           "Gradient",
           "Not Applicable",
         ],
