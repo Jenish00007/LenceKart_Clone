@@ -421,3 +421,5 @@ const NewProduct = () => {
 };
 
 export default NewProduct;
+
+// this is sample text for testing the git commit
