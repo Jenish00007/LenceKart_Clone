@@ -408,20 +408,43 @@ function Nav() {
                         </h2>
                         <AccordionPanel pb={4}>
                           <VStack align="stretch" spacing={2} pl={4}>
-                            {['EYEGLASSES', 'COMPUTER GLASSES', 'CONTACT LENSES', 'SUN GLASSES'].map((item) => (
-                              <Link key={item} to="/products">
-                                <Text
-                                  p={2}
-                                  _hover={{ 
-                                    color: "blue.500",
-                                    transform: "translateX(4px)"
-                                  }}
-                                  transition="all 0.2s"
+                            {['EYEGLASSES', 'COMPUTER GLASSES', 'CONTACT LENSES', 'SUN GLASSES'].map((item) => {
+                              const subCategoryMap = {
+                                'EYEGLASSES': 'EYEGLASSES',
+                                'COMPUTER GLASSES': 'COMPUTER_GLASSES',
+                                'CONTACT LENSES': 'CONTACT_LENSES',
+                                'SUN GLASSES': 'SUNGLASSES'
+                              };
+                              const mainCategoryMap = {
+                                'EYEGLASSES': 'GLASSES',
+                                'COMPUTER GLASSES': 'GLASSES',
+                                'CONTACT LENSES': 'CONTACT_LENSES',
+                                'SUN GLASSES': 'GLASSES'
+                              };
+                              // Map personCategory to backend enum
+                              const personCategoryMap = {
+                                'Men': 'men',
+                                'Women': 'women',
+                                'Kids': 'kids'
+                              };
+                              return (
+                                <Link
+                                  key={item}
+                                  to={`/products?mainCategory=${mainCategoryMap[item]}&subCategory=${subCategoryMap[item]}&personCategory=${personCategoryMap[category]}`}
                                 >
-                                  {item}
-                                </Text>
-                              </Link>
-                            ))}
+                                  <Text
+                                    p={2}
+                                    _hover={{ 
+                                      color: "blue.500",
+                                      transform: "translateX(4px)"
+                                    }}
+                                    transition="all 0.2s"
+                                  >
+                                    {item}
+                                  </Text>
+                                </Link>
+                              );
+                            })}
                           </VStack>
                         </AccordionPanel>
                       </AccordionItem>
