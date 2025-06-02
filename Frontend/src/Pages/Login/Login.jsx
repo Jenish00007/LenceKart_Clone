@@ -344,30 +344,85 @@ const Login = ({ isOpen: propIsOpen, onClose: propOnClose, hideButton = false })
                 Sign In 
               </Button>
 
-              <GoogleOAuthProvider clientId="181176318329-5ip416gavqi3jo22u6egr124f6a06nn9.apps.googleusercontent.com">
-                <GoogleLogin
-                  onSuccess={credentialResponse => {
-                    fetch('http://localhost:8080/api/auth/google', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ token: credentialResponse.credential }),
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                      if (data.token) {
-                        localStorage.setItem('token', data.token);
-                        // Optionally update auth context/state here
-                        window.location.reload(); // or redirect as needed
-                      } else {
-                        alert('Google login failed');
+              <Box mt={4} mb={4} textAlign="center">
+                <Text mb={2} fontSize="sm" color="gray.500">Or continue with</Text>
+                <GoogleOAuthProvider clientId="181176318329-5ip416gavqi3jo22u6egr124f6a06nn9.apps.googleusercontent.com">
+                  <GoogleLogin
+                    onSuccess={async (credentialResponse) => {
+                      try {
+                        setLoading(true);
+                        const response = await fetch('http://localhost:8080/api/auth/google', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ token: credentialResponse.credential }),
+                          credentials: 'include'
+                        });
+
+                        if (!response.ok) {
+                          throw new Error('Google login failed');
+                        }
+
+                        const data = await response.json();
+                        
+                        if (data.token) {
+                          localStorage.setItem('token', data.token);
+                          if (data.user) {
+                            setAuthData([data.user]);
+                            localStorage.setItem('user', JSON.stringify(data.user));
+                          }
+                          setisAuth(true);
+                          
+                          toast({
+                            title: "Login Successful",
+                            status: "success",
+                            duration: 2000,
+                            isClosable: true,
+                            position: "bottom"
+                          });
+
+                          onClose();
+                          const redirectPath = localStorage.getItem('redirectPath');
+                          if (redirectPath) {
+                            localStorage.removeItem('redirectPath');
+                            navigate(redirectPath);
+                          } else {
+                            navigate('/');
+                          }
+                        } else {
+                          throw new Error('No token received');
+                        }
+                      } catch (error) {
+                        console.error('Google login error:', error);
+                        toast({
+                          title: "Login Failed",
+                          description: error.message || "Failed to login with Google",
+                          status: "error",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "bottom"
+                        });
+                      } finally {
+                        setLoading(false);
                       }
-                    });
-                  }}
-                  onError={() => {
-                    alert('Google Login Failed');
-                  }}
-                />
-              </GoogleOAuthProvider>
+                    }}
+                    onError={() => {
+                      toast({
+                        title: "Login Failed",
+                        description: "Failed to login with Google",
+                        status: "error",
+                        duration: 3000,
+                        isClosable: true,
+                        position: "bottom"
+                      });
+                    }}
+                    useOneTap
+                    theme="filled_blue"
+                    shape="rectangular"
+                    text="continue_with"
+                    width="100%"
+                  />
+                </GoogleOAuthProvider>
+              </Box>
 
               <HStack spacing={"0px"} mt="19px" gap="2">
                 <Box fontSize={"14px"}> New member?</Box>

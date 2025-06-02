@@ -1,6 +1,7 @@
 const express = require("express");
 const { connection } = require("./Configs/db");
 const userRouter = require("./routes/user.routes");
+const authRouter = require("./routes/auth.routes");
 const productRouter = require("./routes/product.routes");
 const cartRouter = require("./routes/cart.routes");
 const paymentRouter = require("./routes/payment.routes");
@@ -21,7 +22,9 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://192.168.2.10:3000'],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -38,6 +41,8 @@ app.get("/", (req, res) => {
   res.send("Welcome to Lenskart API");
 }); 
 
+// Mount auth routes
+app.use("/api/auth", authRouter);
 app.use("/user", userRouter);
 app.use("/products", productRouter);
 app.use("/cart", cartRouter);
