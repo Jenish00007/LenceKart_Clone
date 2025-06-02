@@ -1,0 +1,130 @@
+{
+  "info": {
+    "name": "LenceKart Product Filters",
+    "_postman_id": "f1e2d3c4-b5a6-7890-1234-56789abcdef0",
+    "description": "Test product filters for LenceKart backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"]
+        }
+      }
+    },
+    {
+      "name": "Filter by Gender (Men)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?gender=Men",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "gender", "value": "Men" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Product Type (Eyeglasses)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?productType=eyeglasses",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "productType", "value": "eyeglasses" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Frame Type (Full Rim)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?frameType=Full Rim",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "frameType", "value": "Full Rim" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Shape (Rectangle)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?shape=Rectangle",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "shape", "value": "Rectangle" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter by Color (Black)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?colors=Black",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "colors", "value": "Black" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Multiple Filters (Men, Eyeglasses, Full Rim, Rectangle, Black)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/products?gender=Men&productType=eyeglasses&frameType=Full Rim&shape=Rectangle&colors=Black",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["products"],
+          "query": [
+            { "key": "gender", "value": "Men" },
+            { "key": "productType", "value": "eyeglasses" },
+            { "key": "frameType", "value": "Full Rim" },
+            { "key": "shape", "value": "Rectangle" },
+            { "key": "colors", "value": "Black" }
+          ]
+        }
+      }
+    }
+  ]
+}
