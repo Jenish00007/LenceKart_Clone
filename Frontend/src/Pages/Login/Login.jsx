@@ -25,6 +25,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import { API_URL } from "../../config";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const Login = ({ isOpen: propIsOpen, onClose: propOnClose, hideButton = false }) => {
   const [loading, setLoading] = useState(false);
@@ -342,6 +343,31 @@ const Login = ({ isOpen: propIsOpen, onClose: propOnClose, hideButton = false })
               >
                 Sign In 
               </Button>
+
+              <GoogleOAuthProvider clientId="181176318329-5ip416gavqi3jo22u6egr124f6a06nn9.apps.googleusercontent.com">
+                <GoogleLogin
+                  onSuccess={credentialResponse => {
+                    fetch('/api/auth/google', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ token: credentialResponse.credential }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                      if (data.token) {
+                        localStorage.setItem('token', data.token);
+                        // Optionally update auth context/state here
+                        window.location.reload(); // or redirect as needed
+                      } else {
+                        alert('Google login failed');
+                      }
+                    });
+                  }}
+                  onError={() => {
+                    alert('Google Login Failed');
+                  }}
+                />
+              </GoogleOAuthProvider>
 
               <HStack spacing={"0px"} mt="19px" gap="2">
                 <Box fontSize={"14px"}> New member?</Box>
