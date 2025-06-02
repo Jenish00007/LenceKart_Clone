@@ -347,7 +347,7 @@ const Login = ({ isOpen: propIsOpen, onClose: propOnClose, hideButton = false })
               <GoogleOAuthProvider clientId="181176318329-5ip416gavqi3jo22u6egr124f6a06nn9.apps.googleusercontent.com">
                 <GoogleLogin
                   onSuccess={credentialResponse => {
-                    fetch('/api/auth/google', {
+                    fetch('http://localhost:8080/api/auth/google', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ token: credentialResponse.credential }),
