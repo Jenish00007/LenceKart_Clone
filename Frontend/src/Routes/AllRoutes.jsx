@@ -14,6 +14,7 @@ import ProtectedAdminRoute from '../Components/ProtectedAdminRoute';
 import AdminLogin from '../Pages/Admin/AdminLogin';
 import AdminSignup from '../Pages/Admin/AdminSignup';
 import ProductPost from '../Pages/Admin/ProductPost';
+import AdminDashboard from '../Pages/Admin/AdminDashboard';
 
 const AllRoutes = () => {
   return (
@@ -27,6 +28,11 @@ const AllRoutes = () => {
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin/>} />
       <Route path="/admin/signup" element={<AdminSignup />} />
+      <Route path="/admin" element={
+        <ProtectedAdminRoute>
+          <AdminDashboard />
+        </ProtectedAdminRoute>
+      } />
       <Route path="/admin/products" element={
         <ProtectedAdminRoute>
           <ProductPost /> 

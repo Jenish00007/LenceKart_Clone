@@ -71,8 +71,10 @@ const AdminLogin = () => {
         isClosable: true,
         position: "bottom"
       });
+      
 
-      navigate("/admin/products");
+      // Redirect to admin dashboard
+      navigate("/admin");
     } catch (error) {
       toast({
         title: "Error",
