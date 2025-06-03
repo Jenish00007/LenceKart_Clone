@@ -17,6 +17,7 @@ const adBannerRouter = require('./routes/adBannerRoutes');
 const sectionBannerRouter = require('./routes/sectionBannerRoutes');
 const shapeRouter = require('./routes/shapeRoutes');
 const searchRouter = require('./routes/search.routes');
+const adminRouter = require('./routes/admin.routes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/ad-banners', adBannerRouter);
 app.use('/api/section-banners', sectionBannerRouter);
 app.use('/api/shapes', shapeRouter);
 app.use('/api/search', searchRouter);
+app.use('/api/admin', adminRouter);
 
 // Error handling
 app.use(notFound);

@@ -13,7 +13,7 @@ function App() {
     <Provider store={store}>
       <ChakraProvider>
         <AuthContextProvider>
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Box minH="100vh" bg="gray.50">
               <AllRoutes />
             </Box>

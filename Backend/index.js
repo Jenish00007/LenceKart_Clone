@@ -11,6 +11,7 @@ const sectionBannerRoutes = require('./routes/sectionBannerRoutes');
 const orderRouter = require('./routes/order.routes');
 const shapeRoutes = require('./routes/shapeRoutes');
 const glassProductRoutes = require('./component/glassFilter/routes');
+const adminRouter = require('./routes/admin.routes');
 const passport = require("passport");
 const session = require("express-session");
 const authRoutes = require("./routes/auth");
@@ -71,6 +72,7 @@ app.use('/api/sectionbanner', sectionBannerRoutes);
 app.use('/api/orders', orderRouter);
 app.use('/api/shape', shapeRoutes);
 app.use('/api', glassProductRoutes);
+app.use('/api/admin', adminRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -34,13 +34,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import { Link } from "react-router-dom";
-import { FiShoppingBag, FiLogOut, FiMenu, FiHome, FiSettings, FiUsers } from 'react-icons/fi';
+import { FiShoppingBag, FiLogOut, FiMenu, FiHome, FiSettings, FiUsers, FiLogIn, FiUserPlus } from 'react-icons/fi';
 
 const Navbar = () => {
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
-  const { setisAuth } = useContext(AuthContext);
+  const { isAuth, setisAuth } = useContext(AuthContext);
   const toast = useToast();
 
   // Responsive values
@@ -62,10 +62,11 @@ const Navbar = () => {
   const textColor = useColorModeValue("gray.600", "white");
   const hoverBg = useColorModeValue("gray.100", "gray.700");
 
-  const handleClick = () => {
+  const handleLogout = () => {
     setisAuth(false);
-    navigate("/");
-    localStorage.removeItem("token");
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminInfo");
+    navigate("/admin/login");
     toast({
       title: "Success",
       description: "You have been logged out",
@@ -102,6 +103,80 @@ const Navbar = () => {
     );
   };
 
+  const renderAuthButtons = () => {
+    if (!isAuth) {
+      return (
+        <HStack spacing={4}>
+          <Button
+            as={Link}
+            to="/admin/login"
+            leftIcon={<FiLogIn />}
+            colorScheme="blue"
+            variant="outline"
+            size={buttonSize}
+          >
+            Login
+          </Button>
+          <Button
+            as={Link}
+            to="/admin/signup"
+            leftIcon={<FiUserPlus />}
+            colorScheme="blue"
+            size={buttonSize}
+          >
+            Sign Up
+          </Button>
+        </HStack>
+      );
+    }
+
+    return (
+      <Menu>
+        <MenuButton
+          as={Button}
+          variant="ghost"
+          size={buttonSize}
+          px={paddingX}
+          py={2}
+          transition="all 0.2s"
+          borderRadius="md"
+          borderWidth="1px"
+          _hover={{ bg: hoverBg }}
+          _expanded={{ bg: hoverBg }}
+          _focus={{ boxShadow: "outline" }}
+        >
+          <HStack>
+            <Avatar size={avatarSize} src="https://bit.ly/broken-link" />
+            <VStack
+              display={{ base: "none", md: "flex" }}
+              alignItems="flex-start"
+              spacing="1px"
+              ml="2"
+            >
+              <Text fontSize={menuTextSize}>Admin User</Text>
+              <Text fontSize={menuSubtextSize} color="gray.500">
+                Administrator
+              </Text>
+            </VStack>
+          </HStack>
+        </MenuButton>
+        <MenuList>
+          <MenuItem icon={<FiSettings />} fontSize={menuTextSize}>Settings</MenuItem>
+          <MenuItem icon={<FiUsers />} fontSize={menuTextSize}>Profile</MenuItem>
+          <MenuDivider />
+          <MenuItem 
+            icon={<FiLogOut />} 
+            onClick={handleLogout}
+            color="red.500"
+            fontSize={menuTextSize}
+          >
+            Sign out
+          </MenuItem>
+        </MenuList>
+      </Menu>
+    );
+  };
+
   return (
     <Box
       bg={bgColor}
@@ -135,59 +210,20 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         {isLargerThan768 ? (
           <HStack spacing={spacing} alignItems="center">
-            <NavItem icon={FiHome} to="/admin">
-              Dashboard
-            </NavItem>
-            <NavItem icon={FiShoppingBag} to="/admin/products">
-              Products
-            </NavItem>
-            <NavItem icon={FiUsers} to="/admin/users">
-              Users
-            </NavItem>
-
-            <Menu>
-              <MenuButton
-                as={Button}
-                variant="ghost"
-                size={buttonSize}
-                px={paddingX}
-                py={2}
-                transition="all 0.2s"
-                borderRadius="md"
-                borderWidth="1px"
-                _hover={{ bg: hoverBg }}
-                _expanded={{ bg: hoverBg }}
-                _focus={{ boxShadow: "outline" }}
-              >
-                <HStack>
-                  <Avatar size={avatarSize} src="https://bit.ly/broken-link" />
-                  <VStack
-                    display={{ base: "none", md: "flex" }}
-                    alignItems="flex-start"
-                    spacing="1px"
-                    ml="2"
-                  >
-                    <Text fontSize={menuTextSize}>Admin User</Text>
-                    <Text fontSize={menuSubtextSize} color="gray.500">
-                      Administrator
-                    </Text>
-                  </VStack>
-                </HStack>
-              </MenuButton>
-              <MenuList>
-                <MenuItem icon={<FiSettings />} fontSize={menuTextSize}>Settings</MenuItem>
-                <MenuItem icon={<FiUsers />} fontSize={menuTextSize}>Profile</MenuItem>
-                <MenuDivider />
-                <MenuItem 
-                  icon={<FiLogOut />} 
-                  onClick={handleClick}
-                  color="red.500"
-                  fontSize={menuTextSize}
-                >
-                  Sign out
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            {isAuth && (
+              <>
+                <NavItem icon={FiHome} to="/admin">
+                  Dashboard
+                </NavItem>
+                <NavItem icon={FiShoppingBag} to="/admin/products">
+                  Products
+                </NavItem>
+                <NavItem icon={FiUsers} to="/admin/users">
+                  Users
+                </NavItem>
+              </>
+            )}
+            {renderAuthButtons()}
           </HStack>
         ) : (
           // Mobile Navigation
@@ -199,52 +235,55 @@ const Navbar = () => {
               size={buttonSize}
               _hover={{ bg: hoverBg }}
             >
-              <Icon as={FiMenu} w={5} h={5} />
+              <FiMenu />
             </Button>
-
             <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
               <DrawerOverlay />
               <DrawerContent>
                 <DrawerCloseButton />
-                <DrawerHeader borderBottomWidth="1px">
-                  <Flex alignItems="center" gap={paddingX}>
-                    <Avatar size={avatarSize} src="https://bit.ly/broken-link" />
-                    <VStack align="start" spacing={0}>
-                      <Text fontSize={menuTextSize} fontWeight="bold">Admin User</Text>
-                      <Text fontSize={menuSubtextSize} color="gray.500">Administrator</Text>
-                    </VStack>
-                  </Flex>
-                </DrawerHeader>
-
+                <DrawerHeader>Menu</DrawerHeader>
                 <DrawerBody>
-                  <Stack spacing={4} mt={4}>
-                    <NavItem icon={FiHome} to="/admin">
-                      Dashboard
-                    </NavItem>
-                    <NavItem icon={FiShoppingBag} to="/admin/products">
-                      Products
-                    </NavItem>
-                    <NavItem icon={FiUsers} to="/admin/users">
-                      Users
-                    </NavItem>
-                    <NavItem icon={FiSettings} to="/admin/settings">
-                      Settings
-                    </NavItem>
+                  <Stack spacing={4}>
+                    {isAuth ? (
+                      <>
+                        <NavItem icon={FiHome} to="/admin">Dashboard</NavItem>
+                        <NavItem icon={FiShoppingBag} to="/admin/products">Products</NavItem>
+                        <NavItem icon={FiUsers} to="/admin/users">Users</NavItem>
+                        <Button
+                          leftIcon={<FiLogOut />}
+                          onClick={handleLogout}
+                          colorScheme="red"
+                          variant="ghost"
+                          size={buttonSize}
+                        >
+                          Sign out
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          as={Link}
+                          to="/admin/login"
+                          leftIcon={<FiLogIn />}
+                          colorScheme="blue"
+                          variant="outline"
+                          size={buttonSize}
+                        >
+                          Login
+                        </Button>
+                        <Button
+                          as={Link}
+                          to="/admin/signup"
+                          leftIcon={<FiUserPlus />}
+                          colorScheme="blue"
+                          size={buttonSize}
+                        >
+                          Sign Up
+                        </Button>
+                      </>
+                    )}
                   </Stack>
                 </DrawerBody>
-
-                <DrawerFooter borderTopWidth="1px">
-                  <Button
-                    leftIcon={<FiLogOut />}
-                    colorScheme="red"
-                    variant="outline"
-                    onClick={handleClick}
-                    w="full"
-                    size={buttonSize}
-                  >
-                    Sign out
-                  </Button>
-                </DrawerFooter>
               </DrawerContent>
             </Drawer>
           </>
