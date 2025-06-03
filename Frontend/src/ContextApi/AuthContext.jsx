@@ -12,6 +12,7 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthToken = async () => {
       const token = localStorage.getItem("token");
+      const adminToken = localStorage.getItem("adminToken");
       
       if (token) {
         try {
@@ -27,7 +28,6 @@ const AuthProvider = ({ children }) => {
             // Fetch and store user data
             const userData = await response.json();
             setAuthData(userData);
-            console.log(userData);
           } else {
             // Token is invalid, remove it
             localStorage.removeItem("token");
@@ -36,6 +36,11 @@ const AuthProvider = ({ children }) => {
           console.error("Error verifying auth token:", error);
           localStorage.removeItem("token");
         }
+      } else if (adminToken) {
+        // If admin token exists, set auth state
+        setisAuth(true);
+        const adminInfo = JSON.parse(localStorage.getItem("adminInfo") || "{}");
+        setAuthData(adminInfo);
       }
       
       setLoading(false);

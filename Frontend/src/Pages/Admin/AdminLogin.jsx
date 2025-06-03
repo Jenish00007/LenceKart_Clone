@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../ContextApi/AuthContext";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const { setisAuth } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,7 +41,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/admin/login`, {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -47,26 +49,30 @@ const AdminLogin = () => {
         body: JSON.stringify(formData)
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
+
       const data = await response.json();
 
-      if (response.ok) {
-        // Store admin token and info
-        localStorage.setItem("adminToken", data.token);
-        localStorage.setItem("adminInfo", JSON.stringify(data.admin));
+      // Store admin token and info
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("adminInfo", JSON.stringify(data.admin));
+      
+      // Update auth state
+      setisAuth(true);
 
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom"
-        });
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
 
-        navigate("/admin/products");
-      } else {
-        throw new Error(data.message || "Login failed");
-      }
+      navigate("/admin/products");
     } catch (error) {
       toast({
         title: "Error",
