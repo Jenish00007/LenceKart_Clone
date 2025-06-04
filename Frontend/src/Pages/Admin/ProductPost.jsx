@@ -33,12 +33,79 @@ import {
   TabList,
   TabPanels,
   Tab,
-  TabPanel
+  TabPanel,
+  Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  Progress,
+  List,
+  ListItem,
+  ListIcon,
+  Icon,
+  useDisclosure
 } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { API_URL } from "../../config";
+import { CheckCircleIcon, TimeIcon, WarningIcon } from "@chakra-ui/icons";
+import { motion, AnimatePresence } from "framer-motion";
 
+const UploadProgressModal = ({ isOpen, onClose, status, progress, currentStep }) => {
+  const steps = [
+    { id: 'mainImage', label: 'Main Image Upload' },
+    { id: 'additionalImages', label: 'Additional Images Upload' },
+    { id: 'formData', label: 'Form Data Submission' }
+  ];
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+      <ModalOverlay backdropFilter="blur(10px)" />
+      <ModalContent>
+        <ModalHeader>Upload Progress</ModalHeader>
+        <ModalCloseButton isDisabled={currentStep !== 'complete'} />
+        <ModalBody pb={6}>
+          <Progress 
+            value={progress} 
+            size="lg" 
+            colorScheme="blue" 
+            borderRadius="full"
+            mb={4}
+          />
+          <List spacing={3}>
+            {steps.map((step) => (
+              <ListItem key={step.id} display="flex" alignItems="center">
+                <ListIcon
+                  as={
+                    currentStep === 'complete' ? CheckCircleIcon :
+                    currentStep === step.id ? TimeIcon :
+                    steps.findIndex(s => s.id === currentStep) > steps.findIndex(s => s.id === step.id) ? CheckCircleIcon :
+                    WarningIcon
+                  }
+                  color={
+                    currentStep === 'complete' ? 'green.500' :
+                    currentStep === step.id ? 'blue.500' :
+                    steps.findIndex(s => s.id === currentStep) > steps.findIndex(s => s.id === step.id) ? 'green.500' :
+                    'gray.400'
+                  }
+                />
+                {step.label}
+                {currentStep === step.id && (
+                  <Text as="span" ml={2} color="blue.500">
+                    ({progress}%)
+                  </Text>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
 
 const ProductPost = () => {
   const toast = useToast();
@@ -109,6 +176,9 @@ const ProductPost = () => {
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
   const [additionalImagePreviews, setAdditionalImagePreviews] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUploadStep, setCurrentUploadStep] = useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const validBrands = [
     "Ray-Ban",
@@ -434,10 +504,11 @@ const ProductPost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let uploadToastId = null;
     
     try {
       setLoading(true);
+      onOpen();
+      setUploadProgress(0);
       
       // Validate required fields
       const requiredFields = [
@@ -458,6 +529,7 @@ const ProductPost = () => {
           position: "bottom"
         });
         setLoading(false);
+        onClose();
         return;
       }
 
@@ -475,6 +547,7 @@ const ProductPost = () => {
           });
         });
         setLoading(false);
+        onClose();
         return;
       }
 
@@ -482,19 +555,26 @@ const ProductPost = () => {
       let mainImageUrl = formData.imageTsrc;
       if (mainImageFile) {
         try {
-          uploadToastId = toast({
-            title: "Uploading...",
-            description: "Please wait while we upload your main image",
-            status: "info",
-            duration: null,
-            isClosable: false,
-            position: "bottom"
-          });
+          setCurrentUploadStep('mainImage');
+          setUploadProgress(0);
+          
+          // Simulate upload progress
+          const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                return prev;
+              }
+              return prev + 10;
+            });
+          }, 200);
+
           mainImageUrl = await uploadImageToS3(mainImageFile);
-          toast.close(uploadToastId);
+          clearInterval(progressInterval);
+          setUploadProgress(100);
         } catch (error) {
-          toast.close(uploadToastId);
           setLoading(false);
+          onClose();
           return;
         }
       }
@@ -503,23 +583,34 @@ const ProductPost = () => {
       let additionalImageUrls = formData.additionalImages || [];
       if (additionalImageFiles.length > 0) {
         try {
-          uploadToastId = toast({
-            title: "Uploading...",
-            description: "Please wait while we upload your additional images",
-            status: "info",
-            duration: null,
-            isClosable: false,
-            position: "bottom"
-          });
+          setCurrentUploadStep('additionalImages');
+          setUploadProgress(0);
+          
+          // Simulate upload progress
+          const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                return prev;
+              }
+              return prev + 10;
+            });
+          }, 200);
+
           const newUrls = await uploadMultipleImagesToS3(additionalImageFiles);
           additionalImageUrls = [...additionalImageUrls, ...newUrls];
-          toast.close(uploadToastId);
+          clearInterval(progressInterval);
+          setUploadProgress(100);
         } catch (error) {
-          toast.close(uploadToastId);
           setLoading(false);
+          onClose();
           return;
         }
       }
+
+      // Submit form data
+      setCurrentUploadStep('formData');
+      setUploadProgress(0);
 
       // Format the data before sending
       const payload = {
@@ -599,6 +690,10 @@ const ProductPost = () => {
       const data = await response.json();
 
       if (response.ok) {
+        setUploadProgress(100);
+        setCurrentUploadStep('complete');
+        
+        // Show success animation
         toast({
           title: isEditing ? "Product Updated Successfully" : "Product Added Successfully",
           status: "success",
@@ -606,9 +701,12 @@ const ProductPost = () => {
           isClosable: true,
           position: "bottom"
         });
+
+        // Close modal and redirect after delay
         setTimeout(() => {
+          onClose();
           navigate("/admin/products");
-        }, 2000);
+        }, 1500);
       } else {
         if (data.errors) {
           const errorMessages = data.errors.map(err => `${err.field}: ${err.message}`).join('\n');
@@ -625,6 +723,7 @@ const ProductPost = () => {
         isClosable: true,
         position: "bottom"
       });
+      onClose();
     } finally {
       setLoading(false);
     }
@@ -2320,6 +2419,13 @@ const ProductPost = () => {
           </Flex>
         </Card>
       </Container>
+      <UploadProgressModal
+        isOpen={isOpen}
+        onClose={onClose}
+        status={uploadProgress}
+        progress={uploadProgress}
+        currentStep={currentUploadStep}
+      />
     </Box>
   );
 };
