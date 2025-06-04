@@ -294,7 +294,14 @@ const ProductPost = () => {
         // Ensure topPicks is set
         topPicks: formData.topPicks || 'Not Applicable',
         frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : [],
-        contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : []
+        contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : [],
+        
+        // --- Adjust values to match backend enum expectations ---
+        // Map 'Medium' weightGroup to 'Average'
+        weightGroup: formData.weightGroup === 'Medium' ? 'Average' : formData.weightGroup,
+        // Map boolean isContactLensColor to string 'yes' or 'no'
+        isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
+        // ------------------------------------------------------
       };
 
       console.log('Sending payload:', payload);
@@ -305,12 +312,22 @@ const ProductPost = () => {
 
       const method = isEditing ? "PUT" : "POST";
 
+      // Retrieve the admin token from localStorage
+      const adminToken = localStorage.getItem('adminToken');
+
+      // Check if token exists before including it (optional but good practice)
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`;
+      }
+
       const response = await fetch(url, {
         method,
         body: JSON.stringify(payload),
-        headers: { 
-          "Content-Type": "application/json"
-        }
+        headers: headers,
       });
 
       const data = await response.json();
@@ -1291,9 +1308,10 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Contact Lens Type</option>
-              <option value="Daily Disposable">Daily Disposable</option>
-              <option value="Monthly Disposable">Monthly Disposable</option>
-              <option value="Yearly Disposable">Yearly Disposable</option>
+              <option value="Daily">Daily</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
