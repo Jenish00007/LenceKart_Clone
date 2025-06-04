@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -38,6 +38,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { API_URL } from "../../config";
+
 
 const ProductPost = () => {
   const toast = useToast();
@@ -102,6 +103,12 @@ const ProductPost = () => {
     supportedPowers: ""
   });
   const [loading, setLoading] = useState(false);
+  const mainImageInputRef = useRef(null);
+  const additionalImagesInputRef = useRef(null);
+  const [mainImageFile, setMainImageFile] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState("");
+  const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
+  const [additionalImagePreviews, setAdditionalImagePreviews] = useState([]);
 
   const validBrands = [
     "Ray-Ban",
@@ -308,6 +315,20 @@ const ProductPost = () => {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
+
+    // If sub-category is changed, validate it
+    if (name === 'subCategory') {
+      if (!value) {
+        toast({
+          title: "Required Field",
+          description: "Please select a sub-category",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom"
+        });
+      }
+    }
   };
 
   const handleArrayChange = (name, value) => {
@@ -318,22 +339,119 @@ const ProductPost = () => {
     }));
   };
 
+  const uploadImageToS3 = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${API_URL}/api/upload/single`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      return data.imageUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload Error",
+        description: error.message || "Failed to upload image",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      throw error;
+    }
+  };
+
+  const uploadMultipleImagesToS3 = async (files) => {
+    try {
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch(`${API_URL}/api/upload/multiple`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload images');
+      }
+
+      const data = await response.json();
+      return data.imageUrls;
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Upload Error",
+        description: error.message || "Failed to upload images",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom"
+      });
+      throw error;
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const { name, type, files } = e.target;
+     
+    if (type === 'file') {
+      if (name === 'mainImage') {
+        const file = files[0];
+        if (file) {
+          // Create a temporary URL for preview
+          const previewUrl = URL.createObjectURL(file);
+          setMainImageFile(file);
+          setMainImagePreview(previewUrl);
+        }
+      } else if (name === 'additionalImages') {
+        const selectedFiles = Array.from(files);
+        
+        // Create previews
+        const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+        setAdditionalImageFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+        setAdditionalImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let uploadToastId = null;
+    
     try {
       setLoading(true);
       
       // Validate required fields
       const requiredFields = [
-        'name', 'imageTsrc', 'caption',
-        'price', 'mPrice', 'subCategory'
+        { name: 'name', label: 'Product Name' },
+        { name: 'caption', label: 'Caption' },
+        { name: 'price', label: 'Price' },
+        { name: 'mPrice', label: 'Market Price' }
       ];
-      const missingFields = requiredFields.filter(field => !formData[field]);
-      
-      if (missingFields.length > 0) {
+
+      // Special validation for sub-category
+      if (!formData.subCategory) {
         toast({
-          title: "Missing Required Fields",
-          description: `Please fill in: ${missingFields.join(', ')}`,
+          title: "Required Field",
+          description: `Please select a sub-category for ${selectedCategory.toLowerCase()}`,
           status: "warning",
           duration: 3000,
           isClosable: true,
@@ -343,57 +461,91 @@ const ProductPost = () => {
         return;
       }
 
-      // Validate numeric fields
-      if (isNaN(formData.price) || isNaN(formData.mPrice)) {
-        toast({
-          title: "Invalid Price",
-          description: "Price and Market Price must be numbers",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom"
+      const missingFields = requiredFields.filter(field => !formData[field.name]);
+      
+      if (missingFields.length > 0) {
+        missingFields.forEach(field => {
+          toast({
+            title: "Required Field",
+            description: `Please provide ${field.label.toLowerCase()}`,
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+            position: "bottom"
+          });
         });
         setLoading(false);
         return;
       }
 
+      // Upload main image if selected
+      let mainImageUrl = formData.imageTsrc;
+      if (mainImageFile) {
+        try {
+          uploadToastId = toast({
+            title: "Uploading...",
+            description: "Please wait while we upload your main image",
+            status: "info",
+            duration: null,
+            isClosable: false,
+            position: "bottom"
+          });
+          mainImageUrl = await uploadImageToS3(mainImageFile);
+          toast.close(uploadToastId);
+        } catch (error) {
+          toast.close(uploadToastId);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Upload additional images if selected
+      let additionalImageUrls = formData.additionalImages || [];
+      if (additionalImageFiles.length > 0) {
+        try {
+          uploadToastId = toast({
+            title: "Uploading...",
+            description: "Please wait while we upload your additional images",
+            status: "info",
+            duration: null,
+            isClosable: false,
+            position: "bottom"
+          });
+          const newUrls = await uploadMultipleImagesToS3(additionalImageFiles);
+          additionalImageUrls = [...additionalImageUrls, ...newUrls];
+          toast.close(uploadToastId);
+        } catch (error) {
+          toast.close(uploadToastId);
+          setLoading(false);
+          return;
+        }
+      }
+
       // Format the data before sending
       const payload = {
-        // Spread formData, but exclude supportedPowers to handle it explicitly below
         ...Object.fromEntries(Object.entries(formData).filter(([key]) => key !== 'supportedPowers')),
-        // Set mainCategory based on the selected tab
         mainCategory: selectedCategory,
-        // Convert string numbers to actual numbers
+        imageTsrc: mainImageUrl,
+        additionalImages: additionalImageUrls,
         price: Number(formData.price),
         mPrice: Number(formData.mPrice),
         discount: Number(formData.discount) || 0,
         quantity: Number(formData.quantity) || 1,
-        // Ensure arrays are properly formatted
-        additionalImages: Array.isArray(formData.additionalImages) ? formData.additionalImages : [],
         brands: Array.isArray(formData.brands) ? formData.brands : ['Not Applicable'],
         lensFeatures: Array.isArray(formData.lensFeatures) ? formData.lensFeatures : [],
-        // Ensure powerRange is properly formatted
         powerRange: {
           min: formData.powerRange?.min ? Number(formData.powerRange.min) : undefined,
           max: formData.powerRange?.max ? Number(formData.powerRange.max) : undefined
         },
-        // Set default values for required fields
         rating: isEditing ? formData.rating : 0,
         reviewCount: isEditing ? formData.reviewCount : 0,
         createdAt: isEditing ? formData.createdAt : new Date(),
-        // Ensure topPicks is set
         topPicks: formData.topPicks || 'Not Applicable',
         frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : [],
         contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : [],
-        
-        // Set default values for enum fields that are empty
         ageGroup: formData.ageGroup || 'Not Applicable',
         personCategory: formData.personCategory || 'Not Applicable',
-        
-        // --- Adjust values to match backend enum expectations ---
-        // Map boolean isContactLensColor to string 'yes' or 'no'
         isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
-        // Set default values for enum fields that are empty
         powerType: formData.powerType || 'Not Applicable',
         prescriptionType: formData.prescriptionType || 'Not Applicable',
         contactLensType: formData.contactLensType || 'Not Applicable',
@@ -401,10 +553,8 @@ const ProductPost = () => {
         accessoryType: formData.accessoryType || 'Not Applicable',
         accessorySize: formData.accessorySize || 'Not Applicable',
         accessoryMaterial: formData.accessoryMaterial || 'Not Applicable',
-        // Set default values for glasses-specific fields when not in GLASSES category
         frameWidth: selectedCategory === 'GLASSES' ? formData.frameWidth : 'Not Applicable',
         frameSize: selectedCategory === 'GLASSES' ? formData.frameSize : 'Not Applicable',
-        // Ensure weightGroup is mapped to 'Average' if the form data was 'Medium' or set to 'Not Applicable' if not GLASSES
         weightGroup: selectedCategory === 'GLASSES' && formData.weightGroup === 'Medium'
           ? 'Average'
           : formData.weightGroup || 'Not Applicable',
@@ -413,18 +563,17 @@ const ProductPost = () => {
       // Explicitly add supportedPowers after spreading formData with correct value
       payload.supportedPowers = selectedCategory === 'ACCESSORIES' ? 'Not Applicable' : formData.supportedPowers || 'Not Applicable';
 
-      // Final enforcement of weightGroup mapping for GLASSES category in the payload (keeping this as a safeguard)
+      // Final enforcement of weightGroup mapping for GLASSES category in the payload
       if (payload.mainCategory === 'GLASSES' && payload.weightGroup === 'Medium') {
         payload.weightGroup = 'Average';
       }
 
-      // Final check for supportedPowers just before sending (another safeguard)
+      // Final check for supportedPowers just before sending
       if (payload.supportedPowers === '') {
         payload.supportedPowers = 'Not Applicable';
       }
 
       console.log('Sending payload:', payload);
-      console.log('Contact Lens Colors being sent:', payload.contactLensColors);
 
       const url = isEditing 
         ? `${API_URL}/products/${productData._id}`
@@ -432,10 +581,7 @@ const ProductPost = () => {
 
       const method = isEditing ? "PUT" : "POST";
 
-      // Retrieve the admin token from localStorage
       const adminToken = localStorage.getItem('adminToken');
-
-      // Check if token exists before including it (optional but good practice)
       const headers = {
         "Content-Type": "application/json",
       };
@@ -464,7 +610,6 @@ const ProductPost = () => {
           navigate("/admin/products");
         }, 2000);
       } else {
-        // Handle validation errors from the server
         if (data.errors) {
           const errorMessages = data.errors.map(err => `${err.field}: ${err.message}`).join('\n');
           throw new Error(errorMessages);
@@ -476,7 +621,7 @@ const ProductPost = () => {
         title: "Error",
         description: error.message || `Failed to ${isEditing ? 'update' : 'add'} product`,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
         position: "bottom"
       });
@@ -498,7 +643,10 @@ const ProductPost = () => {
     setFormData(prev => ({
       ...prev,
       mainCategory: category,
-      subCategory: category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "", // Set default subCategory for accessories
+      // Set default sub-category based on the selected category
+      subCategory: category === "GLASSES" ? "EYEGLASSES" :
+                  category === "CONTACT_LENSES" ? "CONTACT_LENSES" :
+                  category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "",
       // Set supportedPowers to Not Applicable when switching to ACCESSORIES
       supportedPowers: category === 'ACCESSORIES' ? 'Not Applicable' : prev.supportedPowers
     }));
@@ -514,7 +662,7 @@ const ProductPost = () => {
         <VStack spacing={5}>
           {/* Basic Information */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Product Name <Text as="span" color="red.500">*</Text></Text>
             <Input
               name="name"
               placeholder="Enter product name"
@@ -523,37 +671,80 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={!formData.name}
             />
           </FormControl>
-
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            {mainImagePreview && (
+              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+            )}
             <Input
-              name="imageTsrc"
-              placeholder="Enter image URL"
-              value={formData.imageTsrc}
-              onChange={handleChange}
+              name="mainImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              ref={mainImageInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor={!formData.imageTsrc ? "red.300" : "gray.300"}
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => mainImageInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload main image</Text>
+              {!formData.imageTsrc && (
+                <Text color="red.500" fontSize="sm" mt={1}>Main image is required</Text>
+              )}
+            </Box>
           </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
-            <Textarea
+            <Wrap spacing={2} mb={2}>
+              {additionalImagePreviews.map((preview, index) => (
+                <Image key={index} src={preview} alt={`Additional Preview ${index + 1}`} boxSize="80px" objectFit="cover" />
+              ))}
+            </Wrap>
+            <Input
               name="additionalImages"
-              placeholder="Enter additional image URLs (comma-separated)"
-              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
-              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
-              minH="100px"
+              ref={additionalImagesInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor="gray.300"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => additionalImagesInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload additional images</Text>
+            </Box>
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Caption <Text as="span" color="red.500">*</Text></Text>
             <Textarea
               name="caption"
               placeholder="Enter product caption"
@@ -562,12 +753,13 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               minH="100px"
+              isInvalid={!formData.caption}
             />
           </FormControl>
 
           {/* Categories and Demographics */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Sub Category <Text as="span" color="red.500">*</Text></Text>
             <Select
               name="subCategory"
               value={formData.subCategory}
@@ -575,12 +767,16 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={!formData.subCategory}
             >
               <option value="">Select Sub Category</option>
               <option value="EYEGLASSES">Eye Glasses</option>
               <option value="SUNGLASSES">Sun Glasses</option>
               <option value="COMPUTER_GLASSES">Computer Glasses</option>
             </Select>
+            {!formData.subCategory && (
+              <Text color="red.500" fontSize="sm" mt={1}>Please select a sub category</Text>
+            )}
           </FormControl>
 
           <FormControl>

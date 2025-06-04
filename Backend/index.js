@@ -15,6 +15,7 @@ const adminRouter = require('./routes/admin.routes');
 const passport = require("passport");
 const session = require("express-session");
 const authRoutes = require("./routes/auth");
+const uploadRoutes = require('./routes/upload.routes');
 
 //Routes from component 
 require("dotenv").config();
@@ -57,7 +58,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to Lenskart API");
+  res.send("Welcome to Fenix API");
 }); 
 
 app.use("/auth", authRoutes);
@@ -73,6 +74,7 @@ app.use('/api/orders', orderRouter);
 app.use('/api/shape', shapeRoutes);
 app.use('/api', glassProductRoutes);
 app.use('/api/admin', adminRouter);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
