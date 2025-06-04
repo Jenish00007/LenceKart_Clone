@@ -225,18 +225,65 @@ const ProductPost = () => {
 
   useEffect(() => {
     if (isEditing && productData) {
+      // Create a clean object to avoid issues with Mongoose document properties
+      const cleanProductData = JSON.parse(JSON.stringify(productData));
+
       setFormData({
-        ...productData,
-        powerRange: productData.powerRange || { min: "", max: "" },
-        additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
-        brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
-        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : [],
-        frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : [],
-        // Filter contactLensColors to include only valid enum values
-        contactLensColors: Array.isArray(productData.contactLensColors)
-          ? productData.contactLensColors.filter(color => CONTACT_LENS_COLORS.includes(color))
-          : []
+        // Spread clean data first
+        ...cleanProductData,
+        // Override specific fields with checks for array/object format
+        powerRange: cleanProductData.powerRange || { min: "", max: "" },
+        additionalImages: Array.isArray(cleanProductData.additionalImages) ? cleanProductData.additionalImages : [],
+        brands: Array.isArray(cleanProductData.brands) ? cleanProductData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(cleanProductData.lensFeatures) ? cleanProductData.lensFeatures : [],
+        frameColors: Array.isArray(cleanProductData.frameColors) ? cleanProductData.frameColors : [],
+        contactLensColors: Array.isArray(cleanProductData.contactLensColors)
+          ? cleanProductData.contactLensColors.filter(color => CONTACT_LENS_COLORS.includes(color))
+          : [],
+        contactLensSolutionSize: Array.isArray(cleanProductData.contactLensSolutionSize) ? cleanProductData.contactLensSolutionSize : [],
+        // Ensure boolean fields are handled
+        isRecommended: Boolean(cleanProductData.isRecommended),
+        isTrending: Boolean(cleanProductData.isTrending),
+        isLatest: Boolean(cleanProductData.isLatest),
+        isExclusive: Boolean(cleanProductData.isExclusive),
+        isSpecialOffer: Boolean(cleanProductData.isSpecialOffer),
+        isBestSeller: Boolean(cleanProductData.isBestSeller),
+        isTrialPack: Boolean(cleanProductData.isTrialPack),
+        // Ensure numeric fields are handled as strings for input value
+        price: String(cleanProductData.price || ''),
+        mPrice: String(cleanProductData.mPrice || ''),
+        discount: String(cleanProductData.discount || 0),
+        quantity: String(cleanProductData.quantity || 1),
+        rating: String(cleanProductData.rating || 0),
+        reviewCount: String(cleanProductData.reviewCount || 0),
+
+        // Set default values for fields that might be null/undefined in existing data
+        subCategory: cleanProductData.subCategory || '',
+        personCategory: cleanProductData.personCategory || '',
+        gender: cleanProductData.gender || '',
+        ageGroup: cleanProductData.ageGroup || '',
+        selectedCategoryPrice: cleanProductData.selectedCategoryPrice || '',
+        topPicks: cleanProductData.topPicks || 'Not Applicable',
+        frameType: cleanProductData.frameType || '',
+        frameSize: cleanProductData.frameSize || '',
+        frameWidth: cleanProductData.frameWidth || '',
+        weightGroup: cleanProductData.weightGroup || '',
+        shape: cleanProductData.shape || '',
+        style: cleanProductData.style || '',
+        powerType: cleanProductData.powerType || '',
+        prescriptionType: cleanProductData.prescriptionType || '',
+        supportedPowers: cleanProductData.supportedPowers || '',
+        contactLensType: cleanProductData.contactLensType || '',
+        contactLensMaterial: cleanProductData.contactLensMaterial || '',
+        accessoryType: cleanProductData.accessoryType || '',
+        accessorySize: cleanProductData.accessorySize || '',
+        accessoryMaterial: cleanProductData.accessoryMaterial || '',
+        dimensions: cleanProductData.dimensions || '',
+        capacity: cleanProductData.capacity || '',
+        material: cleanProductData.material || '',
       });
+      // Set the selected category based on the product data
+      setSelectedCategory(productData.mainCategory);
     }
   }, [isEditing, productData]);
 
@@ -2015,7 +2062,9 @@ const ProductPost = () => {
             {isEditing ? 'Edit Product' : 'Add New Product'}
           </Heading>
 
-          <Tabs variant="enclosed" onChange={(index) => {
+          <Tabs variant="enclosed" 
+            index={["GLASSES", "CONTACT_LENSES", "ACCESSORIES"].indexOf(selectedCategory)}
+            onChange={(index) => {
             const categories = ["GLASSES", "CONTACT_LENSES", "ACCESSORIES"];
             handleCategoryChange(categories[index]);
           }}>
