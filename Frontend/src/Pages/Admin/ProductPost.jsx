@@ -81,6 +81,7 @@ const ProductPost = () => {
     },
     // Contact Lenses specific fields
     isContactLensColor: false,
+    contactLensColors: [],
     frameColors: [],
     // Accessories specific fields
     material: "",
@@ -194,7 +195,8 @@ const ProductPost = () => {
         additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
         brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
         lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : [],
-        frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : []
+        frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : [],
+        contactLensColors: Array.isArray(productData.contactLensColors) ? productData.contactLensColors : []
       });
     }
   }, [isEditing, productData]);
@@ -291,7 +293,8 @@ const ProductPost = () => {
         createdAt: isEditing ? formData.createdAt : new Date(),
         // Ensure topPicks is set
         topPicks: formData.topPicks || 'Not Applicable',
-        frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : []
+        frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : [],
+        contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : []
       };
 
       console.log('Sending payload:', payload);
@@ -301,27 +304,12 @@ const ProductPost = () => {
         : `${API_URL}/products`;
 
       const method = isEditing ? "PUT" : "POST";
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        toast({
-          title: "Authentication Error",
-          description: "Please log in to continue",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom"
-        });
-        setLoading(false);
-        return;
-      }
 
       const response = await fetch(url, {
         method,
         body: JSON.stringify(payload),
         headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json"
         }
       });
 
@@ -1234,15 +1222,15 @@ const ProductPost = () => {
                     onClick={() => {
                       const newColors = formData.contactLensColors || [];
                       if (newColors.includes(color)) {
-                        setFormData({
-                          ...formData,
+                        setFormData(prev => ({
+                          ...prev,
                           contactLensColors: newColors.filter(c => c !== color)
-                        });
+                        }));
                       } else {
-                        setFormData({
-                          ...formData,
+                        setFormData(prev => ({
+                          ...prev,
                           contactLensColors: [...newColors, color]
-                        });
+                        }));
                       }
                     }}
                     bg={FRAME_COLOR_MAPPING[color]}
@@ -1253,8 +1241,39 @@ const ProductPost = () => {
                       transform: "scale(1.05)",
                       transition: "all 0.2s"
                     }}
+                    position="relative"
+                    overflow="hidden"
                   >
-                    {color}
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="0"
+                      right="0"
+                      bottom="0"
+                      bg={formData.contactLensColors?.includes(color) ? "rgba(0, 0, 0, 0.2)" : "transparent"}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {formData.contactLensColors?.includes(color) && (
+                        <Box
+                          as="span"
+                          fontSize="lg"
+                          color="white"
+                          textShadow="0 0 2px rgba(0,0,0,0.5)"
+                        >
+                          ✓
+                        </Box>
+                      )}
+                    </Box>
+                    <Text
+                      px={3}
+                      py={1}
+                      fontWeight="medium"
+                      textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
+                    >
+                      {color}
+                    </Text>
                   </Tag>
                 ))}
               </Wrap>

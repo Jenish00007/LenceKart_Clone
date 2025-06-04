@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = () => {
+const AdminPanel = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
@@ -35,7 +35,8 @@ const Dashboard = () => {
   }, [isSidebarOpen, isMobile]);
 
   const menuItems = [
-    { path: '/admin', label: 'Analytics', icon: '📊' },
+    { path: '/admin', label: 'Dashboard', icon: '📈' },
+    { path: '/admin/analytics', label: 'Analytics', icon: '📊' },
     { path: '/admin/products', label: 'Products', icon: '📦' },
     { path: '/admin/productpost', label: 'Add Product', icon: '➕' },
     { path: '/admin/orders', label: 'Orders', icon: '📋' },
@@ -94,16 +95,7 @@ const Dashboard = () => {
         </nav>
       </div>
       <div className="main-content">
-        <header className="dashboard-header">
-          <button 
-            className="mobile-menu-btn"
-            onClick={toggleSidebar}
-            aria-label="Toggle Mobile Menu"
-          >
-            ☰
-          </button>
-          <h1>{menuItems.find(item => item.path === location.pathname)?.label || 'Analytics'}</h1>
-        </header>
+       
         <main className="dashboard-main">
           <Outlet />
         </main>
@@ -112,4 +104,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default AdminPanel; 
