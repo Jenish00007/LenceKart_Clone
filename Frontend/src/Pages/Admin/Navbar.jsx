@@ -190,7 +190,14 @@ const Navbar = () => {
     >
       <Flex h={16} alignItems="center" justifyContent="space-between">
         {/* Logo and Brand */}
-        <Flex alignItems="center" gap={paddingX}>
+        <Flex 
+          alignItems="center" 
+          gap={paddingX} 
+          as={Link} 
+          to="/admin"
+          cursor="pointer"
+          _hover={{ opacity: 0.8 }}
+        >
           <Avatar
             src="https://bit.ly/broken-link"
             size={logoSize}

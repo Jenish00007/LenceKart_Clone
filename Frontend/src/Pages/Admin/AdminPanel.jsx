@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = () => {
+const AdminPanel = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
@@ -35,7 +35,7 @@ const Dashboard = () => {
   }, [isSidebarOpen, isMobile]);
 
   const menuItems = [
-    { path: '/admin', label: 'Analytics', icon: '📊' },
+    { path: '/admin/analytics', label: 'Analytics', icon: '📊' },
     { path: '/admin/products', label: 'Products', icon: '📦' },
     { path: '/admin/productpost', label: 'Add Product', icon: '➕' },
     { path: '/admin/orders', label: 'Orders', icon: '📋' },
@@ -112,4 +112,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default AdminPanel; 
