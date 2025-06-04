@@ -386,6 +386,10 @@ const ProductPost = () => {
         frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : [],
         contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : [],
         
+        // Set default values for enum fields that are empty
+        ageGroup: formData.ageGroup || 'Not Applicable',
+        personCategory: formData.personCategory || 'Not Applicable',
+        
         // --- Adjust values to match backend enum expectations ---
         // Map boolean isContactLensColor to string 'yes' or 'no'
         isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
