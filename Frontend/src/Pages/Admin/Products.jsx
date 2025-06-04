@@ -1116,7 +1116,7 @@ const Products = () => {
                    variant={showFilterSection ? "solid" : "outline"}
                    size={{ base: "sm", md: "md" }}
                  >
-                   Filters
+                   {showFilterSection ? "Hide Filters" : "Filters"}
                  </Button>
                  <Button
                    onClick={toggleSelectionCheckboxes}
