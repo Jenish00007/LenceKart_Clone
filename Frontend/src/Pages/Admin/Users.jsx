@@ -55,7 +55,6 @@ import {
 } from '@chakra-ui/react';
 import { FiSearch, FiEye, FiEdit, FiTrash2, FiUser, FiMail, FiPhone, FiCalendar } from 'react-icons/fi';
 import { API_URL } from '../../config';
-import Navbar from "./Navbar";
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -147,7 +146,6 @@ const Users = () => {
     if (loading) {
         return (
             <Box bg="gray.50" minH="100vh">
-                <Navbar />
                 <Box p={6}>
                     <Text>Loading...</Text>
                 </Box>
@@ -157,7 +155,6 @@ const Users = () => {
 
     return (
         <Box bg="gray.50" minH="100vh">
-            <Navbar />
             <Box p={{ base: 3, md: 6 }}>
                 <VStack spacing={{ base: 4, md: 6 }} align="stretch">
                     {/* Header Section */}

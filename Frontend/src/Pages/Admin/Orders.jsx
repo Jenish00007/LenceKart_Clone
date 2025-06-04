@@ -51,7 +51,6 @@ import {
 import { FiSearch, FiEye, FiEdit, FiTrash2, FiChevronDown, FiDollarSign, FiCalendar, FiUser, FiPackage } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config';
-import Navbar from './Navbar';
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -248,7 +247,6 @@ const Orders = () => {
 
   return (
     <Box bg="gray.50" minH="100vh">
-      <Navbar />
       <Box p={6}>
         <VStack spacing={6} align="stretch">
           {/* Header Section */}

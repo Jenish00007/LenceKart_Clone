@@ -96,19 +96,20 @@ exports.createProduct = async (req, res) => {
         }
 
         // Validate enum values
-        if (productData.mainCategory && !['GLASSES', 'CONTACT_LENSES'].includes(productData.mainCategory)) {
+        if (productData.mainCategory && !['GLASSES', 'CONTACT_LENSES', 'ACCESSORIES'].includes(productData.mainCategory)) {
             console.log('Invalid mainCategory:', productData.mainCategory);
             return res.status(400).json({
                 success: false,
                 message: 'Invalid mainCategory value',
-                validValues: ['GLASSES', 'CONTACT_LENSES']
+                validValues: ['GLASSES', 'CONTACT_LENSES', 'ACCESSORIES']
             });
         }
 
         // Validate subCategory based on mainCategory
         const validSubCategories = {
             'GLASSES': ['EYEGLASSES', 'SUNGLASSES', 'COMPUTER_GLASSES'],
-            'CONTACT_LENSES': ['CONTACT_LENSES', 'CONTACT_LENS_SOLUTION', 'CONTACT_LENS_CASES', 'CONTACT_LENS_ACCESSORIES']
+            'CONTACT_LENSES': ['CONTACT_LENSES', 'CONTACT_LENS_SOLUTION', 'CONTACT_LENS_CASES', 'CONTACT_LENS_ACCESSORIES'],
+            'ACCESSORIES': ['CONTACT_LENSES', 'CONTACT_LENS_SOLUTION', 'CONTACT_LENS_CASES', 'CONTACT_LENS_ACCESSORIES']
         };
 
         if (productData.mainCategory && productData.subCategory) {

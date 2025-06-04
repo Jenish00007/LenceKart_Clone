@@ -71,6 +71,7 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  Checkbox,
 } from '@chakra-ui/react';
 import { SearchIcon, AddIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import './AdminPages.css';
@@ -194,7 +195,7 @@ const productService = {
     return response.json();
   },
   deleteProduct: async (id) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     const response = await fetch(`${API_URL}/products/${id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
@@ -433,7 +434,7 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters, isMobile = fa
   );
 };
 
-const ProductTable = ({ products, onEdit, onDelete }) => {
+const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelectProduct, showSelectionCheckboxes, toggleSelectionCheckboxes }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -443,8 +444,17 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
         {products.map((product) => (
           <Card key={product._id} bg={bgColor} boxShadow="sm">
             <CardBody>
-              <Grid templateColumns="auto 1fr" gap={4}>
+              <Grid templateColumns="auto auto 1fr" gap={4}>
                 {/* Product Image */}
+                <GridItem>
+                  {showSelectionCheckboxes && (
+                    <Checkbox
+                      isChecked={selectedProductIds.includes(product._id)}
+                      onChange={(e) => onSelectProduct(product._id, e.target.checked)}
+                      alignSelf="center"
+                    />
+                  )}
+                </GridItem>
                 <GridItem>
                   <Image
                     src={product.imageTsrc || product.image || '/placeholder-image.png'}
@@ -556,6 +566,19 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
         <Table variant="simple">
           <Thead>
             <Tr>
+              <Th width="50px">
+                {showSelectionCheckboxes && (
+                  <Checkbox
+                    isChecked={products.length > 0 && selectedProductIds.length === products.length}
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      onSelectProduct(products.map(p => p._id), isChecked);
+                    }}
+                  >
+                    <span className="chakra-visually-hidden">Select All</span>
+                  </Checkbox>
+                )}
+              </Th>
               <Th>Image</Th>
               <Th>Name</Th>
               <Th>Type</Th>
@@ -568,6 +591,14 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
           <Tbody>
             {products.map((product) => (
               <Tr key={product._id}>
+                <Td width="50px">
+                  {showSelectionCheckboxes && (
+                    <Checkbox
+                      isChecked={selectedProductIds.includes(product._id)}
+                      onChange={(e) => onSelectProduct(product._id, e.target.checked)}
+                    />
+                  )}
+                </Td>
                 <Td>
                   <Image
                     src={product.imageTsrc || product.image || '/placeholder-image.png'}
@@ -684,6 +715,10 @@ const Products = () => {
     searchQuery: "",
     error: null
   });
+
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [showSelectionCheckboxes, setShowSelectionCheckboxes] = useState(false);
+  const [showFilterSection, setShowFilterSection] = useState(false);
 
   const [filters, setFilters] = useState({
     basic: {
@@ -836,6 +871,91 @@ const Products = () => {
     setProductState(prev => ({ ...prev, page: newPage }));
   };
 
+  const handleSelectProduct = (id, isSelected) => {
+    setSelectedProductIds(prev => {
+      if (Array.isArray(id)) {
+        // Handling select/deselect all
+        const newSelectedIds = new Set(prev);
+        if (isSelected) {
+          id.forEach(productId => newSelectedIds.add(productId));
+        } else {
+          id.forEach(productId => newSelectedIds.delete(productId));
+        }
+        return Array.from(newSelectedIds);
+      } else {
+        // Handling single select/deselect
+        if (isSelected) {
+          return [...prev, id];
+        } else {
+          return prev.filter(productId => productId !== id);
+        }
+      }
+    });
+  };
+
+  const toggleSelectionCheckboxes = () => {
+    setShowSelectionCheckboxes(prev => !prev);
+    // Clear selected products when hiding checkboxes
+    if (showSelectionCheckboxes) {
+      setSelectedProductIds([]);
+    }
+  };
+
+  const toggleFilterSection = () => {
+    setShowFilterSection(prev => !prev);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedProductIds.length === 0) return;
+
+    setLoadingStates(prev => ({ ...prev, deleting: true }));
+    try {
+      // Use Promise.all to delete products concurrently
+      const deletionPromises = selectedProductIds.map(id => productService.deleteProduct(id));
+      const results = await Promise.all(deletionPromises);
+
+      // Check results for any errors, although confirmDelete handles individual errors
+      const failedDeletions = results.filter(result => !result || result.error);
+
+      if (failedDeletions.length > 0) {
+         // Handle partial success or total failure
+         toast({
+           title: "Error deleting some products",
+           description: `${failedDeletions.length} out of ${selectedProductIds.length} products failed to delete.`, // More specific error handling could be added
+           status: "error",
+           duration: 3000,
+           isClosable: true,
+         });
+      } else {
+        toast({
+          title: "Success",
+          description: "Selected products deleted successfully",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
+
+      setSelectedProductIds([]); // Clear selection after deletion attempt
+      setShowSelectionCheckboxes(false); // Exit selection mode
+      fetchData(); // Refresh the list
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Error deleting selected products",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoadingStates(prev => ({ ...prev, deleting: false }));
+      // Ensure selection mode is exited even if there's an error
+      setShowSelectionCheckboxes(false);
+      // Keep the delete confirmation modal state separate if needed, but for bulk delete, we likely close it always
+      setProductState(prev => ({ ...prev, isDeleteDialogOpen: false, deleteProductId: null }));
+    }
+  };
+
   const handleDelete = async (id) => {
     setProductState(prev => ({
       ...prev,
@@ -961,47 +1081,64 @@ const Products = () => {
             Products Management
           </Heading>
           <HStack spacing={4} justify={{ base: "space-between", md: "flex-end" }}>
-            {isMobile ? (
-              <>
-                <IconButton
-                  icon={<FiFilter />}
-                  aria-label="Filter Products"
-                  onClick={onOpen}
-                  colorScheme="blue"
-                  variant="outline"
-                />
-                <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
-                  Total: {productState.totalProducts}
-                </Text>
-                <Tooltip label="Add New Product">
-                  <IconButton
-                    icon={<AddIcon />}
-                    aria-label="Add New Product"
-                    colorScheme="blue"
-                    onClick={() => navigate('/admin/productpost')}
-                  />
-                </Tooltip>
-              </>
+            {showSelectionCheckboxes ? (
+              // Show selection actions when in selection mode
+              <HStack spacing={4}>
+                {selectedProductIds.length > 0 && (
+                  <Button
+                    leftIcon={<DeleteIcon />}
+                    colorScheme="red"
+                    size={{ base: "sm", md: "md" }}
+                    onClick={() => handleDeleteSelected()}
+                    isLoading={loadingStates.deleting}
+                  >
+                    Delete Selected ({selectedProductIds.length})
+                  </Button>
+                )}
+                <Button
+                  onClick={toggleSelectionCheckboxes}
+                  size={{ base: "sm", md: "md" }}
+                >
+                  Cancel Selection
+                </Button>
+              </HStack>
             ) : (
-              <>
+              // Show default actions when not in selection mode
+              <HStack spacing={4}>
                 <Text color="gray.600" fontSize={{ base: "sm", md: "md" }}>
                   Total Products: {productState.totalProducts}
                 </Text>
-                <Button
-                  leftIcon={<AddIcon />}
-                  colorScheme="blue"
-                  size={{ base: "sm", md: "md" }}
-                  onClick={() => navigate('/admin/productpost')}
-                >
-                  Add New Product
-                </Button>
-              </>
+                 <Button
+                   leftIcon={<FiFilter />}
+                   aria-label="Filter Products"
+                   onClick={toggleFilterSection}
+                   colorScheme="blue"
+                   variant={showFilterSection ? "solid" : "outline"}
+                   size={{ base: "sm", md: "md" }}
+                 >
+                   {showFilterSection ? "Hide Filters" : "Filters"}
+                 </Button>
+                 <Button
+                   onClick={toggleSelectionCheckboxes}
+                   size={{ base: "sm", md: "md" }}
+                 >
+                   Select
+                 </Button>
+                 <Button
+                   leftIcon={<AddIcon />}
+                   colorScheme="blue"
+                   size={{ base: "sm", md: "md" }}
+                   onClick={() => navigate('/admin/productpost')}
+                 >
+                   Add New Product
+                 </Button>
+              </HStack>
             )}
           </HStack>
         </Flex>
 
         {/* Filters Section - Only show on desktop */}
-        {!isMobile && (
+        {!isMobile && showFilterSection && (
           <ProductFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -1014,6 +1151,10 @@ const Products = () => {
           products={sortedProducts}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          selectedProductIds={selectedProductIds}
+          onSelectProduct={handleSelectProduct}
+          showSelectionCheckboxes={showSelectionCheckboxes}
+          toggleSelectionCheckboxes={toggleSelectionCheckboxes}
         />
 
         {/* Pagination */}

@@ -98,7 +98,8 @@ const ProductPost = () => {
     rating: 0,
     reviewCount: 0,
     quantity: 1,
-    discount: 0
+    discount: 0,
+    supportedPowers: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -136,6 +137,24 @@ const ProductPost = () => {
     "High Index",
     "Day Night",
     "Not Applicable"
+  ];
+
+  // Define specific colors for Contact Lenses based on backend enum
+  const CONTACT_LENS_COLORS = [
+    "Clear",
+    "Black",
+    "Brown",
+    "Blue",
+    "Green",
+    "Grey",
+    "Hazel",
+    "Purple",
+    "Red",
+    "Silver",
+    "White",
+    "Multicolor",
+    "Turquoise",
+    "Not Applicable",
   ];
 
   const FRAME_COLORS = [
@@ -187,17 +206,87 @@ const ProductPost = () => {
     "Not Applicable": "#E2E8F0"
   };
 
+  // Define a specific color mapping for Contact Lenses
+  const CONTACT_LENS_COLOR_MAPPING = {
+    "Clear": "#FFFFFF", // Using white for clear, or could be rgba(255, 255, 255, 0)
+    "Black": "#000000",
+    "Brown": "#A52A2A",
+    "Blue": "#0000FF",
+    "Green": "#008000",
+    "Grey": "#808080",
+    "Hazel": "#8E7B65",
+    "Purple": "#800080",
+    "Red": "#FF0000",
+    "Silver": "#C0C0C0",
+    "White": "#FFFFFF",
+    "Multicolor": "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
+    "Turquoise": "#40E0D0",
+    "Not Applicable": "#E2E8F0"
+  };
+
   useEffect(() => {
     if (isEditing && productData) {
+      // Create a clean object to avoid issues with Mongoose document properties
+      const cleanProductData = JSON.parse(JSON.stringify(productData));
+
       setFormData({
-        ...productData,
-        powerRange: productData.powerRange || { min: "", max: "" },
-        additionalImages: Array.isArray(productData.additionalImages) ? productData.additionalImages : [],
-        brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
-        lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : [],
-        frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : [],
-        contactLensColors: Array.isArray(productData.contactLensColors) ? productData.contactLensColors : []
+        // Spread clean data first
+        ...cleanProductData,
+        // Override specific fields with checks for array/object format
+        powerRange: cleanProductData.powerRange || { min: "", max: "" },
+        additionalImages: Array.isArray(cleanProductData.additionalImages) ? cleanProductData.additionalImages : [],
+        brands: Array.isArray(cleanProductData.brands) ? cleanProductData.brands : ['Not Applicable'],
+        lensFeatures: Array.isArray(cleanProductData.lensFeatures) ? cleanProductData.lensFeatures : [],
+        frameColors: Array.isArray(cleanProductData.frameColors) ? cleanProductData.frameColors : [],
+        contactLensColors: Array.isArray(cleanProductData.contactLensColors)
+          ? cleanProductData.contactLensColors.filter(color => CONTACT_LENS_COLORS.includes(color))
+          : [],
+        contactLensSolutionSize: Array.isArray(cleanProductData.contactLensSolutionSize) ? cleanProductData.contactLensSolutionSize : [],
+        // Ensure boolean fields are handled
+        isRecommended: Boolean(cleanProductData.isRecommended),
+        isTrending: Boolean(cleanProductData.isTrending),
+        isLatest: Boolean(cleanProductData.isLatest),
+        isExclusive: Boolean(cleanProductData.isExclusive),
+        isSpecialOffer: Boolean(cleanProductData.isSpecialOffer),
+        isBestSeller: Boolean(cleanProductData.isBestSeller),
+        isTrialPack: Boolean(cleanProductData.isTrialPack),
+        // Ensure numeric fields are handled as strings for input value
+        price: String(cleanProductData.price || ''),
+        mPrice: String(cleanProductData.mPrice || ''),
+        discount: String(cleanProductData.discount || 0),
+        quantity: String(cleanProductData.quantity || 1),
+        rating: String(cleanProductData.rating || 0),
+        reviewCount: String(cleanProductData.reviewCount || 0),
+
+        // Set default values for fields that might be null/undefined in existing data
+        subCategory: cleanProductData.subCategory || '',
+        personCategory: cleanProductData.personCategory || '',
+        gender: cleanProductData.gender || '',
+        ageGroup: cleanProductData.ageGroup || '',
+        selectedCategoryPrice: cleanProductData.selectedCategoryPrice || '',
+        topPicks: cleanProductData.topPicks || 'Not Applicable',
+        frameType: cleanProductData.frameType || '',
+        frameSize: cleanProductData.frameSize || '',
+        frameWidth: cleanProductData.frameWidth || '',
+        // Map 'Medium' weightGroup to 'Average' when loading existing data
+        weightGroup: cleanProductData.weightGroup === 'Medium' ? 'Average' : cleanProductData.weightGroup || '',
+        shape: cleanProductData.shape || '',
+        style: cleanProductData.style || '',
+        powerType: cleanProductData.powerType || '',
+        prescriptionType: cleanProductData.prescriptionType || '',
+        // Set supportedPowers to Not Applicable for ACCESSORIES when loading data
+        supportedPowers: cleanProductData.mainCategory === 'ACCESSORIES' ? 'Not Applicable' : (cleanProductData.supportedPowers || ''),
+        contactLensType: cleanProductData.contactLensType || '',
+        contactLensMaterial: cleanProductData.contactLensMaterial || '',
+        accessoryType: cleanProductData.accessoryType || '',
+        accessorySize: cleanProductData.accessorySize || '',
+        accessoryMaterial: cleanProductData.accessoryMaterial || '',
+        dimensions: cleanProductData.dimensions || '',
+        capacity: cleanProductData.capacity || '',
+        material: cleanProductData.material || '',
       });
+      // Set the selected category based on the product data
+      setSelectedCategory(productData.mainCategory);
     }
   }, [isEditing, productData]);
 
@@ -270,7 +359,8 @@ const ProductPost = () => {
 
       // Format the data before sending
       const payload = {
-        ...formData,
+        // Spread formData, but exclude supportedPowers to handle it explicitly below
+        ...Object.fromEntries(Object.entries(formData).filter(([key]) => key !== 'supportedPowers')),
         // Set mainCategory based on the selected tab
         mainCategory: selectedCategory,
         // Convert string numbers to actual numbers
@@ -294,10 +384,43 @@ const ProductPost = () => {
         // Ensure topPicks is set
         topPicks: formData.topPicks || 'Not Applicable',
         frameColors: Array.isArray(formData.frameColors) ? formData.frameColors : [],
-        contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : []
+        contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : [],
+        
+        // --- Adjust values to match backend enum expectations ---
+        // Map boolean isContactLensColor to string 'yes' or 'no'
+        isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
+        // Set default values for enum fields that are empty
+        powerType: formData.powerType || 'Not Applicable',
+        prescriptionType: formData.prescriptionType || 'Not Applicable',
+        contactLensType: formData.contactLensType || 'Not Applicable',
+        contactLensMaterial: formData.contactLensMaterial || 'Not Applicable',
+        accessoryType: formData.accessoryType || 'Not Applicable',
+        accessorySize: formData.accessorySize || 'Not Applicable',
+        accessoryMaterial: formData.accessoryMaterial || 'Not Applicable',
+        // Set default values for glasses-specific fields when not in GLASSES category
+        frameWidth: selectedCategory === 'GLASSES' ? formData.frameWidth : 'Not Applicable',
+        frameSize: selectedCategory === 'GLASSES' ? formData.frameSize : 'Not Applicable',
+        // Ensure weightGroup is mapped to 'Average' if the form data was 'Medium' or set to 'Not Applicable' if not GLASSES
+        weightGroup: selectedCategory === 'GLASSES' && formData.weightGroup === 'Medium'
+          ? 'Average'
+          : formData.weightGroup || 'Not Applicable',
       };
 
+      // Explicitly add supportedPowers after spreading formData with correct value
+      payload.supportedPowers = selectedCategory === 'ACCESSORIES' ? 'Not Applicable' : formData.supportedPowers || 'Not Applicable';
+
+      // Final enforcement of weightGroup mapping for GLASSES category in the payload (keeping this as a safeguard)
+      if (payload.mainCategory === 'GLASSES' && payload.weightGroup === 'Medium') {
+        payload.weightGroup = 'Average';
+      }
+
+      // Final check for supportedPowers just before sending (another safeguard)
+      if (payload.supportedPowers === '') {
+        payload.supportedPowers = 'Not Applicable';
+      }
+
       console.log('Sending payload:', payload);
+      console.log('Contact Lens Colors being sent:', payload.contactLensColors);
 
       const url = isEditing 
         ? `${API_URL}/products/${productData._id}`
@@ -305,12 +428,22 @@ const ProductPost = () => {
 
       const method = isEditing ? "PUT" : "POST";
 
+      // Retrieve the admin token from localStorage
+      const adminToken = localStorage.getItem('adminToken');
+
+      // Check if token exists before including it (optional but good practice)
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`;
+      }
+
       const response = await fetch(url, {
         method,
         body: JSON.stringify(payload),
-        headers: { 
-          "Content-Type": "application/json"
-        }
+        headers: headers,
       });
 
       const data = await response.json();
@@ -361,7 +494,9 @@ const ProductPost = () => {
     setFormData(prev => ({
       ...prev,
       mainCategory: category,
-      subCategory: "" // Reset subcategory when main category changes
+      subCategory: category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "", // Set default subCategory for accessories
+      // Set supportedPowers to Not Applicable when switching to ACCESSORIES
+      supportedPowers: category === 'ACCESSORIES' ? 'Not Applicable' : prev.supportedPowers
     }));
   };
 
@@ -600,25 +735,6 @@ const ProductPost = () => {
           </SimpleGrid>
 
           <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
-
-          <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Frame Type</Text>
             <Select
               name="frameType"
@@ -714,7 +830,13 @@ const ProductPost = () => {
             <Select
               name="weightGroup"
               value={formData.weightGroup}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  weightGroup: value === 'Medium' ? 'Average' : value
+                }));
+              }}
               size="lg"
               borderRadius="md"
               h={inputHeight}
@@ -998,6 +1120,25 @@ const ProductPost = () => {
               </Checkbox>
             </FormControl>
           </SimpleGrid>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
         </VStack>
       </CardBody>
     </Card>
@@ -1212,7 +1353,7 @@ const ProductPost = () => {
             <FormControl>
               <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Colors</Text>
               <Wrap spacing={2}>
-                {FRAME_COLORS.map((color) => (
+                {CONTACT_LENS_COLORS.map((color) => (
                   <Tag
                     key={color}
                     size="md"
@@ -1233,8 +1374,8 @@ const ProductPost = () => {
                         }));
                       }
                     }}
-                    bg={FRAME_COLOR_MAPPING[color]}
-                    color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
+                    bg={CONTACT_LENS_COLOR_MAPPING[color]}
+                    color={color === "White" || color === "Clear" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
                     border={color === "White" ? "1px solid #E2E8F0" : "none"}
                     _hover={{
                       opacity: 0.8,
@@ -1270,7 +1411,7 @@ const ProductPost = () => {
                       px={3}
                       py={1}
                       fontWeight="medium"
-                      textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
+                      textShadow={color === "White" || color === "Clear" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
                     >
                       {color}
                     </Text>
@@ -1291,9 +1432,10 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Contact Lens Type</option>
-              <option value="Daily Disposable">Daily Disposable</option>
-              <option value="Monthly Disposable">Monthly Disposable</option>
-              <option value="Yearly Disposable">Yearly Disposable</option>
+              <option value="Daily">Daily</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Yearly">Yearly</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1362,25 +1504,6 @@ const ProductPost = () => {
               />
             </FormControl>
           </SimpleGrid>
-
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Style</Text>
@@ -1756,9 +1879,10 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Accessory Type</option>
-              <option value="Contact Lens Solution">Contact Lens Solution</option>
-              <option value="Contact Lens Case">Contact Lens Case</option>
-              <option value="Contact Lens Accessories">Contact Lens Accessories</option>
+              <option value="CASE">Contact Lens Case</option>
+              <option value="SOLUTION">Contact Lens Solution</option>
+              <option value="CLEANER">Cleaner</option>
+              <option value="MULTI_PURPOSE">Multi-Purpose</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1774,27 +1898,9 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Accessory Size</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
-
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Weight Group</Text>
-            <Select
-              name="weightGroup"
-              value={formData.weightGroup}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Weight Group</option>
-              <option value="Light">Light</option>
-              <option value="Medium">Medium</option>
-              <option value="Heavy">Heavy</option>
+              <option value="SMALL">Small</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LARGE">Large</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1810,10 +1916,9 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Material</option>
-              <option value="Plastic">Plastic</option>
-              <option value="Metal">Metal</option>
-              <option value="Glass">Glass</option>
-              <option value="Silicone">Silicone</option>
+              <option value="PLASTIC">Plastic</option>
+              <option value="SILICONE">Silicone</option>
+              <option value="METAL">Metal</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1822,17 +1927,21 @@ const ProductPost = () => {
             <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Solution Size</Text>
             <Select
               name="contactLensSolutionSize"
-              value={formData.contactLensSolutionSize}
-              onChange={handleChange}
+              value={formData.contactLensSolutionSize && formData.contactLensSolutionSize.length > 0 ? formData.contactLensSolutionSize[0] : ""}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                contactLensSolutionSize: e.target.value ? [e.target.value] : []
+              }))}
               size="lg"
               borderRadius="md"
               h={inputHeight}
             >
               <option value="">Select Solution Size</option>
-              <option value="60ml">60ml</option>
-              <option value="120ml">120ml</option>
-              <option value="240ml">240ml</option>
-              <option value="360ml">360ml</option>
+              <option value="Extra Small (10-25 ml)">Extra Small (10-25 ml)</option>
+              <option value="Small (30-45 ml)">Small (30-45 ml)</option>
+              <option value="Medium (50-65 ml)">Medium (50-65 ml)</option>
+              <option value="Large (70-85 ml)">Large (70-85 ml)</option>
+              <option value="Extra Large (90-100 ml)">Extra Large (90-100 ml)</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1971,7 +2080,9 @@ const ProductPost = () => {
             {isEditing ? 'Edit Product' : 'Add New Product'}
           </Heading>
 
-          <Tabs variant="enclosed" onChange={(index) => {
+          <Tabs variant="enclosed"
+            index={["GLASSES", "CONTACT_LENSES", "ACCESSORIES"].indexOf(selectedCategory)}
+            onChange={(index) => {
             const categories = ["GLASSES", "CONTACT_LENSES", "ACCESSORIES"];
             handleCategoryChange(categories[index]);
           }}>

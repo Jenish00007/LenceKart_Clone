@@ -27,7 +27,7 @@ const auth = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Auth middleware - Decoded token:', decoded);
     
-    if (!decoded || (!decoded.userID && !decoded._id && !decoded.id)) {
+    if (!decoded || (!decoded.userID && !decoded._id && !decoded.id && !decoded.adminId)) {
       console.log('Auth middleware - Invalid token structure:', decoded);
       return res.status(401).json({ 
         message: 'Invalid token',
@@ -36,7 +36,7 @@ const auth = (req, res, next) => {
     }
 
     req.user = {
-      _id: decoded.userID || decoded._id || decoded.id
+      _id: decoded.adminId || decoded.userID || decoded._id || decoded.id
     };
     console.log('Auth middleware - User set:', req.user);
     
