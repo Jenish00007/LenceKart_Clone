@@ -387,6 +387,18 @@ const ProductPost = () => {
         weightGroup: formData.weightGroup === 'Medium' ? 'Average' : formData.weightGroup,
         // Map boolean isContactLensColor to string 'yes' or 'no'
         isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
+        // Set default values for enum fields that are empty
+        powerType: formData.powerType || 'Not Applicable',
+        prescriptionType: formData.prescriptionType || 'Not Applicable',
+        contactLensType: formData.contactLensType || 'Not Applicable',
+        contactLensMaterial: formData.contactLensMaterial || 'Not Applicable',
+        accessoryType: formData.accessoryType || 'Not Applicable',
+        accessorySize: formData.accessorySize || 'Not Applicable',
+        accessoryMaterial: formData.accessoryMaterial || 'Not Applicable',
+        // Set default values for glasses-specific fields when not in GLASSES category
+        frameWidth: selectedCategory === 'GLASSES' ? formData.frameWidth : 'Not Applicable',
+        frameSize: selectedCategory === 'GLASSES' ? formData.frameSize : 'Not Applicable',
+        weightGroup: selectedCategory === 'GLASSES' ? formData.weightGroup : 'Not Applicable',
         // ------------------------------------------------------
       };
 
