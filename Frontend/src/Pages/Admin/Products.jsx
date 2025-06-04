@@ -194,7 +194,7 @@ const productService = {
     return response.json();
   },
   deleteProduct: async (id) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('adminToken');
     const response = await fetch(`${API_URL}/products/${id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${token}` }
