@@ -434,6 +434,8 @@ const ProductPost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let uploadToastId = null;
+    
     try {
       setLoading(true);
       
@@ -480,7 +482,7 @@ const ProductPost = () => {
       let mainImageUrl = formData.imageTsrc;
       if (mainImageFile) {
         try {
-          toast({
+          uploadToastId = toast({
             title: "Uploading...",
             description: "Please wait while we upload your main image",
             status: "info",
@@ -489,7 +491,9 @@ const ProductPost = () => {
             position: "bottom"
           });
           mainImageUrl = await uploadImageToS3(mainImageFile);
+          toast.close(uploadToastId);
         } catch (error) {
+          toast.close(uploadToastId);
           setLoading(false);
           return;
         }
@@ -499,7 +503,7 @@ const ProductPost = () => {
       let additionalImageUrls = formData.additionalImages || [];
       if (additionalImageFiles.length > 0) {
         try {
-          toast({
+          uploadToastId = toast({
             title: "Uploading...",
             description: "Please wait while we upload your additional images",
             status: "info",
@@ -509,7 +513,9 @@ const ProductPost = () => {
           });
           const newUrls = await uploadMultipleImagesToS3(additionalImageFiles);
           additionalImageUrls = [...additionalImageUrls, ...newUrls];
+          toast.close(uploadToastId);
         } catch (error) {
+          toast.close(uploadToastId);
           setLoading(false);
           return;
         }
