@@ -35,6 +35,7 @@ const AdminPanel = () => {
   }, [isSidebarOpen, isMobile]);
 
   const menuItems = [
+    { path: '/admin', label: 'Dashboard', icon: '📈' },
     { path: '/admin/analytics', label: 'Analytics', icon: '📊' },
     { path: '/admin/products', label: 'Products', icon: '📦' },
     { path: '/admin/productpost', label: 'Add Product', icon: '➕' },
