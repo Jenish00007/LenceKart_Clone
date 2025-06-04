@@ -98,7 +98,8 @@ const ProductPost = () => {
     rating: 0,
     reviewCount: 0,
     quantity: 1,
-    discount: 0
+    discount: 0,
+    supportedPowers: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -267,12 +268,14 @@ const ProductPost = () => {
         frameType: cleanProductData.frameType || '',
         frameSize: cleanProductData.frameSize || '',
         frameWidth: cleanProductData.frameWidth || '',
-        weightGroup: cleanProductData.weightGroup || '',
+        // Map 'Medium' weightGroup to 'Average' when loading existing data
+        weightGroup: cleanProductData.weightGroup === 'Medium' ? 'Average' : cleanProductData.weightGroup || '',
         shape: cleanProductData.shape || '',
         style: cleanProductData.style || '',
         powerType: cleanProductData.powerType || '',
         prescriptionType: cleanProductData.prescriptionType || '',
-        supportedPowers: cleanProductData.supportedPowers || '',
+        // Set supportedPowers to Not Applicable for ACCESSORIES when loading data
+        supportedPowers: cleanProductData.mainCategory === 'ACCESSORIES' ? 'Not Applicable' : (cleanProductData.supportedPowers || ''),
         contactLensType: cleanProductData.contactLensType || '',
         contactLensMaterial: cleanProductData.contactLensMaterial || '',
         accessoryType: cleanProductData.accessoryType || '',
@@ -356,7 +359,8 @@ const ProductPost = () => {
 
       // Format the data before sending
       const payload = {
-        ...formData,
+        // Spread formData, but exclude supportedPowers to handle it explicitly below
+        ...Object.fromEntries(Object.entries(formData).filter(([key]) => key !== 'supportedPowers')),
         // Set mainCategory based on the selected tab
         mainCategory: selectedCategory,
         // Convert string numbers to actual numbers
@@ -383,8 +387,6 @@ const ProductPost = () => {
         contactLensColors: Array.isArray(formData.contactLensColors) ? formData.contactLensColors : [],
         
         // --- Adjust values to match backend enum expectations ---
-        // Map 'Medium' weightGroup to 'Average'
-        weightGroup: formData.weightGroup === 'Medium' ? 'Average' : formData.weightGroup,
         // Map boolean isContactLensColor to string 'yes' or 'no'
         isContactLensColor: formData.isContactLensColor ? 'yes' : 'no',
         // Set default values for enum fields that are empty
@@ -398,9 +400,24 @@ const ProductPost = () => {
         // Set default values for glasses-specific fields when not in GLASSES category
         frameWidth: selectedCategory === 'GLASSES' ? formData.frameWidth : 'Not Applicable',
         frameSize: selectedCategory === 'GLASSES' ? formData.frameSize : 'Not Applicable',
-        weightGroup: selectedCategory === 'GLASSES' ? formData.weightGroup : 'Not Applicable',
-        // ------------------------------------------------------
+        // Ensure weightGroup is mapped to 'Average' if the form data was 'Medium' or set to 'Not Applicable' if not GLASSES
+        weightGroup: selectedCategory === 'GLASSES' && formData.weightGroup === 'Medium'
+          ? 'Average'
+          : formData.weightGroup || 'Not Applicable',
       };
+
+      // Explicitly add supportedPowers after spreading formData with correct value
+      payload.supportedPowers = selectedCategory === 'ACCESSORIES' ? 'Not Applicable' : formData.supportedPowers || 'Not Applicable';
+
+      // Final enforcement of weightGroup mapping for GLASSES category in the payload (keeping this as a safeguard)
+      if (payload.mainCategory === 'GLASSES' && payload.weightGroup === 'Medium') {
+        payload.weightGroup = 'Average';
+      }
+
+      // Final check for supportedPowers just before sending (another safeguard)
+      if (payload.supportedPowers === '') {
+        payload.supportedPowers = 'Not Applicable';
+      }
 
       console.log('Sending payload:', payload);
       console.log('Contact Lens Colors being sent:', payload.contactLensColors);
@@ -477,7 +494,9 @@ const ProductPost = () => {
     setFormData(prev => ({
       ...prev,
       mainCategory: category,
-      subCategory: category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "" // Set default subCategory for accessories
+      subCategory: category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "", // Set default subCategory for accessories
+      // Set supportedPowers to Not Applicable when switching to ACCESSORIES
+      supportedPowers: category === 'ACCESSORIES' ? 'Not Applicable' : prev.supportedPowers
     }));
   };
 
@@ -716,25 +735,6 @@ const ProductPost = () => {
           </SimpleGrid>
 
           <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
-
-          <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Frame Type</Text>
             <Select
               name="frameType"
@@ -830,7 +830,13 @@ const ProductPost = () => {
             <Select
               name="weightGroup"
               value={formData.weightGroup}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  weightGroup: value === 'Medium' ? 'Average' : value
+                }));
+              }}
               size="lg"
               borderRadius="md"
               h={inputHeight}
@@ -1114,6 +1120,25 @@ const ProductPost = () => {
               </Checkbox>
             </FormControl>
           </SimpleGrid>
+
+          <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
         </VStack>
       </CardBody>
     </Card>
@@ -1479,25 +1504,6 @@ const ProductPost = () => {
               />
             </FormControl>
           </SimpleGrid>
-
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Style</Text>
