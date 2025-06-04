@@ -2062,7 +2062,7 @@ const ProductPost = () => {
             {isEditing ? 'Edit Product' : 'Add New Product'}
           </Heading>
 
-          <Tabs variant="enclosed" 
+          <Tabs variant="enclosed"
             index={["GLASSES", "CONTACT_LENSES", "ACCESSORIES"].indexOf(selectedCategory)}
             onChange={(index) => {
             const categories = ["GLASSES", "CONTACT_LENSES", "ACCESSORIES"];
