@@ -871,9 +871,25 @@ const Products = () => {
   };
 
   const handleSelectProduct = (id, isSelected) => {
-    setSelectedProductIds(prev =>
-      isSelected ? [...prev, id] : prev.filter(productId => productId !== id)
-    );
+    setSelectedProductIds(prev => {
+      if (Array.isArray(id)) {
+        // Handling select/deselect all
+        const newSelectedIds = new Set(prev);
+        if (isSelected) {
+          id.forEach(productId => newSelectedIds.add(productId));
+        } else {
+          id.forEach(productId => newSelectedIds.delete(productId));
+        }
+        return Array.from(newSelectedIds);
+      } else {
+        // Handling single select/deselect
+        if (isSelected) {
+          return [...prev, id];
+        } else {
+          return prev.filter(productId => productId !== id);
+        }
+      }
+    });
   };
 
   const toggleSelectionCheckboxes = () => {
