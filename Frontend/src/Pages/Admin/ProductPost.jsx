@@ -138,6 +138,24 @@ const ProductPost = () => {
     "Not Applicable"
   ];
 
+  // Define specific colors for Contact Lenses based on backend enum
+  const CONTACT_LENS_COLORS = [
+    "Clear",
+    "Black",
+    "Brown",
+    "Blue",
+    "Green",
+    "Grey",
+    "Hazel",
+    "Purple",
+    "Red",
+    "Silver",
+    "White",
+    "Multicolor",
+    "Turquoise",
+    "Not Applicable",
+  ];
+
   const FRAME_COLORS = [
     "Black",
     "Transparent",
@@ -187,6 +205,24 @@ const ProductPost = () => {
     "Not Applicable": "#E2E8F0"
   };
 
+  // Define a specific color mapping for Contact Lenses
+  const CONTACT_LENS_COLOR_MAPPING = {
+    "Clear": "#FFFFFF", // Using white for clear, or could be rgba(255, 255, 255, 0)
+    "Black": "#000000",
+    "Brown": "#A52A2A",
+    "Blue": "#0000FF",
+    "Green": "#008000",
+    "Grey": "#808080",
+    "Hazel": "#8E7B65",
+    "Purple": "#800080",
+    "Red": "#FF0000",
+    "Silver": "#C0C0C0",
+    "White": "#FFFFFF",
+    "Multicolor": "linear-gradient(45deg, #ff0000, #00ff00, #0000ff)",
+    "Turquoise": "#40E0D0",
+    "Not Applicable": "#E2E8F0"
+  };
+
   useEffect(() => {
     if (isEditing && productData) {
       setFormData({
@@ -196,7 +232,10 @@ const ProductPost = () => {
         brands: Array.isArray(productData.brands) ? productData.brands : ['Not Applicable'],
         lensFeatures: Array.isArray(productData.lensFeatures) ? productData.lensFeatures : [],
         frameColors: Array.isArray(productData.frameColors) ? productData.frameColors : [],
-        contactLensColors: Array.isArray(productData.contactLensColors) ? productData.contactLensColors : []
+        // Filter contactLensColors to include only valid enum values
+        contactLensColors: Array.isArray(productData.contactLensColors)
+          ? productData.contactLensColors.filter(color => CONTACT_LENS_COLORS.includes(color))
+          : []
       });
     }
   }, [isEditing, productData]);
@@ -305,6 +344,7 @@ const ProductPost = () => {
       };
 
       console.log('Sending payload:', payload);
+      console.log('Contact Lens Colors being sent:', payload.contactLensColors);
 
       const url = isEditing 
         ? `${API_URL}/products/${productData._id}`
@@ -378,7 +418,7 @@ const ProductPost = () => {
     setFormData(prev => ({
       ...prev,
       mainCategory: category,
-      subCategory: "" // Reset subcategory when main category changes
+      subCategory: category === "ACCESSORIES" ? "CONTACT_LENS_ACCESSORIES" : "" // Set default subCategory for accessories
     }));
   };
 
@@ -1229,7 +1269,7 @@ const ProductPost = () => {
             <FormControl>
               <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Colors</Text>
               <Wrap spacing={2}>
-                {FRAME_COLORS.map((color) => (
+                {CONTACT_LENS_COLORS.map((color) => (
                   <Tag
                     key={color}
                     size="md"
@@ -1250,8 +1290,8 @@ const ProductPost = () => {
                         }));
                       }
                     }}
-                    bg={FRAME_COLOR_MAPPING[color]}
-                    color={color === "White" || color === "Yellow" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
+                    bg={CONTACT_LENS_COLOR_MAPPING[color]}
+                    color={color === "White" || color === "Clear" || color === "Transparent" || color === "Not Applicable" ? "black" : "white"}
                     border={color === "White" ? "1px solid #E2E8F0" : "none"}
                     _hover={{
                       opacity: 0.8,
@@ -1287,7 +1327,7 @@ const ProductPost = () => {
                       px={3}
                       py={1}
                       fontWeight="medium"
-                      textShadow={color === "White" || color === "Yellow" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
+                      textShadow={color === "White" || color === "Clear" ? "0 0 2px rgba(0,0,0,0.3)" : "none"}
                     >
                       {color}
                     </Text>
@@ -1774,9 +1814,10 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Accessory Type</option>
-              <option value="Contact Lens Solution">Contact Lens Solution</option>
-              <option value="Contact Lens Case">Contact Lens Case</option>
-              <option value="Contact Lens Accessories">Contact Lens Accessories</option>
+              <option value="CASE">Contact Lens Case</option>
+              <option value="SOLUTION">Contact Lens Solution</option>
+              <option value="CLEANER">Cleaner</option>
+              <option value="MULTI_PURPOSE">Multi-Purpose</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1792,27 +1833,9 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Accessory Size</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
-
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Weight Group</Text>
-            <Select
-              name="weightGroup"
-              value={formData.weightGroup}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Weight Group</option>
-              <option value="Light">Light</option>
-              <option value="Medium">Medium</option>
-              <option value="Heavy">Heavy</option>
+              <option value="SMALL">Small</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LARGE">Large</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1828,10 +1851,9 @@ const ProductPost = () => {
               h={inputHeight}
             >
               <option value="">Select Material</option>
-              <option value="Plastic">Plastic</option>
-              <option value="Metal">Metal</option>
-              <option value="Glass">Glass</option>
-              <option value="Silicone">Silicone</option>
+              <option value="PLASTIC">Plastic</option>
+              <option value="SILICONE">Silicone</option>
+              <option value="METAL">Metal</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
@@ -1840,17 +1862,21 @@ const ProductPost = () => {
             <Text mb={2} fontSize="sm" color="gray.600">Contact Lens Solution Size</Text>
             <Select
               name="contactLensSolutionSize"
-              value={formData.contactLensSolutionSize}
-              onChange={handleChange}
+              value={formData.contactLensSolutionSize && formData.contactLensSolutionSize.length > 0 ? formData.contactLensSolutionSize[0] : ""}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                contactLensSolutionSize: e.target.value ? [e.target.value] : []
+              }))}
               size="lg"
               borderRadius="md"
               h={inputHeight}
             >
               <option value="">Select Solution Size</option>
-              <option value="60ml">60ml</option>
-              <option value="120ml">120ml</option>
-              <option value="240ml">240ml</option>
-              <option value="360ml">360ml</option>
+              <option value="Extra Small (10-25 ml)">Extra Small (10-25 ml)</option>
+              <option value="Small (30-45 ml)">Small (30-45 ml)</option>
+              <option value="Medium (50-65 ml)">Medium (50-65 ml)</option>
+              <option value="Large (70-85 ml)">Large (70-85 ml)</option>
+              <option value="Extra Large (90-100 ml)">Extra Large (90-100 ml)</option>
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
