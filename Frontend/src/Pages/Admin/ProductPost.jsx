@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -38,6 +38,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { API_URL } from "../../config";
+
 
 const ProductPost = () => {
   const toast = useToast();
@@ -102,6 +103,12 @@ const ProductPost = () => {
     supportedPowers: ""
   });
   const [loading, setLoading] = useState(false);
+  const mainImageInputRef = useRef(null);
+  const additionalImagesInputRef = useRef(null);
+  const [mainImageFile, setMainImageFile] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState("");
+  const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
+  const [additionalImagePreviews, setAdditionalImagePreviews] = useState([]);
 
   const validBrands = [
     "Ray-Ban",
@@ -318,6 +325,35 @@ const ProductPost = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const { name, type, files } = e.target;
+   
+    if (type === 'file') {
+      if (name === 'mainImage') {
+        const file = files[0];
+        if (file) {
+          setMainImageFile(file);
+          setMainImagePreview(URL.createObjectURL(file));
+          // Update formData with the image URL
+          setFormData(prev => ({
+            ...prev,
+            imageTsrc: URL.createObjectURL(file)
+          }));
+        }
+      } else if (name === 'additionalImages') {
+        const selectedFiles = Array.from(files);
+        setAdditionalImageFiles(prevFiles => [...prevFiles, ...selectedFiles]);
+        const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+        setAdditionalImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+        // Update formData with additional image URLs
+        setFormData(prev => ({
+          ...prev,
+          additionalImages: [...prev.additionalImages, ...newPreviews]
+        }));
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -525,31 +561,70 @@ const ProductPost = () => {
               h={inputHeight}
             />
           </FormControl>
-
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image</Text>
+            {mainImagePreview && (
+              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+            )}
             <Input
-              name="imageTsrc"
-              placeholder="Enter image URL"
-              value={formData.imageTsrc}
-              onChange={handleChange}
+              name="mainImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              ref={mainImageInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor="gray.300"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => mainImageInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload main image</Text>
+            </Box>
           </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
-            <Textarea
+            <Wrap spacing={2} mb={2}>
+              {additionalImagePreviews.map((preview, index) => (
+                <Image key={index} src={preview} alt={`Additional Preview ${index + 1}`} boxSize="80px" objectFit="cover" />
+              ))}
+            </Wrap>
+            <Input
               name="additionalImages"
-              placeholder="Enter additional image URLs (comma-separated)"
-              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
-              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
-              minH="100px"
+              ref={additionalImagesInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor="gray.300"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => additionalImagesInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload additional images</Text>
+            </Box>
           </FormControl>
 
           <FormControl isRequired>
