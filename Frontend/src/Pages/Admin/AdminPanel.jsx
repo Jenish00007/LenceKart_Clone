@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import Navbar from './Navbar';
 import './Dashboard.css';
 
 const AdminPanel = () => {
@@ -67,48 +69,50 @@ const AdminPanel = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="dashboard-container">
-      <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
-        <div className="sidebar-header">
-          <h2>Admin Panel</h2>
-          <button 
-            className="toggle-btn"
-            onClick={toggleSidebar}
-            aria-label="Toggle Sidebar"
-          >
-            {isSidebarOpen ? '◀' : '▶'}
-          </button>
-        </div>
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-              onClick={closeSidebar}
+    <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+      <Navbar />
+      <Flex>
+        <Box
+          className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}
+          bg={useColorModeValue('white', 'gray.800')}
+          borderRight="1px"
+          borderColor={useColorModeValue('gray.200', 'gray.700')}
+        >
+          <div className="sidebar-header">
+            <h2>Admin Panel</h2>
+            <button 
+              className="toggle-btn"
+              onClick={toggleSidebar}
+              aria-label="Toggle Sidebar"
             >
-              <span className="icon">{item.icon}</span>
-              {isSidebarOpen && <span className="label">{item.label}</span>}
-            </Link>
-          ))}
-        </nav>
-      </div>
-      <div className="main-content">
-        <header className="dashboard-header">
-          <button 
-            className="mobile-menu-btn"
-            onClick={toggleSidebar}
-            aria-label="Toggle Mobile Menu"
-          >
-            ☰
-          </button>
-          <h1>{menuItems.find(item => item.path === location.pathname)?.label || 'Analytics'}</h1>
-        </header>
-        <main className="dashboard-main">
+              {isSidebarOpen ? '◀' : '▶'}
+            </button>
+          </div>
+          <nav className="sidebar-nav">
+            {menuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="icon">{item.icon}</span>
+                {isSidebarOpen && <span className="label">{item.label}</span>}
+              </Link>
+            ))}
+          </nav>
+        </Box>
+        <Box
+          className="main-content"
+          flex="1"
+          p={4}
+          ml={isSidebarOpen ? '250px' : '80px'}
+          transition="margin-left 0.3s ease"
+        >
           <Outlet />
-        </main>
-      </div>
-    </div>
+        </Box>
+      </Flex>
+    </Box>
   );
 };
 

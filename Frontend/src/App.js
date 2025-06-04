@@ -24,24 +24,22 @@ function App() {
       <Routes>
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminPanel />}>
-        <Route path="/admin" element={
-        <ProtectedAdminRoute>
-          <AdminDashboard/>
-        </ProtectedAdminRoute>
-      } />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/signup" element={<AdminSignup />} />
-          <Route path="/admin/section-banners" element={<SectionBanners />} />
-          <Route path="/admin/users" element={<Users />} />
-          <Route path="/admin/productpost" element={<ProductPost />} />
-          <Route path="/admin/a" element={<Analytics />} />
-         
+          <Route index element={<AdminDashboard />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="products" element={<Products />} />
+          <Route path="productpost" element={<ProductPost />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:orderId" element={<OrderDetails />} />
-          <Route path="Banners" element={<Banners />} />
-     
+          <Route path="banners" element={<Banners />} />
+          <Route path="section-banners" element={<SectionBanners />} />
+          <Route path="users" element={<Users />} />
         </Route>
+        
+        {/* Auth Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/signup" element={<AdminSignup />} />
+        
+        {/* Other Routes */}
         <Route path="/*" element={<AllRoutes />} />
       </Routes>
     </Box>
