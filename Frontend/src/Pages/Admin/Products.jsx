@@ -718,6 +718,7 @@ const Products = () => {
 
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [showSelectionCheckboxes, setShowSelectionCheckboxes] = useState(false);
+  const [showFilterSection, setShowFilterSection] = useState(false);
 
   const [filters, setFilters] = useState({
     basic: {
@@ -898,6 +899,10 @@ const Products = () => {
     if (showSelectionCheckboxes) {
       setSelectedProductIds([]);
     }
+  };
+
+  const toggleFilterSection = () => {
+    setShowFilterSection(prev => !prev);
   };
 
   const handleDeleteSelected = async () => {
@@ -1106,9 +1111,9 @@ const Products = () => {
                  <Button
                    leftIcon={<FiFilter />}
                    aria-label="Filter Products"
-                   onClick={onOpen}
+                   onClick={toggleFilterSection}
                    colorScheme="blue"
-                   variant="outline"
+                   variant={showFilterSection ? "solid" : "outline"}
                    size={{ base: "sm", md: "md" }}
                  >
                    Filters
@@ -1133,7 +1138,7 @@ const Products = () => {
         </Flex>
 
         {/* Filters Section - Only show on desktop */}
-        {!isMobile && (
+        {!isMobile && showFilterSection && (
           <ProductFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
