@@ -26,7 +26,6 @@ import {
 } from '@chakra-ui/react';
 import { FiUsers, FiShoppingBag, FiDollarSign, FiTrendingUp, FiTrendingDown, FiPackage, FiShoppingCart } from 'react-icons/fi';
 import { API_URL } from '../../config';
-import Navbar from './Navbar';
 
 const Analytics = () => {
   const [stats, setStats] = useState({
@@ -106,7 +105,6 @@ const Analytics = () => {
   if (loading) {
     return (
       <Box bg="gray.50" minH="100vh">
-        <Navbar />
         <Flex justify="center" align="center" h="80vh">
           <Spinner size="xl" color="blue.500" />
         </Flex>
@@ -117,7 +115,6 @@ const Analytics = () => {
   if (error) {
     return (
       <Box bg="gray.50" minH="100vh">
-        <Navbar />
         <Box p={6}>
           <Text color="red.500">{error}</Text>
         </Box>
@@ -127,7 +124,6 @@ const Analytics = () => {
 
   return (
     <Box bg="gray.50" minH="100vh">
-      <Navbar />
       <Box p={{ base: 4, md: 6 }}>
         <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {/* Header */}
