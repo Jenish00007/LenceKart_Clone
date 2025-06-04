@@ -16,28 +16,56 @@ import "./index.css";
 import AdminLogin from "./Pages/Admin/AdminLogin";
 import AdminSignup from "./Pages/Admin/AdminSignup";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
-import ProtectedAdminRoute from "./Components/ProtectedAdminRoute";
+import AdminLayout from "./Pages/Admin/AdminLayout";
+import ProtectedRoute from "./Pages/Admin/ProtectedRoute";
 
 function App() {
   return (
     <Box w="100%" overflowX="hidden" position="relative" minH="100vh">
       <Routes>
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminPanel />}>
+        {/* Auth Routes - Public */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/signup" element={<AdminSignup />} />
+        
+        {/* Admin Routes - Protected */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <AdminPanel />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboard />} />
-          <Route path="analytics" element={<Analytics />} />
+          <Route path="analytics" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Analytics />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
           <Route path="products" element={<Products />} />
           <Route path="productpost" element={<ProductPost />} />
-          <Route path="orders" element={<Orders />} />
+          <Route path="orders" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Orders />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
           <Route path="orders/:orderId" element={<OrderDetails />} />
           <Route path="banners" element={<Banners />} />
           <Route path="section-banners" element={<SectionBanners />} />
-          <Route path="users" element={<Users />} />
+          <Route path="users" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Users />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
         </Route>
-        
-        {/* Auth Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/signup" element={<AdminSignup />} />
         
         {/* Other Routes */}
         <Route path="/*" element={<AllRoutes />} />
