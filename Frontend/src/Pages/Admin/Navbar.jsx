@@ -131,6 +131,7 @@ const Navbar = () => {
     }
 
     return (
+      
       <Menu>
         <MenuButton
           as={Button}
@@ -178,6 +179,7 @@ const Navbar = () => {
   };
 
   return (
+    
     <Box
       bg={bgColor}
       px={paddingX}
@@ -297,6 +299,7 @@ const Navbar = () => {
         )}
       </Flex>
     </Box>
+    
   );
 };
 

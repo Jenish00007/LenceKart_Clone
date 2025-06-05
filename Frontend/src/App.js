@@ -18,6 +18,8 @@ import AdminSignup from "./Pages/Admin/AdminSignup";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
 import AdminLayout from "./Pages/Admin/AdminLayout";
 import ProtectedRoute from "./Pages/Admin/ProtectedRoute";
+import Navbar from "./Pages/Admin/Navbar";
+
 
 function App() {
   return (
@@ -28,17 +30,22 @@ function App() {
         <Route path="/admin/signup" element={<AdminSignup />} />
         
         {/* Admin Routes - Protected */}
+       
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
-              <AdminLayout>
+             
                 <AdminPanel />
-              </AdminLayout>
+              
             </ProtectedRoute>
           }
         >
-          <Route index element={<AdminDashboard />} />
+          <Route index element={
+            <AdminLayout>
+            <AdminDashboard />
+            </AdminLayout>
+            } />
           <Route path="analytics" element={
             <ProtectedRoute>
               <AdminLayout>
@@ -46,7 +53,12 @@ function App() {
               </AdminLayout>
             </ProtectedRoute>
           } />
-          <Route path="products" element={<Products />} />
+          <Route path="products" element={
+            <AdminLayout>
+               <Products />
+            </AdminLayout>
+           
+            } />
           <Route path="productpost" element={<ProductPost />} />
           <Route path="orders" element={
             <ProtectedRoute>
@@ -56,8 +68,16 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="orders/:orderId" element={<OrderDetails />} />
-          <Route path="banners" element={<Banners />} />
-          <Route path="section-banners" element={<SectionBanners />} />
+          <Route path="banners" element={
+           <AdminLayout> 
+            <Banners />
+            </AdminLayout>
+          } />
+          <Route path="section-banners" element={
+            <AdminLayout>
+            <SectionBanners />
+            </AdminLayout>
+            } />
           <Route path="users" element={
             <ProtectedRoute>
               <AdminLayout>
