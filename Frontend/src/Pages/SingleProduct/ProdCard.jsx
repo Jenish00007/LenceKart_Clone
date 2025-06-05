@@ -118,12 +118,12 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
             </Text>
           )}
         </Text>
-        <Text
+        {/* <Text
           mt="-4"
           textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
         >
           Frame + Lens
-        </Text>
+        </Text> */}
       </Box>
       <br />
 
