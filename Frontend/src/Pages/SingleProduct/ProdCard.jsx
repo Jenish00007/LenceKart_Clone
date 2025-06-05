@@ -1,27 +1,86 @@
 import React from "react";
 import ProdDetails from "./ProdDetails";
 import { ProdImage1 } from "./ProdImage";
-import { Button, Image, Text, Flex, Box } from "@chakra-ui/react";
+import { Button, Image, Text, Flex, Box, Stack, Badge, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Accordion, HStack, Icon } from "@chakra-ui/react";
+import { StarIcon } from '@chakra-ui/icons';
 
 const ProdCard = ({ type, handleCart, handleWishlist }) => {
+  // Helper function to render product highlights
+  const renderHighlights = () => {
+    if (!type) return null;
+
+    const highlights = [
+      { label: "Recommended", value: type.isRecommended },
+      { label: "Trending", value: type.isTrending },
+      { label: "Latest", value: type.isLatest },
+      { label: "Exclusive", value: type.isExclusive },
+      { label: "Special Offer", value: type.isSpecialOffer },
+      { label: "Best Seller", value: type.isBestSeller },
+      { label: "Trial Pack", value: type.isTrialPack },
+    ].filter(highlight => highlight.value);
+
+    if (highlights.length === 0) return null; // Don't render if no highlights
+
+    return (
+      <Stack direction={{ base: 'column', sm: 'row' }} spacing={2} mt={4} wrap="wrap">
+        {highlights.map((highlight, index) => (
+          <Badge key={index} colorScheme="green" p={1} borderRadius="md">
+            {highlight.label}
+          </Badge>
+        ))}
+      </Stack>
+    );
+  };
+
   return (
     <Box>
       <Text
-        color="gray.500"
-        fontSize="md"
+        color="teal.800"
+        fontSize="xl"
+        fontWeight="bold"
         textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
       >
         {type.name}
       </Text>
       <Text
-        my="10px"
-        fontWeight={"700"}
-        fontSize="lg"
-        textTransform="capitalize"
+        fontSize="sm"
+        color="gray.600"
         textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
+        mb="2"
+      >
+        {type.caption}
+      </Text>
+      {/* <Text
+        my="10px"
+        fontSize="lg"
+        textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
+        color="blue.500"
+        textDecoration="underline"
+        cursor="pointer"
+        _hover={{ color: "blue.600" }}
+        // onClick={() => window.open(type.productRefLink, '_blank')}
       >
         {type.productRefLink}
-      </Text>
+      </Text> */}
+      {/* Display Product Highlights */}
+      {renderHighlights()}
+
+      {/* Display Rating and Review Count */}
+      {(type?.rating > 0 || type?.reviewCount > 0) && (
+        <HStack spacing={1} my={2}>
+          {Array(5)
+            .fill('')
+            .map((_, i) => (
+              <Icon
+                key={i}
+                as={StarIcon}
+                color={i < type?.rating ? 'teal.500' : 'gray.300'}
+              />
+            ))}
+          <Text fontSize="sm" color="gray.600">({type?.reviewCount || 0} reviews)</Text>
+        </HStack>
+      )}
+
       <Text
         my="10px"
         fontWeight="600"
@@ -29,7 +88,7 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
         fontSize="15px"
         textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
       >
-        Size : Medium
+        Size : {type.frameSize}
       </Text>
       <Text
         my="10px"
@@ -123,6 +182,30 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
     
 
       <ProdDetails type={type} />
+
+      {/* Review Section */}
+      <Accordion allowMultiple w="100%" m="auto" mt={4}>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box as="span" flex="1" textAlign="left" fontWeight="500">
+                Review ({type?.reviewCount || 0})
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4}>
+            {/* You can add dynamic review rendering here based on type.reviews */}
+            <Text textAlign="center" mb="4">
+              {type?.reviewCount > 0 ? "Display Reviews Here" : "No Reviews"}
+            </Text>
+
+            <Button m="auto" w="100%" bg="#00bac6" color="white">
+              WRITE A REVIEW
+            </Button>
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
 
       {/* {ProdImage1.map((ele, i) => (
         <Image src={ele.src} key={i} />
