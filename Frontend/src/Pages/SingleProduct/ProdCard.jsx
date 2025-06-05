@@ -125,44 +125,45 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
           Frame + Lens
         </Text> */}
       </Box>
-      <br />
 
-      <Button
-        p={{ lg: 7, base: 0 }}
-        m={{ lg: "10px 20px", base: "10px auto" }}
-        w={{ lg: "90%", base: "100%" }}
-        color="white"
-        bgColor="#00bac6"
-        onClick={handleCart}
-      >
-        <Flex
-          flexWrap="wrap"
-          justifyContent="center"
-          gap="1"
-          w={{ lg: "100%", sm: "50%", base: "50%" }}
+      {/* Action Buttons */}
+      <Stack spacing={3} mt={4}>
+        <Button
+          p={{ lg: 7, base: 0 }}
+          m={{ lg: "0", base: "0 auto" }}
+          w={{ lg: "90%", base: "100%" }}
+          color="white"
+          bgColor="#00bac6"
+          onClick={handleCart}
         >
-          <Text
-            textAlign="center"
-            fontSize={{ lg: "md", md: "md", base: "sm" }}
+          <Flex
+            flexWrap="wrap"
+            justifyContent="center"
+            gap="1"
+            w={{ lg: "100%", sm: "50%", base: "50%" }}
           >
-            BUY
-          </Text>
+            <Text
+              textAlign="center"
+              fontSize={{ lg: "md", md: "md", base: "sm" }}
+            >
+              BUY
+            </Text>
 
-          {/* <Text fontSize="12px">(with 1 Year Warranty & 14 day Return)</Text> */}
-        </Flex>
-      </Button>
-      <Button
-        p={{ lg: 7, base: 0 }}
-        m={{ lg: "10px 20px", base: "10px auto" }}
-        w={{ lg: "90%", base: "100%" }}
-        color="white"
-        bgColor="#00bac6"
-        onClick={handleWishlist}
-        fontSize={{ lg: "md", md: "md", base: "sm" }}
-      >
-        Add to Wishlist
-      </Button>
-      {/* <Button
+            {/* <Text fontSize="12px">(with 1 Year Warranty & 14 day Return)</Text> */}
+          </Flex>
+        </Button>
+        <Button
+          p={{ lg: 7, base: 0 }}
+          m={{ lg: "0", base: "0 auto" }}
+          w={{ lg: "90%", base: "100%" }}
+          color="white"
+          bgColor="#00bac6"
+          onClick={handleWishlist}
+          fontSize={{ lg: "md", md: "md", base: "sm" }}
+        >
+          Add to Wishlist
+        </Button>
+        {/* <Button
         p={{ lg: 7, base: 0 }}
         m={{ lg: "10px 20px", base: "10px auto" }}
         w={{ lg: "90%", base: "100%" }}
@@ -179,8 +180,11 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
           ml="20"
         />
       </Button> */}
-    
+      </Stack>
 
+
+      {/* ProdDetails component for technical info etc. */}
+      {/* Assuming ProdDetails might contain other AccordionItems. If not, we can wrap individual items here. */}
       <ProdDetails type={type} />
 
       {/* Review Section */}
