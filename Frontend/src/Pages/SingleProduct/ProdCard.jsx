@@ -90,41 +90,41 @@ const ProdCard = ({ type, handleCart, handleWishlist }) => {
       >
         Size : {type.frameSize}
       </Text>
-      <Text
-        my="10px"
-        fontWeight="500"
-        fontSize="18px"
-        color="teal.500"
-        textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
-      >
-        ₹{type.price}{" "}
-        <span
-          style={{
-            fontSize: "18px",
-            fontWeight: "lighter",
-            color: "#727297",
-            textDecoration: "line-through",
-            marginRight: "2%"
-          }}
+      <Box my="10px">
+        <Text
+          fontWeight="500"
+          fontSize="18px"
+          color="teal.500"
+          textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
         >
-          {"  "}₹{type.mPrice}{" "}
-        </span>
-        <span
-          style={{
-            fontSize: "14px",
-            fontWeight: "lighter",
-            color: "black"
-          }}
+          ₹{type.price}{" "}
+          <Text as="span"
+            fontSize="18px"
+            fontWeight="lighter"
+            color="#727297"
+            textDecoration="line-through"
+            ml="2"
+          >
+            ₹{type.mPrice}{" "}
+          </Text>
+          {type?.discount > 0 && (
+            <Text as="span"
+              fontSize="16px"
+              fontWeight="bold"
+              color="green.500"
+              ml="2"
+            >
+              ({type.discount}% off)
+            </Text>
+          )}
+        </Text>
+        <Text
+          mt="-4"
+          textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
         >
-          {"  "}(₹{+type.mPrice - +type.price} with GST)
-        </span>
-      </Text>
-      <Text
-        mt="-4"
-        textAlign={{ lg: "left", md: "left", sm: "center", base: "center" }}
-      >
-        Frame + Lens
-      </Text>
+          Frame + Lens
+        </Text>
+      </Box>
       <br />
 
       <Button
