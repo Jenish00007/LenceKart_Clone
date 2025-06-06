@@ -191,10 +191,8 @@ const TOP_PICKS = [
 // API Service
 const productService = {
   fetchProducts: async (params) => {
-    console.log('Fetching products with params:', params);
     const response = await fetch(`${API_URL}/products?${params}`);
     const data = await response.json();
-    console.log('Product service response:', data);
     return data;
   },
   deleteProduct: async (id) => {
@@ -440,9 +438,6 @@ const ProductFilters = ({ filters, onFilterChange, onResetFilters, isMobile = fa
 const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelectProduct, showSelectionCheckboxes, toggleSelectionCheckboxes }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const isMobile = useBreakpointValue({ base: true, md: false });
-
-  console.log('ProductTable products:', products);
-
   if (isMobile) {
     return (
       <VStack spacing={4} align="stretch">
@@ -545,9 +540,7 @@ const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelect
                   leftIcon={<EditIcon />}
                   colorScheme="blue"
                   size="sm"
-                  onClick={() => {
-                    console.log('Edit button clicked for product:', product);
-                    console.log('Product caption:', product.caption);
+                  onClick={() => {                    
                     onEdit(product);
                   }}
                 >
@@ -665,8 +658,6 @@ const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelect
                         colorScheme="blue"
                         variant="ghost"
                         onClick={() => {
-                          console.log('Edit button clicked for product:', product);
-                          console.log('Product caption:', product.caption);
                           onEdit(product);
                         }}
                       />
@@ -847,15 +838,7 @@ const Products = () => {
       // Add pagination
       queryParams.append('page', productState.page);
       queryParams.append('limit', ITEMS_PER_PAGE);
-
-      console.log('Query Parameters:', queryParams.toString());
-
-      const data = await productService.fetchProducts(queryParams.toString());
-      
-      console.log('API Response:', data);
-      console.log('Products with captions:', data.products.map(p => ({ id: p._id, name: p.name, caption: p.caption })));
-      console.log('Products with person categories:', data.products.map(p => ({ id: p._id, name: p.name, personCategory: p.personCategory })));
-      
+      const data = await productService.fetchProducts(queryParams.toString());     
       const totalCount = data.totalCount || data.total || data.products?.length || 0;
       const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
       
@@ -1024,6 +1007,8 @@ const Products = () => {
     // Ensure all required fields have default values if not present
     const productData = {
       ...product,
+      imageTsrc: product.imageTsrc || '', // Ensure imageTsrc is set
+      additionalImages: Array.isArray(product.additionalImages) ? product.additionalImages : [], // Ensure additionalImages is an array
       personCategory: product.personCategory || 'unisex',
       ageGroup: product.ageGroup || 'Not Applicable',
       topPicks: product.topPicks || 'Not Applicable',
@@ -1035,8 +1020,7 @@ const Products = () => {
       frameSize: product.frameSize || 'Not Applicable',
       frameType: product.frameType || '',
       frameWidth: frameWidth,
-      weightGroup: product.weightGroup || '',
-      additionalImages: Array.isArray(product.additionalImages) ? product.additionalImages : []
+      weightGroup: product.weightGroup || ''
     };
     
     console.log('Processed product data:', productData);
