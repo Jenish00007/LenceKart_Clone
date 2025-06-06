@@ -33,12 +33,80 @@ import {
   TabList,
   TabPanels,
   Tab,
-  TabPanel
+  TabPanel,
+  Spinner,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  Progress,
+  List,
+  ListItem,
+  ListIcon,
+  Icon,
+  useDisclosure,
+  IconButton
 } from "@chakra-ui/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import { API_URL } from "../../config";
+import { CheckCircleIcon, TimeIcon, WarningIcon, DeleteIcon } from "@chakra-ui/icons";
+import { motion, AnimatePresence } from "framer-motion";
 
+const UploadProgressModal = ({ isOpen, onClose, status, progress, currentStep }) => {
+  const steps = [
+    { id: 'mainImage', label: 'Main Image Upload' },
+    { id: 'additionalImages', label: 'Additional Images Upload' },
+    { id: 'formData', label: 'Form Data Submission' }
+  ];
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
+      <ModalOverlay backdropFilter="blur(10px)" />
+      <ModalContent>
+        <ModalHeader>Upload Progress</ModalHeader>
+        <ModalCloseButton isDisabled={currentStep !== 'complete'} />
+        <ModalBody pb={6}>
+          <Progress 
+            value={progress} 
+            size="lg" 
+            colorScheme="blue" 
+            borderRadius="full"
+            mb={4}
+          />
+          <List spacing={3}>
+            {steps.map((step) => (
+              <ListItem key={step.id} display="flex" alignItems="center">
+                <ListIcon
+                  as={
+                    currentStep === 'complete' ? CheckCircleIcon :
+                    currentStep === step.id ? TimeIcon :
+                    steps.findIndex(s => s.id === currentStep) > steps.findIndex(s => s.id === step.id) ? CheckCircleIcon :
+                    WarningIcon
+                  }
+                  color={
+                    currentStep === 'complete' ? 'green.500' :
+                    currentStep === step.id ? 'blue.500' :
+                    steps.findIndex(s => s.id === currentStep) > steps.findIndex(s => s.id === step.id) ? 'green.500' :
+                    'gray.400'
+                  }
+                />
+                {step.label}
+                {currentStep === step.id && (
+                  <Text as="span" ml={2} color="blue.500">
+                    ({progress}%)
+                  </Text>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+};
 
 const ProductPost = () => {
   const toast = useToast();
@@ -109,6 +177,11 @@ const ProductPost = () => {
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
   const [additionalImagePreviews, setAdditionalImagePreviews] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUploadStep, setCurrentUploadStep] = useState('');
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  // Add this state variable below the existing ones
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const validBrands = [
     "Ray-Ban",
@@ -436,8 +509,13 @@ const ProductPost = () => {
     e.preventDefault();
     let uploadToastId = null;
     
+    // Set formSubmitted to true to trigger validation display
+    setFormSubmitted(true);
+
     try {
       setLoading(true);
+      onOpen();
+      setUploadProgress(0);
       
       // Validate required fields
       const requiredFields = [
@@ -458,6 +536,7 @@ const ProductPost = () => {
           position: "bottom"
         });
         setLoading(false);
+        onClose();
         return;
       }
 
@@ -475,6 +554,7 @@ const ProductPost = () => {
           });
         });
         setLoading(false);
+        onClose();
         return;
       }
 
@@ -482,19 +562,26 @@ const ProductPost = () => {
       let mainImageUrl = formData.imageTsrc;
       if (mainImageFile) {
         try {
-          uploadToastId = toast({
-            title: "Uploading...",
-            description: "Please wait while we upload your main image",
-            status: "info",
-            duration: null,
-            isClosable: false,
-            position: "bottom"
-          });
+          setCurrentUploadStep('mainImage');
+          setUploadProgress(0);
+          
+          // Simulate upload progress
+          const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                return prev;
+              }
+              return prev + 10;
+            });
+          }, 200);
+
           mainImageUrl = await uploadImageToS3(mainImageFile);
-          toast.close(uploadToastId);
+          clearInterval(progressInterval);
+          setUploadProgress(100);
         } catch (error) {
-          toast.close(uploadToastId);
           setLoading(false);
+          onClose();
           return;
         }
       }
@@ -503,23 +590,34 @@ const ProductPost = () => {
       let additionalImageUrls = formData.additionalImages || [];
       if (additionalImageFiles.length > 0) {
         try {
-          uploadToastId = toast({
-            title: "Uploading...",
-            description: "Please wait while we upload your additional images",
-            status: "info",
-            duration: null,
-            isClosable: false,
-            position: "bottom"
-          });
+          setCurrentUploadStep('additionalImages');
+          setUploadProgress(0);
+          
+          // Simulate upload progress
+          const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+              if (prev >= 90) {
+                clearInterval(progressInterval);
+                return prev;
+              }
+              return prev + 10;
+            });
+          }, 200);
+
           const newUrls = await uploadMultipleImagesToS3(additionalImageFiles);
           additionalImageUrls = [...additionalImageUrls, ...newUrls];
-          toast.close(uploadToastId);
+          clearInterval(progressInterval);
+          setUploadProgress(100);
         } catch (error) {
-          toast.close(uploadToastId);
           setLoading(false);
+          onClose();
           return;
         }
       }
+
+      // Submit form data
+      setCurrentUploadStep('formData');
+      setUploadProgress(0);
 
       // Format the data before sending
       const payload = {
@@ -599,6 +697,10 @@ const ProductPost = () => {
       const data = await response.json();
 
       if (response.ok) {
+        setUploadProgress(100);
+        setCurrentUploadStep('complete');
+        
+        // Show success animation
         toast({
           title: isEditing ? "Product Updated Successfully" : "Product Added Successfully",
           status: "success",
@@ -606,9 +708,12 @@ const ProductPost = () => {
           isClosable: true,
           position: "bottom"
         });
+
+        // Close modal and redirect after delay
         setTimeout(() => {
+          onClose();
           navigate("/admin/products");
-        }, 2000);
+        }, 1500);
       } else {
         if (data.errors) {
           const errorMessages = data.errors.map(err => `${err.field}: ${err.message}`).join('\n');
@@ -625,6 +730,7 @@ const ProductPost = () => {
         isClosable: true,
         position: "bottom"
       });
+      onClose();
     } finally {
       setLoading(false);
     }
@@ -652,6 +758,12 @@ const ProductPost = () => {
     }));
   };
 
+  // Add this function in the ProductPost component
+  const handleDeleteAdditionalImage = (index) => {
+    setAdditionalImageFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    setAdditionalImagePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
+  };
+
   const renderGlassesForm = () => (
     <Card variant="outline" p={4}>
       <CardBody>
@@ -671,8 +783,11 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
-              isInvalid={!formData.name}
+              isInvalid={formSubmitted && !formData.name}
             />
+            {formSubmitted && !formData.name && (
+              <Text color="red.500" fontSize="sm" mt={1}>Product name is required</Text>
+            )}
           </FormControl>
           <FormControl isRequired>
             <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
@@ -692,7 +807,7 @@ const ProductPost = () => {
             />
             <Box
               border="2px dashed"
-              borderColor={!formData.imageTsrc ? "red.300" : "gray.300"}
+              borderColor={formSubmitted && !formData.imageTsrc ? "red.300" : "gray.300"}
               borderRadius="md"
               p={4}
               textAlign="center"
@@ -703,7 +818,7 @@ const ProductPost = () => {
               }}
             >
               <Text>Drag and drop or click to upload main image</Text>
-              {!formData.imageTsrc && (
+              {formSubmitted && !formData.imageTsrc && (
                 <Text color="red.500" fontSize="sm" mt={1}>Main image is required</Text>
               )}
             </Box>
@@ -713,7 +828,36 @@ const ProductPost = () => {
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
             <Wrap spacing={2} mb={2}>
               {additionalImagePreviews.map((preview, index) => (
-                <Image key={index} src={preview} alt={`Additional Preview ${index + 1}`} boxSize="80px" objectFit="cover" />
+                <Box key={index} position="relative">
+                  <Image 
+                    src={preview} 
+                    alt={`Additional Preview ${index + 1}`} 
+                    boxSize="80px" 
+                    objectFit="cover"
+                    borderRadius="md"
+                  />
+                  <IconButton
+                    aria-label="Delete image"
+                    icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                    size="xs"
+                    colorScheme="red"
+                    position="absolute"
+                    top="-2"
+                    right="-2"
+                    onClick={() => handleDeleteAdditionalImage(index)}
+                    width="20px"
+                    height="20px"
+                    minWidth="20px"
+                    borderRadius="full"
+                    bg="red.500"
+                    color="white"
+                    _hover={{
+                      bg: "red.600",
+                      transform: "scale(1.1)",
+                      transition: "all 0.2s"
+                    }}
+                  />
+                </Box>
               ))}
             </Wrap>
             <Input
@@ -753,8 +897,11 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               minH="100px"
-              isInvalid={!formData.caption}
+              isInvalid={formSubmitted && !formData.caption}
             />
+            {formSubmitted && !formData.caption && (
+              <Text color="red.500" fontSize="sm" mt={1}>Caption is required</Text>
+            )}
           </FormControl>
 
           {/* Categories and Demographics */}
@@ -767,14 +914,14 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
-              isInvalid={!formData.subCategory}
+              isInvalid={formSubmitted && !formData.subCategory}
             >
               <option value="">Select Sub Category</option>
               <option value="EYEGLASSES">Eye Glasses</option>
               <option value="SUNGLASSES">Sun Glasses</option>
               <option value="COMPUTER_GLASSES">Computer Glasses</option>
             </Select>
-            {!formData.subCategory && (
+            {formSubmitted && !formData.subCategory && (
               <Text color="red.500" fontSize="sm" mt={1}>Please select a sub category</Text>
             )}
           </FormControl>
@@ -1185,7 +1332,7 @@ const ProductPost = () => {
           {/* Price and Quantity */}
           <SimpleGrid columns={2} spacing={4}>
             <FormControl isRequired>
-              <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+              <Text mb={2} fontSize="sm" color="gray.600">Price (₹) <Text as="span" color="red.500">*</Text></Text>
               <Input
                 name="price"
                 placeholder="Enter price"
@@ -1195,11 +1342,15 @@ const ProductPost = () => {
                 borderRadius="md"
                 type="number"
                 h={inputHeight}
+                isInvalid={formSubmitted && (!formData.price || isNaN(Number(formData.price)))}
               />
+               {formSubmitted && (!formData.price || isNaN(Number(formData.price))) && (
+                <Text color="red.500" fontSize="sm" mt={1}>Price is required and must be a number</Text>
+              )}
             </FormControl>
 
             <FormControl isRequired>
-              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
+              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹) <Text as="span" color="red.500">*</Text></Text>
               <Input
                 name="mPrice"
                 placeholder="Enter market price"
@@ -1209,7 +1360,11 @@ const ProductPost = () => {
                 borderRadius="md"
                 type="number"
                 h={inputHeight}
+                isInvalid={formSubmitted && (!formData.mPrice || isNaN(Number(formData.mPrice)))}
               />
+               {formSubmitted && (!formData.mPrice || isNaN(Number(formData.mPrice))) && (
+                <Text color="red.500" fontSize="sm" mt={1}>Market Price is required and must be a number</Text>
+              )}
             </FormControl>
           </SimpleGrid>
 
@@ -1354,7 +1509,7 @@ const ProductPost = () => {
         <VStack spacing={5}>
           {/* Basic Information */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Product Name <Text as="span" color="red.500">*</Text></Text>
             <Input
               name="name"
               placeholder="Enter product name"
@@ -1363,37 +1518,113 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={formSubmitted && !formData.name}
             />
+            {formSubmitted && !formData.name && (
+              <Text color="red.500" fontSize="sm" mt={1}>Product name is required</Text>
+            )}
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            {mainImagePreview && (
+              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+            )}
             <Input
-              name="imageTsrc"
-              placeholder="Enter image URL"
-              value={formData.imageTsrc}
-              onChange={handleChange}
+              name="mainImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              ref={mainImageInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor={formSubmitted && !formData.imageTsrc ? "red.300" : "gray.300"}
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => mainImageInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload main image</Text>
+              {formSubmitted && !formData.imageTsrc && (
+                <Text color="red.500" fontSize="sm" mt={1}>Main image is required</Text>
+              )}
+            </Box>
           </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
-            <Textarea
+            <Wrap spacing={2} mb={2}>
+              {additionalImagePreviews.map((preview, index) => (
+                <Box key={index} position="relative">
+                  <Image 
+                    src={preview} 
+                    alt={`Additional Preview ${index + 1}`} 
+                    boxSize="80px" 
+                    objectFit="cover"
+                    borderRadius="md"
+                  />
+                  <IconButton
+                    aria-label="Delete image"
+                    icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                    size="xs"
+                    colorScheme="red"
+                    position="absolute"
+                    top="-2"
+                    right="-2"
+                    onClick={() => handleDeleteAdditionalImage(index)}
+                    width="20px"
+                    height="20px"
+                    minWidth="20px"
+                    borderRadius="full"
+                    bg="red.500"
+                    color="white"
+                    _hover={{
+                      bg: "red.600",
+                      transform: "scale(1.1)",
+                      transition: "all 0.2s"
+                    }}
+                  />
+                </Box>
+              ))}
+            </Wrap>
+            <Input
               name="additionalImages"
-              placeholder="Enter additional image URLs (comma-separated)"
-              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
-              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
-              minH="100px"
+              ref={additionalImagesInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor="gray.300"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => additionalImagesInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload additional images</Text>
+            </Box>
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Caption <Text as="span" color="red.500">*</Text></Text>
             <Textarea
               name="caption"
               placeholder="Enter product caption"
@@ -1402,12 +1633,16 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               minH="100px"
+              isInvalid={formSubmitted && !formData.caption}
             />
+            {formSubmitted && !formData.caption && (
+              <Text color="red.500" fontSize="sm" mt={1}>Caption is required</Text>
+            )}
           </FormControl>
 
           {/* Categories and Demographics */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Sub Category <Text as="span" color="red.500">*</Text></Text>
             <Select
               name="subCategory"
               value={formData.subCategory}
@@ -1415,6 +1650,7 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={formSubmitted && !formData.subCategory}
             >
               <option value="">Select Sub Category</option>
               <option value="CONTACT_LENSES">Contact Lenses</option>
@@ -1422,6 +1658,9 @@ const ProductPost = () => {
               <option value="CONTACT_LENS_CASES">Contact Lens Cases</option>
               <option value="CONTACT_LENS_ACCESSORIES">Contact Lens Accessories</option>
             </Select>
+            {formSubmitted && !formData.subCategory && (
+              <Text color="red.500" fontSize="sm" mt={1}>Please select a sub category</Text>
+            )}
           </FormControl>
 
           <FormControl>
@@ -1504,7 +1743,7 @@ const ProductPost = () => {
 
           <SimpleGrid columns={2} spacing={4}>
             <FormControl isRequired>
-              <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+              <Text mb={2} fontSize="sm" color="gray.600">Price (₹) <Text as="span" color="red.500">*</Text></Text>
               <Input
                 name="price"
                 placeholder="Enter price"
@@ -1514,11 +1753,15 @@ const ProductPost = () => {
                 borderRadius="md"
                 type="number"
                 h={inputHeight}
+                isInvalid={formSubmitted && (!formData.price || isNaN(Number(formData.price)))}
               />
+               {formSubmitted && (!formData.price || isNaN(Number(formData.price))) && (
+                <Text color="red.500" fontSize="sm" mt={1}>Price is required and must be a number</Text>
+              )}
             </FormControl>
 
             <FormControl isRequired>
-              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹)</Text>
+              <Text mb={2} fontSize="sm" color="gray.600">Market Price (₹) <Text as="span" color="red.500">*</Text></Text>
               <Input
                 name="mPrice"
                 placeholder="Enter market price"
@@ -1528,7 +1771,11 @@ const ProductPost = () => {
                 borderRadius="md"
                 type="number"
                 h={inputHeight}
+                isInvalid={formSubmitted && (!formData.mPrice || isNaN(Number(formData.mPrice)))}
               />
+               {formSubmitted && (!formData.mPrice || isNaN(Number(formData.mPrice))) && (
+                <Text color="red.500" fontSize="sm" mt={1}>Market Price is required and must be a number</Text>
+              )}
             </FormControl>
           </SimpleGrid>
 
@@ -1890,7 +2137,7 @@ const ProductPost = () => {
         <VStack spacing={5}>
           {/* Basic Information */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Product Name</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Product Name <Text as="span" color="red.500">*</Text></Text>
             <Input
               name="name"
               placeholder="Enter product name"
@@ -1899,37 +2146,113 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={formSubmitted && !formData.name}
             />
+            {formSubmitted && !formData.name && (
+              <Text color="red.500" fontSize="sm" mt={1}>Product name is required</Text>
+            )}
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Image URL</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            {mainImagePreview && (
+              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+            )}
             <Input
-              name="imageTsrc"
-              placeholder="Enter image URL"
-              value={formData.imageTsrc}
-              onChange={handleChange}
+              name="mainImage"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              ref={mainImageInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor={formSubmitted && !formData.imageTsrc ? "red.300" : "gray.300"}
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => mainImageInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload main image</Text>
+              {formSubmitted && !formData.imageTsrc && (
+                <Text color="red.500" fontSize="sm" mt={1}>Main image is required</Text>
+              )}
+            </Box>
           </FormControl>
 
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
-            <Textarea
+            <Wrap spacing={2} mb={2}>
+              {additionalImagePreviews.map((preview, index) => (
+                <Box key={index} position="relative">
+                  <Image 
+                    src={preview} 
+                    alt={`Additional Preview ${index + 1}`} 
+                    boxSize="80px" 
+                    objectFit="cover"
+                    borderRadius="md"
+                  />
+                  <IconButton
+                    aria-label="Delete image"
+                    icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                    size="xs"
+                    colorScheme="red"
+                    position="absolute"
+                    top="-2"
+                    right="-2"
+                    onClick={() => handleDeleteAdditionalImage(index)}
+                    width="20px"
+                    height="20px"
+                    minWidth="20px"
+                    borderRadius="full"
+                    bg="red.500"
+                    color="white"
+                    _hover={{
+                      bg: "red.600",
+                      transform: "scale(1.1)",
+                      transition: "all 0.2s"
+                    }}
+                  />
+                </Box>
+              ))}
+            </Wrap>
+            <Input
               name="additionalImages"
-              placeholder="Enter additional image URLs (comma-separated)"
-              value={Array.isArray(formData.additionalImages) ? formData.additionalImages.join(', ') : ''}
-              onChange={(e) => handleArrayChange('additionalImages', e.target.value)}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
               size="lg"
               borderRadius="md"
-              minH="100px"
+              ref={additionalImagesInputRef}
+              display="none"
             />
+            <Box
+              border="2px dashed"
+              borderColor="gray.300"
+              borderRadius="md"
+              p={4}
+              textAlign="center"
+              cursor="pointer"
+              onClick={() => additionalImagesInputRef.current.click()}
+              _hover={{
+                borderColor: "blue.500",
+              }}
+            >
+              <Text>Drag and drop or click to upload additional images</Text>
+            </Box>
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Caption</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Caption <Text as="span" color="red.500">*</Text></Text>
             <Textarea
               name="caption"
               placeholder="Enter product caption"
@@ -1938,12 +2261,16 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               minH="100px"
+              isInvalid={formSubmitted && !formData.caption}
             />
+            {formSubmitted && !formData.caption && (
+              <Text color="red.500" fontSize="sm" mt={1}>Caption is required</Text>
+            )}
           </FormControl>
 
           {/* Categories and Demographics */}
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Sub Category</Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Sub Category <Text as="span" color="red.500">*</Text></Text>
             <Select
               name="subCategory"
               value={formData.subCategory}
@@ -1951,12 +2278,16 @@ const ProductPost = () => {
               size="lg"
               borderRadius="md"
               h={inputHeight}
+              isInvalid={formSubmitted && !formData.subCategory}
             >
               <option value="">Select Sub Category</option>
               <option value="CONTACT_LENS_SOLUTION">Contact Lens Solution</option>
               <option value="CONTACT_LENS_CASES">Contact Lens Cases</option>
               <option value="CONTACT_LENS_ACCESSORIES">Contact Lens Accessories</option>
             </Select>
+            {formSubmitted && !formData.subCategory && (
+              <Text color="red.500" fontSize="sm" mt={1}>Please select a sub category</Text>
+            )}
           </FormControl>
 
           <FormControl>
@@ -2039,7 +2370,7 @@ const ProductPost = () => {
 
           <SimpleGrid columns={2} spacing={4}>
             <FormControl isRequired>
-              <Text mb={2} fontSize="sm" color="gray.600">Price (₹)</Text>
+              <Text mb={2} fontSize="sm" color="gray.600">Price (₹) <Text as="span" color="red.500">*</Text></Text>
               <Input
                 name="price"
                 placeholder="Enter price"
@@ -2320,6 +2651,13 @@ const ProductPost = () => {
           </Flex>
         </Card>
       </Container>
+      <UploadProgressModal
+        isOpen={isOpen}
+        onClose={onClose}
+        status={uploadProgress}
+        progress={uploadProgress}
+        currentStep={currentUploadStep}
+      />
     </Box>
   );
 };

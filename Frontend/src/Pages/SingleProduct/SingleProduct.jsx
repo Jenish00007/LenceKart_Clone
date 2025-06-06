@@ -8,7 +8,7 @@ import Footer from "../../Components/Footer/Footer";
 import ProdCard from "./ProdCard";
 import { ProdImage } from "./ProdImage";
 import axios from "axios";
-import { Grid, GridItem, Image, useToast, Box, useDisclosure, Container, Spinner, Center, Text } from "@chakra-ui/react";
+import { Grid, GridItem, Image, useToast, Box, useDisclosure, Container, Spinner, Center, Text, Stack } from "@chakra-ui/react";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../ContextApi/AuthContext";
 import Login from "../../Pages/Login/Login";
@@ -17,6 +17,7 @@ const SingleProduct = () => {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart?.cart || []);
@@ -30,6 +31,7 @@ const SingleProduct = () => {
         setLoading(true);
         const response = await axios.get(`${API_URL}/products/${id}`);
         setData(response.data.product);
+        setSelectedImage(response.data.product.imageTsrc);
       } catch (error) {
         console.error("Error fetching product:", error);
         toast({
@@ -209,54 +211,103 @@ const SingleProduct = () => {
               lg: "repeat(3,1fr)"
             }}
           >
+            {/* Main Image Grid Item */}
             <GridItem
+              colSpan={{ base: 1, md: 1, lg: 2 }}
               borderRadius={10}
-              p="40px 5px"
+              p="20px"
               border="1px solid"
               borderColor="gray.300"
-              display={{ lg: "inherit", base: "none" }}
-              _hover={{ transform: "scale(1.1)" }}
             >
-              <Image 
-                src={getImage()} 
-                maxH="200px" 
-                maxW="200px" 
-                objectFit="contain" 
-                mx="auto"
-                fallbackSrc="/placeholder-image.png"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
-              />
+              <Stack spacing={4}>
+                {/* Main Product Image */}
+                <Box 
+                  borderRadius="md" 
+                  overflow="hidden"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  p={4}
+                >
+                  <Image 
+                    src={selectedImage || data?.imageTsrc || '/placeholder-image.png'} 
+                    maxH={{ base: "250px", md: "350px", lg: "400px" }}
+                    maxW="100%"
+                    objectFit="contain" 
+                    mx="auto"
+                    fallbackSrc="/placeholder-image.png"
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
+                  />
+                </Box>
+
+                {/* Additional Images Grid */}
+                {data?.additionalImages && data.additionalImages.length > 0 && (
+                  <Box>
+                    <Text fontSize="sm" color="gray.600" mb={2}>Additional Views</Text>
+                    <Grid
+                      templateColumns={{
+                        base: "repeat(2, 1fr)",
+                        md: "repeat(3, 1fr)",
+                        lg: "repeat(4, 1fr)"
+                      }}
+                      gap={3}
+                    >
+                      {/* Add main image as first thumbnail */}
+                      <Box
+                        border="1px solid"
+                        borderColor={selectedImage === data.imageTsrc ? "blue.400" : "gray.200"}
+                        borderRadius="md"
+                        p={2}
+                        cursor="pointer"
+                        _hover={{ borderColor: "blue.400" }}
+                        onClick={() => setSelectedImage(data.imageTsrc)}
+                      >
+                        <Image
+                          src={data.imageTsrc}
+                          boxSize="100px"
+                          objectFit="contain"
+                          mx="auto"
+                          fallbackSrc="/placeholder-image.png"
+                          onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
+                        />
+                      </Box>
+                      
+                      {/* Additional images */}
+                      {data.additionalImages.map((imgUrl, index) => (
+                        <Box
+                          key={index}
+                          border="1px solid"
+                          borderColor={selectedImage === imgUrl ? "blue.400" : "gray.200"}
+                          borderRadius="md"
+                          p={2}
+                          cursor="pointer"
+                          _hover={{ borderColor: "blue.400" }}
+                          onClick={() => setSelectedImage(imgUrl)}
+                        >
+                          <Image
+                            src={imgUrl}
+                            boxSize="100px"
+                            objectFit="contain"
+                            mx="auto"
+                            fallbackSrc="/placeholder-image.png"
+                            onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
+                          />
+                        </Box>
+                      ))}
+                    </Grid>
+                  </Box>
+                )}
+              </Stack>
             </GridItem>
+
+            {/* Product Details Grid Item */}
             <GridItem
-              borderRadius={10}
-              p="40px 5px"
-              border="1px solid"
-              borderColor="gray.300"
-              w={{ lg: "100%", sm: "80%", base: "80%" }}
-              m="auto"
-            >
-              <Image 
-                _hover={{ transform: "scale(1.1)" }} 
-                src={getImage()} 
-                maxH="200px" 
-                maxW="200px" 
-                objectFit="contain" 
-                mx="auto"
-                fallbackSrc="/placeholder-image.png"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
-              />
-            </GridItem>
-            <GridItem
+              colSpan={{ base: 1, md: 1, lg: 1 }}
               p={5}
-              colSpan={1}
-              rowSpan={10}
-              m="auto"
-              justifyContent="center"
             >
               <ProdCard
                 type={{
                   ...data,
-                  image: getImage(),
+                  image: selectedImage || data?.imageTsrc,
                   price: getPrice(),
                   mPrice: getMPrice(),
                   modelNo: getField('modelNo'),
@@ -267,57 +318,6 @@ const SingleProduct = () => {
                 }}
                 handleCart={handleAddToCart}
                 handleWishlist={handleAddToWishlist}
-              />
-            </GridItem>
-
-            {/* {ProdImage.map((ele, i) => (
-              <GridItem
-                _hover={{ transform: "scale(1.1)" }}
-                display={{ lg: "inherit", base: "none" }}
-                borderRadius={10}
-                p="80px 5px"
-                border="1px solid"
-                borderColor="gray.300"
-                key={i}
-              >
-                <Image src={ele.src} />
-              </GridItem>
-            ))} */}
-
-            <GridItem
-              _hover={{ transform: "scale(1.1)" }}
-              display={{ lg: "inherit", base: "none" }}
-              borderRadius={10}
-              p="40px 5px"
-              border="1px solid"
-              borderColor="gray.300"
-            >
-              <Image 
-                src={getImage()} 
-                maxH="200px" 
-                maxW="200px" 
-                objectFit="contain" 
-                mx="auto"
-                fallbackSrc="/placeholder-image.png"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
-              />
-            </GridItem>
-            <GridItem
-              _hover={{ transform: "scale(1.1)" }}
-              display={{ lg: "inherit", base: "none" }}
-              borderRadius={10}
-              p="40px 5px"
-              border="1px solid"
-              borderColor="gray.300"
-            >
-              <Image 
-                src={getImage()} 
-                maxH="200px" 
-                maxW="200px" 
-                objectFit="contain" 
-                mx="auto"
-                fallbackSrc="/placeholder-image.png"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
               />
             </GridItem>
           </Grid>
