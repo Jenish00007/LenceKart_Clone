@@ -15,6 +15,7 @@ import AdminLogin from '../Pages/Admin/AdminLogin';
 import AdminSignup from '../Pages/Admin/AdminSignup';
 import ProductPost from '../Pages/Admin/ProductPost';
 import AdminDashboard from '../Pages/Admin/AdminDashboard';
+import EditProduct from '../Pages/Admin/EditProduct';
 
 const AllRoutes = () => {
   return (
@@ -36,6 +37,11 @@ const AllRoutes = () => {
       <Route path="/admin/products" element={
         <ProtectedAdminRoute>
           <ProductPost /> 
+        </ProtectedAdminRoute>
+      } />
+      <Route path="/admin/editproduct" element={
+        <ProtectedAdminRoute>
+          <EditProduct/>
         </ProtectedAdminRoute>
       } />
       
