@@ -1030,7 +1030,24 @@ const ProductPost = () => {
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
-
+            <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
           {/* Power and Frame Details */}
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
@@ -1476,24 +1493,7 @@ const ProductPost = () => {
             </FormControl>
           </SimpleGrid>
 
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
+        
         </VStack>
       </CardBody>
     </Card>
@@ -1903,7 +1903,24 @@ const ProductPost = () => {
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
-
+            <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
             <Select

@@ -338,7 +338,7 @@ productRouter.get("/", async (req, res, next) => {
       .sort(sortOption)
       .skip(offset)
       .limit(limit)
-      .select('name imageTsrc price mPrice rating discount mainCategory subCategory gender frameType shape style brands lensFeatures selectedCategoryPrice createdAt');
+      .select('_id productId name imageTsrc additionalImages caption price mPrice mainCategory subCategory personCategory gender ageGroup selectedCategoryPrice brands topPicks powerType powerRange prescriptionType supportedPowers frameType shape frameSize frameWidth weightGroup style isContactLensColor contactLensColors contactLensSolutionSize frameColors lensFeatures contactLensType contactLensMaterial accessoryType accessorySize accessoryMaterial isRecommended isTrending isLatest isExclusive isSpecialOffer isBestSeller isTrialPack rating reviewCount quantity discount createdAt updatedAt');
     
     console.log('Found Products:', products.length);
     

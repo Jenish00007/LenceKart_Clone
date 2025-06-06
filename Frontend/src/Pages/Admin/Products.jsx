@@ -191,8 +191,11 @@ const TOP_PICKS = [
 // API Service
 const productService = {
   fetchProducts: async (params) => {
+    console.log('Fetching products with params:', params);
     const response = await fetch(`${API_URL}/products?${params}`);
-    return response.json();
+    const data = await response.json();
+    console.log('Product service response:', data);
+    return data;
   },
   deleteProduct: async (id) => {
     const token = localStorage.getItem('adminToken');
@@ -438,6 +441,8 @@ const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelect
   const bgColor = useColorModeValue("white", "gray.800");
   const isMobile = useBreakpointValue({ base: true, md: false });
 
+  console.log('ProductTable products:', products);
+
   if (isMobile) {
     return (
       <VStack spacing={4} align="stretch">
@@ -540,7 +545,11 @@ const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelect
                   leftIcon={<EditIcon />}
                   colorScheme="blue"
                   size="sm"
-                  onClick={() => onEdit(product)}
+                  onClick={() => {
+                    console.log('Edit button clicked for product:', product);
+                    console.log('Product caption:', product.caption);
+                    onEdit(product);
+                  }}
                 >
                   Edit
                 </Button>
@@ -655,7 +664,11 @@ const ProductTable = ({ products, onEdit, onDelete, selectedProductIds, onSelect
                         icon={<EditIcon />}
                         colorScheme="blue"
                         variant="ghost"
-                        onClick={() => onEdit(product)}
+                        onClick={() => {
+                          console.log('Edit button clicked for product:', product);
+                          console.log('Product caption:', product.caption);
+                          onEdit(product);
+                        }}
                       />
                     </Tooltip>
                     <Tooltip label="Delete Product">
@@ -840,6 +853,8 @@ const Products = () => {
       const data = await productService.fetchProducts(queryParams.toString());
       
       console.log('API Response:', data);
+      console.log('Products with captions:', data.products.map(p => ({ id: p._id, name: p.name, caption: p.caption })));
+      console.log('Products with person categories:', data.products.map(p => ({ id: p._id, name: p.name, personCategory: p.personCategory })));
       
       const totalCount = data.totalCount || data.total || data.products?.length || 0;
       const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -996,12 +1011,37 @@ const Products = () => {
   };
 
   const handleEdit = (product) => {
-    navigate('/admin/productpost', { 
-      state: { 
-        product,
-        isEditing: true 
-      }
-    });
+    console.log('Raw product data from API:', product);
+    console.log('Product additional images:', product.additionalImages);
+    console.log('Product additional images type:', typeof product.additionalImages);
+    console.log('Is additional images array?', Array.isArray(product.additionalImages));
+    
+    // Validate frame width format
+    const frameWidth = product.frameWidth && /^(12[3-9]|13[0-9]|14[0-9]|150)\s*mm$/.test(product.frameWidth)
+      ? product.frameWidth
+      : "Not Applicable";
+    
+    // Ensure all required fields have default values if not present
+    const productData = {
+      ...product,
+      personCategory: product.personCategory || 'unisex',
+      ageGroup: product.ageGroup || 'Not Applicable',
+      topPicks: product.topPicks || 'Not Applicable',
+      powerType: product.powerType || 'Not Applicable',
+      powerRange: {
+        min: product.powerRange?.min || '0.00',
+        max: product.powerRange?.max || '0.00'
+      },
+      frameSize: product.frameSize || 'Not Applicable',
+      frameType: product.frameType || '',
+      frameWidth: frameWidth,
+      weightGroup: product.weightGroup || '',
+      additionalImages: Array.isArray(product.additionalImages) ? product.additionalImages : []
+    };
+    
+    console.log('Processed product data:', productData);
+    console.log('Processed additional images:', productData.additionalImages);
+    navigate('/admin/productpost', { state: { product: productData, isEditing: true } });
   };
 
   // Add reset filters function
