@@ -358,7 +358,8 @@ const ProductPost = () => {
         frameType: cleanProductData.frameType || '',
         frameSize: cleanProductData.frameSize || '',
         frameWidth: cleanProductData.frameWidth || '',
-        weightGroup: cleanProductData.weightGroup === 'Medium' ? 'Average' : cleanProductData.weightGroup || '',
+        // Map 'Average' weightGroup to 'Medium' when loading existing data
+        weightGroup: cleanProductData.weightGroup === 'Average' ? 'Medium' : (cleanProductData.weightGroup || ''),
         shape: cleanProductData.shape || '',
         style: cleanProductData.style || '',
         powerType: cleanProductData.powerType || '',
@@ -1236,13 +1237,7 @@ const ProductPost = () => {
             <Select
               name="weightGroup"
               value={formData.weightGroup}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFormData(prev => ({
-                  ...prev,
-                  weightGroup: value === 'Medium' ? 'Average' : value
-                }));
-              }}
+              onChange={handleChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
