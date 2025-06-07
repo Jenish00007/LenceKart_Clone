@@ -306,8 +306,19 @@ const ProductPost = () => {
 
   useEffect(() => {
     if (isEditing && productData) {
+      console.log('Setting up edit form with product data:', productData);
       // Create a clean object to avoid issues with Mongoose document properties
       const cleanProductData = JSON.parse(JSON.stringify(productData));
+
+      // Set image previews first
+      if (cleanProductData.imageTsrc) {
+        console.log('Setting main image preview:', cleanProductData.imageTsrc);
+        setMainImagePreview(cleanProductData.imageTsrc);
+      }
+      if (Array.isArray(cleanProductData.additionalImages)) {
+        console.log('Setting additional image previews:', cleanProductData.additionalImages);
+        setAdditionalImagePreviews(cleanProductData.additionalImages);
+      }
 
       setFormData({
         // Spread clean data first
@@ -337,7 +348,6 @@ const ProductPost = () => {
         quantity: String(cleanProductData.quantity || 1),
         rating: String(cleanProductData.rating || 0),
         reviewCount: String(cleanProductData.reviewCount || 0),
-
         // Set default values for fields that might be null/undefined in existing data
         subCategory: cleanProductData.subCategory || '',
         personCategory: cleanProductData.personCategory || '',
@@ -348,13 +358,12 @@ const ProductPost = () => {
         frameType: cleanProductData.frameType || '',
         frameSize: cleanProductData.frameSize || '',
         frameWidth: cleanProductData.frameWidth || '',
-        // Map 'Medium' weightGroup to 'Average' when loading existing data
-        weightGroup: cleanProductData.weightGroup === 'Medium' ? 'Average' : cleanProductData.weightGroup || '',
+        // Map 'Average' weightGroup to 'Medium' when loading existing data
+        weightGroup: cleanProductData.weightGroup === 'Average' ? 'Medium' : (cleanProductData.weightGroup || ''),
         shape: cleanProductData.shape || '',
         style: cleanProductData.style || '',
         powerType: cleanProductData.powerType || '',
         prescriptionType: cleanProductData.prescriptionType || '',
-        // Set supportedPowers to Not Applicable for ACCESSORIES when loading data
         supportedPowers: cleanProductData.mainCategory === 'ACCESSORIES' ? 'Not Applicable' : (cleanProductData.supportedPowers || ''),
         contactLensType: cleanProductData.contactLensType || '',
         contactLensMaterial: cleanProductData.contactLensMaterial || '',
@@ -365,6 +374,7 @@ const ProductPost = () => {
         capacity: cleanProductData.capacity || '',
         material: cleanProductData.material || '',
       });
+
       // Set the selected category based on the product data
       setSelectedCategory(productData.mainCategory);
     }
@@ -790,9 +800,42 @@ const ProductPost = () => {
             )}
           </FormControl>
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Main Image <Text as="span" color="red.500">*</Text></Text>
             {mainImagePreview && (
-              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+              <Box position="relative" mb={2}>
+                <Image 
+                  src={mainImagePreview} 
+                  alt="Main Product Preview" 
+                  boxSize="100px" 
+                  objectFit="cover"
+                  borderRadius="md"
+                />
+                <IconButton
+                  aria-label="Delete image"
+                  icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                  size="xs"
+                  colorScheme="red"
+                  position="absolute"
+                  top="-2"
+                  right="-2"
+                  onClick={() => {
+                    setMainImagePreview("");
+                    setMainImageFile(null);
+                    setFormData(prev => ({ ...prev, imageTsrc: "" }));
+                  }}
+                  width="20px"
+                  height="20px"
+                  minWidth="20px"
+                  borderRadius="full"
+                  bg="red.500"
+                  color="white"
+                  _hover={{
+                    bg: "red.600",
+                    transform: "scale(1.1)",
+                    transition: "all 0.2s"
+                  }}
+                />
+              </Box>
             )}
             <Input
               name="mainImage"
@@ -827,7 +870,7 @@ const ProductPost = () => {
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
             <Wrap spacing={2} mb={2}>
-              {additionalImagePreviews.map((preview, index) => (
+              {additionalImagePreviews && additionalImagePreviews.map((preview, index) => (
                 <Box key={index} position="relative">
                   <Image 
                     src={preview} 
@@ -1030,7 +1073,24 @@ const ProductPost = () => {
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
-
+            <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
           {/* Power and Frame Details */}
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
@@ -1177,13 +1237,7 @@ const ProductPost = () => {
             <Select
               name="weightGroup"
               value={formData.weightGroup}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFormData(prev => ({
-                  ...prev,
-                  weightGroup: value === 'Medium' ? 'Average' : value
-                }));
-              }}
+              onChange={handleChange}
               size="lg"
               borderRadius="md"
               h={inputHeight}
@@ -1476,24 +1530,7 @@ const ProductPost = () => {
             </FormControl>
           </SimpleGrid>
 
-          <FormControl>
-            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
-            <Select
-              name="supportedPowers"
-              value={formData.supportedPowers}
-              onChange={handleChange}
-              size="lg"
-              borderRadius="md"
-              h={inputHeight}
-            >
-              <option value="">Select Supported Powers</option>
-              <option value="Supports All Powers">Supports All Powers</option>
-              <option value="Supports Very High Power">Supports Very High Power</option>
-              <option value="Supports High Power">Supports High Power</option>
-              <option value="Upto Regular Power">Upto Regular Power</option>
-              <option value="Not Applicable">Not Applicable</option>
-            </Select>
-          </FormControl>
+        
         </VStack>
       </CardBody>
     </Card>
@@ -1526,9 +1563,42 @@ const ProductPost = () => {
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Main Image <Text as="span" color="red.500">*</Text></Text>
             {mainImagePreview && (
-              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+              <Box position="relative" mb={2}>
+                <Image 
+                  src={mainImagePreview} 
+                  alt="Main Product Preview" 
+                  boxSize="100px" 
+                  objectFit="cover"
+                  borderRadius="md"
+                />
+                <IconButton
+                  aria-label="Delete image"
+                  icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                  size="xs"
+                  colorScheme="red"
+                  position="absolute"
+                  top="-2"
+                  right="-2"
+                  onClick={() => {
+                    setMainImagePreview("");
+                    setMainImageFile(null);
+                    setFormData(prev => ({ ...prev, imageTsrc: "" }));
+                  }}
+                  width="20px"
+                  height="20px"
+                  minWidth="20px"
+                  borderRadius="full"
+                  bg="red.500"
+                  color="white"
+                  _hover={{
+                    bg: "red.600",
+                    transform: "scale(1.1)",
+                    transition: "all 0.2s"
+                  }}
+                />
+              </Box>
             )}
             <Input
               name="mainImage"
@@ -1563,7 +1633,7 @@ const ProductPost = () => {
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
             <Wrap spacing={2} mb={2}>
-              {additionalImagePreviews.map((preview, index) => (
+              {additionalImagePreviews && additionalImagePreviews.map((preview, index) => (
                 <Box key={index} position="relative">
                   <Image 
                     src={preview} 
@@ -1903,7 +1973,24 @@ const ProductPost = () => {
               <option value="Not Applicable">Not Applicable</option>
             </Select>
           </FormControl>
-
+            <FormControl>
+            <Text mb={2} fontSize="sm" color="gray.600">Supported Powers</Text>
+            <Select
+              name="supportedPowers"
+              value={formData.supportedPowers}
+              onChange={handleChange}
+              size="lg"
+              borderRadius="md"
+              h={inputHeight}
+            >
+              <option value="">Select Supported Powers</option>
+              <option value="Supports All Powers">Supports All Powers</option>
+              <option value="Supports Very High Power">Supports Very High Power</option>
+              <option value="Supports High Power">Supports High Power</option>
+              <option value="Upto Regular Power">Upto Regular Power</option>
+              <option value="Not Applicable">Not Applicable</option>
+            </Select>
+          </FormControl>
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Power Type</Text>
             <Select
@@ -2154,9 +2241,42 @@ const ProductPost = () => {
           </FormControl>
 
           <FormControl isRequired>
-            <Text mb={2} fontSize="sm" color="gray.600">Upload Main Image <Text as="span" color="red.500">*</Text></Text>
+            <Text mb={2} fontSize="sm" color="gray.600">Main Image <Text as="span" color="red.500">*</Text></Text>
             {mainImagePreview && (
-              <Image src={mainImagePreview} alt="Main Product Preview" boxSize="100px" objectFit="cover" mb={2} />
+              <Box position="relative" mb={2}>
+                <Image 
+                  src={mainImagePreview} 
+                  alt="Main Product Preview" 
+                  boxSize="100px" 
+                  objectFit="cover"
+                  borderRadius="md"
+                />
+                <IconButton
+                  aria-label="Delete image"
+                  icon={<Text fontSize="sm" fontWeight="bold">×</Text>}
+                  size="xs"
+                  colorScheme="red"
+                  position="absolute"
+                  top="-2"
+                  right="-2"
+                  onClick={() => {
+                    setMainImagePreview("");
+                    setMainImageFile(null);
+                    setFormData(prev => ({ ...prev, imageTsrc: "" }));
+                  }}
+                  width="20px"
+                  height="20px"
+                  minWidth="20px"
+                  borderRadius="full"
+                  bg="red.500"
+                  color="white"
+                  _hover={{
+                    bg: "red.600",
+                    transform: "scale(1.1)",
+                    transition: "all 0.2s"
+                  }}
+                />
+              </Box>
             )}
             <Input
               name="mainImage"
@@ -2191,7 +2311,7 @@ const ProductPost = () => {
           <FormControl>
             <Text mb={2} fontSize="sm" color="gray.600">Additional Images</Text>
             <Wrap spacing={2} mb={2}>
-              {additionalImagePreviews.map((preview, index) => (
+              {additionalImagePreviews && additionalImagePreviews.map((preview, index) => (
                 <Box key={index} position="relative">
                   <Image 
                     src={preview} 
